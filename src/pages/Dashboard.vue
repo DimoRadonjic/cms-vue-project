@@ -3,6 +3,8 @@ import { usePosts } from "../composable";
 
 const { posts, loading, reFetchPosts, error } = usePosts();
 
+console.log("posts dashboard", posts.value);
+
 const columns = ["id", "title", "description", "createdAt"];
 </script>
 

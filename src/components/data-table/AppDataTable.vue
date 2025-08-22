@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { reactive, ref, watchEffect } from "vue";
+import { reactive, ref, watch, watchEffect } from "vue";
 import type { FilterType } from "../../types/types";
 import { usePosts } from "../../composable";
 import { useAppRouter } from "../../composable/router/useAppRouter";
@@ -52,6 +52,14 @@ const dateFormatter = (value: string) => {
   });
 };
 
+watch(
+  () => props.data,
+  (newData) => {
+    localData.value = [...newData];
+  },
+  { deep: true, immediate: true }
+);
+
 watchEffect(() => {
   if (filterGlobal.global.value) {
     searchPosts(filterGlobal.global.value);
@@ -61,7 +69,7 @@ watchEffect(() => {
 
 <template>
   <DataTableWrapper
-    :data="localData"
+    :data="data"
     :filters="filterGlobal"
     :loading="loading"
     :columns="columns"
