@@ -7,7 +7,7 @@ interface DocumentItem {
   url: string;
 }
 
-const props = defineProps<{
+defineProps<{
   data: DocumentItem[];
 }>();
 

@@ -52,7 +52,7 @@ export const useDocuments = () => {
     }
   };
 
-  const searchPosts = async (query: string) => {
+  const searchPosts = async () => {
     loading.value = true;
     // try {
     //   const res = await apiDocuments.searchPosts(query);

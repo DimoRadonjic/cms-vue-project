@@ -8,7 +8,7 @@ interface ImageItem {
   alt: string;
 }
 
-const props = defineProps<{
+defineProps<{
   data: ImageItem[];
 }>();
 

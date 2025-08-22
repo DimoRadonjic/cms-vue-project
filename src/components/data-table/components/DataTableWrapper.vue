@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, watch } from "vue";
+import { ref } from "vue";
 import type { FilterType } from "../../../types/types";
 import { useToastService } from "../../../composable/toastService/AppToastService";
 
