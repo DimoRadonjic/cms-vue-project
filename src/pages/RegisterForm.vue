@@ -119,7 +119,7 @@ const onFormSubmit = async (e: FormSubmitEvent) => {
         initialValue=""
       />
       <Button
-        type="button"
+        type="submit"
         label="Register"
         pt:root="!text-2xl"
         class="w-fit py-3 rounded-xl bg-gray-200 hover:bg-gray-300 active:bg-gray-400 text-gray-800 font-semibold shadow-md transition-transform duration-300 hover:scale-[1.02] active:scale-95"
