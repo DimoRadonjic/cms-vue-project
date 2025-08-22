@@ -1,0 +1,147 @@
+<script setup lang="ts">
+import { reactive, ref, watchEffect } from "vue";
+import type { FilterType } from "../../types/types";
+import { usePosts } from "../../composable";
+import { useAppRouter } from "../../composable/router/useAppRouter";
+
+const props = withDefaults(
+  defineProps<{
+    data: Array<Record<string, any>>;
+    title: string;
+    loading: boolean;
+    error: boolean;
+    sortable?: boolean;
+    filter?: boolean;
+    columns?: string[];
+    onRefetch?: () => void;
+  }>(),
+  {
+    data: () => [],
+    title: "",
+    loading: true,
+    sortable: true,
+    error: false,
+    filter: true,
+    columns: () => ["id"],
+    onRefetch: () => {},
+  }
+);
+
+const { searchPosts } = usePosts();
+const { navigateTo } = useAppRouter();
+
+const emit = defineEmits(["selectedData"]);
+
+const selectedData = ref();
+const localData = ref([...props.data]);
+
+const filterGlobal = reactive<Record<string, FilterType>>({
+  global: { value: "", matchMode: "contains" },
+});
+
+const onSelectionChange = (selection: any) => {
+  selectedData.value = selection;
+  emit("selectedData", selection);
+};
+
+const dateFormatter = (value: string) => {
+  return new Date(value).toLocaleDateString("en-US", {
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  });
+};
+
+watchEffect(() => {
+  if (filterGlobal.global.value) {
+    searchPosts(filterGlobal.global.value);
+  }
+});
+</script>
+
+<template>
+  <DataTableWrapper
+    :data="localData"
+    :filters="filterGlobal"
+    :loading="loading"
+    :columns="columns"
+    :rows="10"
+    v-model:selection="selectedData"
+    @update:selection="onSelectionChange"
+    :multiple="true"
+  >
+    <template #header>
+      <TableHeader
+        :title
+        :filterGlobal
+        v-model:selectedItem="selectedData"
+        v-model:data="localData"
+        @refetch="onRefetch"
+      />
+    </template>
+
+    <template #loading v-if="loading">
+      <div
+        class="flex place-content-center place-items-center w-full h-full text-3xl"
+      >
+        <ProgressSpinner
+          style="width: 80px; height: 80px"
+          strokeWidth="8"
+          fill="transparent"
+          animationDuration=".5s"
+          aria-label="Custom ProgressSpinner"
+        />
+      </div>
+    </template>
+
+    <template #empty v-if="!data.length && !loading">
+      <div
+        class="flex place-content-center place-items-center w-full h-full text-3xl"
+      >
+        <span>No {{ title }} found</span>
+        <span class="text-5xl">😔</span>
+      </div>
+    </template>
+
+    <template v-if="data.length" class="relative">
+      <div class="w-full h-full absolute bg-black/50 z-10" v-if="loading">
+        <ProgressSpinner
+          style="width: 80px; height: 80px"
+          strokeWidth="8"
+          fill="transparent"
+          animationDuration=".5s"
+          aria-label="Custom ProgressSpinner"
+          class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2"
+        />
+      </div>
+
+      <Column
+        v-for="col in columns"
+        :field="col"
+        :header="col"
+        :sortable
+        :filter
+        :filterField="col"
+        :key="col"
+        class="relative"
+      >
+        <template #body="slotProps" :key="slotProps.data.id">
+          <div v-if="col === 'createdAt'" class="relative">
+            <span>
+              {{ dateFormatter(slotProps.data[col]) }}
+            </span>
+            <div
+              class="flex gap-2 absolute right-0 top-0 hover:cursor-pointer"
+              @click="navigateTo('post-view', { id: slotProps.data.id })"
+            >
+              <button>
+                <i class="pi pi-search"></i>
+              </button>
+            </div>
+          </div>
+          <span v-else>{{ slotProps.data[col] }}</span>
+        </template>
+      </Column>
+    </template>
+  </DataTableWrapper>
+</template>

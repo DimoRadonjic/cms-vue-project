@@ -1,0 +1,84 @@
+import { createApp } from "vue";
+import "./style.css";
+import "primeicons/primeicons.css";
+import App from "./App.vue";
+import Aura from "@primeuix/themes/aura";
+import PrimeVue from "primevue/config";
+import router from "./router/router";
+import { ToastService } from "primevue";
+import pinia from "./store";
+import { definePreset } from "@primeuix/themes";
+
+const MyPreset = definePreset(Aura, {
+  semantic: {
+    colorScheme: {
+      light: {
+        surface: {
+          0: "#f7f7f7",
+          50: "#f0fdf4",
+          100: "#dcfce7",
+          200: "#bbf7d0",
+          300: "{zinc.300}",
+          400: "{zinc.400}",
+          500: "{zinc.500}",
+          600: "{zinc.600}",
+          700: "{zinc.700}",
+          800: "{zinc.800}",
+          900: "{zinc.900}",
+          950: "{zinc.950}",
+
+          primary: "#f7f7f7",
+        },
+      },
+      dark: {
+        surface: {
+          primary: "{zinc.900}",
+        },
+      },
+    },
+  },
+  components: {
+    datatable: {
+      colorScheme: {
+        light: {
+          row: {
+            hoverBackground: "#f0fdf4",
+            selectedBackground: "#dcfce7",
+            stripedBackground: "#f9fafb",
+            selectedColor: "black",
+          },
+        },
+
+        dark: {
+          headerCell: {
+            hoverBackground: "#064e3b",
+          },
+          row: {
+            hoverBackground: "#064e3b",
+            selectedBackground: "#14543c94",
+            stripedBackground: "#14543c94",
+            selectedColor: "white",
+          },
+        },
+      },
+    },
+  },
+});
+const app = createApp(App);
+
+app.use(router);
+
+app.use(ToastService);
+
+app.use(pinia);
+
+app.use(PrimeVue, {
+  theme: {
+    preset: MyPreset,
+
+    options: {
+      darkModeSelector: ".my-app-dark",
+    },
+  },
+});
+app.mount("#app");
