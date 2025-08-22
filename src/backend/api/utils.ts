@@ -1,5 +1,5 @@
 import bcrypt from "bcryptjs";
-import type { LoginProfileData } from "../types/types";
+import type { LoginProfileData } from "../../types/types";
 
 export const baseUrl = import.meta.env.VITE_API_BASE_URL;
 

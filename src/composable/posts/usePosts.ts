@@ -1,6 +1,6 @@
 import { ref, watch } from "vue";
 import type { PostData, StorageData } from "../../types/types";
-import apiPosts from "../../api/posts";
+import apiPosts from "../../backend/api/posts";
 import { useToastService } from "../toastService/AppToastService";
 import { useLocalStorage } from "../localStorage/useLocalStorage";
 

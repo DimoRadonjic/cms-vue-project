@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { zodResolver } from "@primevue/forms/resolvers/zod";
 import { z } from "zod";
-import apiProfiles from "../api/profiles";
+import apiProfiles from "../backend/api/profiles";
 import type { FormSubmitEvent, ProfileData } from "../types/types";
 import { useLocalStorage } from "../composable";
 import { useToastService } from "../composable/toastService/AppToastService";

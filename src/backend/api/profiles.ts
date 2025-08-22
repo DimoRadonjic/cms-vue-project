@@ -1,5 +1,5 @@
 import bcrypt from "bcryptjs";
-import type { LoginProfileData, ProfileData } from "../types/types";
+import type { LoginProfileData, ProfileData } from "../../types/types";
 import api from "./axios";
 import { hashString, createDummyJWT, errorMessage } from "./utils";
 

@@ -1,5 +1,5 @@
 import { ref } from "vue";
-import api from "../../api/axios";
+import api from "../../backend/api/axios";
 import type { ProfileData } from "../../types/types";
 
 export const useProfile = () => {

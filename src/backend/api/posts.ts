@@ -1,4 +1,4 @@
-import type { PostData } from "../types/types";
+import type { PostData } from "../../types/types";
 import api from "./axios";
 
 import { errorMessage } from "./utils";
