@@ -1,20 +1,23 @@
-import { onMounted, ref } from "vue";
+import { ref } from "vue";
+import { useLocalStorage } from "./localStorage/useLocalStorage";
+
+const { getItem } = useLocalStorage();
+
+const theme = ref<boolean | null>(getItem("theme"));
 
 export const useTheme = () => {
-  const theme = ref(false);
+  const { getItem, setItem } = useLocalStorage();
 
-  onMounted(() => {
-    const prefersDark = window.matchMedia("(prefers-color-scheme: dark)");
+  function setTheme() {
+    if (getItem("theme") === null) {
+      const prefersDark = window.matchMedia("(prefers-color-scheme: dark)");
 
-    theme.value = prefersDark.matches ? true : false;
+      theme.value = prefersDark.matches ? true : false;
 
-    prefersDark.addEventListener("change", (e) => {
-      theme.value = e.matches ? true : false;
-    });
-  });
+      setItem("theme", theme.value);
+      return;
+    }
 
-  function switchTheme() {
-    theme.value = !theme.value;
     if (theme.value) {
       document.documentElement.classList.remove("my-app-dark");
 
@@ -25,6 +28,16 @@ export const useTheme = () => {
       document.documentElement.classList.add("my-app-dark");
     }
   }
-  switchTheme();
+
+  function switchTheme() {
+    theme.value = !theme.value;
+
+    setItem("theme", theme.value);
+
+    setTheme();
+  }
+
+  setTheme();
+
   return { theme, switchTheme };
 };

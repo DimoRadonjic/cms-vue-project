@@ -13,6 +13,7 @@
 .my-app-dark {
   @apply bg-gradient-to-br from-[#151d1f] from-70%  to-[#1d6139];
 }
+
 body {
   @apply h-screen w-full bg-blend-screen;
 }

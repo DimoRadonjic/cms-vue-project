@@ -6,7 +6,7 @@ import { useLocalStorage } from "../localStorage/useLocalStorage";
 
 export const usePosts = () => {
   const { showError, showSuccess } = useToastService();
-  const { getItem, watchEffectStorageItem, setItem } = useLocalStorage();
+  const { getItem, setItem } = useLocalStorage();
   const storageData = getItem<StorageData>("data");
 
   const posts = ref<PostData[]>(storageData?.data || []);
@@ -79,11 +79,6 @@ export const usePosts = () => {
       { immediate: false }
     );
   };
-
-  watchEffectStorageItem<StorageData>("data", {
-    dataType: "posts",
-    data: posts.value,
-  });
 
   return {
     posts,

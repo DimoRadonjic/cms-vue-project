@@ -1,5 +1,3 @@
-import { watch } from "vue";
-
 export const useLocalStorage = () => {
   const getItem = <T>(key: string): T | null => {
     const item = localStorage.getItem(key);
@@ -18,20 +16,10 @@ export const useLocalStorage = () => {
     localStorage.clear();
   };
 
-  const watchEffectStorageItem = <T>(key: string, value: T) => {
-    watch(
-      () => value,
-      () => {
-        setItem(key, value);
-      }
-    );
-  };
-
   return {
     getItem,
     setItem,
     removeItem,
     clearStorage,
-    watchEffectStorageItem,
   };
 };
