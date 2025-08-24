@@ -6,7 +6,7 @@ import apiImages from "../../backend/api/images";
 
 export const useGallery = () => {
   const { showError, showSuccess } = useToastService();
-  const { getItem, watchEffectStorageItem, setItem } = useLocalStorage();
+  const { getItem, setItem } = useLocalStorage();
   const storageData = getItem<StorageData>("data");
 
   const data = ref(storageData?.data || []);
@@ -76,11 +76,6 @@ export const useGallery = () => {
       { immediate: false }
     );
   };
-
-  watchEffectStorageItem<StorageData>("data", {
-    dataType: "gallery",
-    data: data.value,
-  });
 
   return {
     data,

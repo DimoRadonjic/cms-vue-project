@@ -6,7 +6,7 @@ import type { StorageData } from "../../types/types";
 
 export const useDocuments = () => {
   const { showError, showSuccess } = useToastService();
-  const { getItem, watchEffectStorageItem, setItem } = useLocalStorage();
+  const { getItem, setItem } = useLocalStorage();
 
   const storageData = getItem<StorageData>("data");
 
@@ -79,11 +79,6 @@ export const useDocuments = () => {
       { immediate: false }
     );
   };
-
-  watchEffectStorageItem<StorageData>("data", {
-    dataType: "documents",
-    data: data.value,
-  });
 
   return {
     data,
