@@ -1,5 +1,5 @@
 import { ref } from "vue";
-import { useSessionStorage } from "./localStorage/useSessionStorage";
+import { useSessionStorage } from "./sessionStorage/useSessionStorage";
 
 const { getItem } = useSessionStorage();
 

@@ -2,7 +2,7 @@ import { ref, watch } from "vue";
 import type { PostData, StorageData } from "../../types/types";
 import apiPosts from "../../axios/api/posts";
 import { useToastService } from "../toastService/AppToastService";
-import { useSessionStorage } from "../localStorage/useSessionStorage";
+import { useSessionStorage } from "../sessionStorage/useSessionStorage";
 
 export const usePosts = () => {
   const { showError, showSuccess } = useToastService();

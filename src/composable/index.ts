@@ -1,5 +1,5 @@
 import { useProfile } from "./profile/useProfile";
-import { useSessionStorage } from "./localStorage/useSessionStorage";
+import { useSessionStorage } from "./sessionStorage/useSessionStorage";
 import { usePosts } from "./posts/usePosts";
 import { useAuth } from "./auth/useAuth";
 import { useTheme } from "./useTheme";

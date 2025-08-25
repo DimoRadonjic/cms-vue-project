@@ -1,4 +1,4 @@
-import { useSessionStorage } from "../localStorage/useSessionStorage";
+import { useSessionStorage } from "../sessionStorage/useSessionStorage";
 import type { LoginProfileData } from "../../types/types";
 import apiProfiles from "../../axios/api/profiles";
 import { useToastService } from "../toastService/AppToastService";

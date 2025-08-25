@@ -1,5 +1,5 @@
 import { ref, watch } from "vue";
-import { useSessionStorage } from "../localStorage/useSessionStorage";
+import { useSessionStorage } from "../sessionStorage/useSessionStorage";
 import { useToastService } from "../toastService/AppToastService";
 import type { StorageData } from "../../types/types";
 import apiImages from "../../axios/api/images";
