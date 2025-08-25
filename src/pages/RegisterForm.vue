@@ -64,13 +64,12 @@ const onFormSubmit = async (e: FormSubmitEvent) => {
         email: values.email,
         password: values.password,
       };
-      const res = await apiProfiles.createProfile(data);
+      const token = await apiProfiles.createProfile(data);
 
-      setItem("token", res);
+      setItem("token", token);
 
       showSuccess("Registration successful.", 3000);
       navigateTo("dashboard");
-      return;
     } catch (error) {
       showError("Registration failed.", 3000);
 
