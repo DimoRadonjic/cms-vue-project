@@ -1,4 +1,4 @@
-import type { PostData } from "../../types/types";
+import type { NewPost, PostData } from "../../types/types";
 import api from "..";
 import { errorMessage } from "../utils";
 import { supabase } from "../../supabase";
@@ -27,9 +27,11 @@ const getPost = async (id: string) => {
   }
 };
 
-const createPost = async (data: PostData) => {
+const createPost = async (data: NewPost) => {
   try {
-    const status = await api.post("/posts", data);
+    // const status = await api.post("/posts", data);
+
+    const { status } = await supabase.from("Posts").insert(data);
 
     return status;
   } catch (error: any) {
