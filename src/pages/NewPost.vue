@@ -6,6 +6,8 @@ import z from "zod";
 import { useToastService } from "../composable/toastService/AppToastService";
 import apiPosts from "../axios/api/posts";
 import type { NewPost } from "../types/types";
+import { useAppRouter } from "../composable/router/useAppRouter";
+import { usePosts } from "../composable";
 
 const initialValues = reactive<NewPost>({
   title: "",
@@ -21,7 +23,11 @@ const initialValues = reactive<NewPost>({
   seo_canonicalUrl: "",
 });
 
-const { showError } = useToastService();
+const { showError, showSuccess } = useToastService();
+
+const { goBack } = useAppRouter();
+
+const { reFetchPosts } = usePosts();
 
 const schema = z.object({
   title: z.string().min(1, {
@@ -70,9 +76,23 @@ const onFormSubmit = async ({ valid, values }: FormSubmitEvent) => {
       .split(",")
       .map((v: any) => Number(v.trim())),
     seo_keywords: values.seo_keywords.split(",").map((v: any) => v.trim()),
+    imageIds: values.seo_keywords.split(",").map((v: any) => v.trim()),
   };
 
-  await apiPosts.createPost(valuesToSend as NewPost);
+  try {
+    const status = await apiPosts.createPost(valuesToSend as NewPost);
+    if (status === 201) {
+      showSuccess("Post created");
+      reFetchPosts();
+      goBack();
+
+      values = initialValues;
+      return;
+    }
+  } catch (error) {
+    showError("Creatiton failed.", 3000);
+    return;
+  }
 };
 </script>
 
@@ -123,6 +143,13 @@ const onFormSubmit = async ({ valid, values }: FormSubmitEvent) => {
             <AppInputArrayField
               placeholder="documentIds"
               fieldName="documentIds"
+              initialValue=""
+              type="text"
+            />
+
+            <AppInputArrayField
+              placeholder="imageIds"
+              fieldName="imageIds"
               initialValue=""
               type="text"
             />

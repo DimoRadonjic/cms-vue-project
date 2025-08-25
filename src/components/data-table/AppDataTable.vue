@@ -65,6 +65,8 @@ watchEffect(() => {
     searchPosts(filterGlobal.global.value);
   }
 });
+
+console.log("localData", localData.value);
 </script>
 
 <template>

@@ -41,6 +41,8 @@ export const usePosts = () => {
   const reFetchPosts = async () => {
     try {
       posts.value = [];
+      setItem("data", { dataType: "posts", data: posts.value });
+
       await fetchPosts();
 
       showSuccess("Posts refreshed successfully");

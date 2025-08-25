@@ -96,6 +96,8 @@ const deleteProduct = (item: any) => {
       scrollable
       scrollHeight="100%"
       :class
+      sortField="createdAt"
+      :sortOrder="-1"
     >
       <template #header>
         <slot name="header" />
