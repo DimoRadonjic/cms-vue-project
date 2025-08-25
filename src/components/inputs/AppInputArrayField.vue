@@ -31,8 +31,6 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from "process";
-
 type InputTypes = "text" | "number";
 
 defineProps<{
