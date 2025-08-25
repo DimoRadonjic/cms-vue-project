@@ -3,13 +3,13 @@ import { zodResolver } from "@primevue/forms/resolvers/zod";
 import { z } from "zod";
 import apiProfiles from "../axios/api/profiles";
 import type { FormSubmitEvent, ProfileData } from "../types/types";
-import { useLocalStorage } from "../composable";
+import { useSessionStorage } from "../composable";
 import { useToastService } from "../composable/toastService/AppToastService";
 import { useAppRouter } from "../composable/router/useAppRouter";
 
 const { showError, showSuccess } = useToastService();
 const { navigateTo } = useAppRouter();
-const { setItem } = useLocalStorage();
+const { setItem } = useSessionStorage();
 
 const initialValues = {
   username: "",

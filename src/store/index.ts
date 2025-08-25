@@ -1,13 +1,13 @@
 import { createPinia, defineStore } from "pinia";
 import { ref } from "vue";
 import type { ProfileData } from "../types/types";
-import { useLocalStorage } from "../composable";
+import { useSessionStorage } from "../composable";
 
 const pinia = createPinia();
 
 export const useProfileStore = defineStore("profile", () => {
   const user = ref<ProfileData>({ password: "", username: "", email: "" });
-  const { setItem, getItem, removeItem } = useLocalStorage();
+  const { setItem, getItem, removeItem } = useSessionStorage();
 
   function setUser(newUser: ProfileData | null): void {
     if (newUser) {

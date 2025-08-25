@@ -1,7 +1,7 @@
 import { useProfile } from "./profile/useProfile";
-import { useLocalStorage } from "./localStorage/useLocalStorage";
+import { useSessionStorage } from "./localStorage/useSessionStorage";
 import { usePosts } from "./posts/usePosts";
 import { useAuth } from "./auth/useAuth";
 import { useTheme } from "./useTheme";
 
-export { useProfile, useLocalStorage, usePosts, useAuth, useTheme };
+export { useProfile, useSessionStorage, usePosts, useAuth, useTheme };

@@ -1,12 +1,12 @@
 import { ref, watch } from "vue";
-import { useLocalStorage } from "../localStorage/useLocalStorage";
+import { useSessionStorage } from "../localStorage/useSessionStorage";
 import { useToastService } from "../toastService/AppToastService";
 import apiDocuments from "../../axios/api/documents";
 import type { StorageData } from "../../types/types";
 
 export const useDocuments = () => {
   const { showError, showSuccess } = useToastService();
-  const { getItem, setItem } = useLocalStorage();
+  const { getItem, setItem } = useSessionStorage();
 
   const storageData = getItem<StorageData>("data");
 

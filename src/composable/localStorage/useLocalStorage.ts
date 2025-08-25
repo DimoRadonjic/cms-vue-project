@@ -1,19 +1,19 @@
-export const useLocalStorage = () => {
+export const useSessionStorage = () => {
   const getItem = <T>(key: string): T | null => {
-    const item = localStorage.getItem(key);
+    const item = sessionStorage.getItem(key);
     return item ? JSON.parse(item) : null;
   };
 
   const setItem = <T>(key: string, value: T): void => {
-    localStorage.setItem(key, JSON.stringify(value));
+    sessionStorage.setItem(key, JSON.stringify(value));
   };
 
   const removeItem = (key: string): void => {
-    localStorage.removeItem(key);
+    sessionStorage.removeItem(key);
   };
 
   const clearStorage = () => {
-    localStorage.clear();
+    sessionStorage.clear();
   };
 
   return {

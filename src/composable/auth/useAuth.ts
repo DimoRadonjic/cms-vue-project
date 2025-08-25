@@ -1,4 +1,4 @@
-import { useLocalStorage } from "../localStorage/useLocalStorage";
+import { useSessionStorage } from "../localStorage/useSessionStorage";
 import type { LoginProfileData } from "../../types/types";
 import apiProfiles from "../../axios/api/profiles";
 import { useToastService } from "../toastService/AppToastService";
@@ -6,7 +6,7 @@ import { useAppRouter } from "../router/useAppRouter";
 import { useProfileStore } from "../../store";
 import { ref } from "vue";
 
-const { getItem, clearStorage, setItem } = useLocalStorage();
+const { getItem, clearStorage, setItem } = useSessionStorage();
 
 const isAuth = ref<boolean>(!!getItem("token"));
 

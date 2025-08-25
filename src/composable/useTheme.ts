@@ -1,12 +1,12 @@
 import { ref } from "vue";
-import { useLocalStorage } from "./localStorage/useLocalStorage";
+import { useSessionStorage } from "./localStorage/useSessionStorage";
 
-const { getItem } = useLocalStorage();
+const { getItem } = useSessionStorage();
 
 const theme = ref<boolean | null>(getItem("theme"));
 
 export const useTheme = () => {
-  const { getItem, setItem } = useLocalStorage();
+  const { getItem, setItem } = useSessionStorage();
 
   function setTheme() {
     if (getItem("theme") === null) {
