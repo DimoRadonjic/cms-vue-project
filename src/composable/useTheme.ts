@@ -8,25 +8,38 @@ const theme = ref<boolean | null>(getItem("theme"));
 export const useTheme = () => {
   const { getItem, setItem } = useSessionStorage();
 
+  function setLigtTheme() {
+    document.documentElement.classList.remove("my-app-dark");
+
+    document.documentElement.classList.add("my-app-light");
+  }
+
+  function setDarkTheme() {
+    document.documentElement.classList.remove("my-app-light");
+
+    document.documentElement.classList.add("my-app-dark");
+  }
+
+  function change() {
+    if (theme.value) {
+      setLigtTheme();
+    } else {
+      setDarkTheme();
+    }
+  }
+
   function setTheme() {
+    console.log("get", getItem("theme"));
+    console.log("tes", getItem("theme") === null);
     if (getItem("theme") === null) {
       const prefersDark = window.matchMedia("(prefers-color-scheme: dark)");
 
-      theme.value = prefersDark.matches ? true : false;
+      theme.value = !prefersDark.matches ? true : false;
 
       setItem("theme", theme.value);
-      return;
+      change();
     }
-
-    if (theme.value) {
-      document.documentElement.classList.remove("my-app-dark");
-
-      document.documentElement.classList.add("my-app-light");
-    } else {
-      document.documentElement.classList.remove("my-app-light");
-
-      document.documentElement.classList.add("my-app-dark");
-    }
+    change();
   }
 
   function switchTheme() {
