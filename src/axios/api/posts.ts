@@ -1,11 +1,15 @@
 import type { PostData } from "../../types/types";
-import api from "./axios";
-
-import { errorMessage } from "./utils";
+import api from "..";
+import { errorMessage } from "../utils";
+import { supabase } from "../../supabase";
 
 const getPosts = async () => {
   try {
-    const data = await api.get("/posts");
+    // const data = await api.get("/api/posts");
+    const { data } = await supabase.from("Posts").select();
+
+    // vercel func not working , code 500
+    // const data = await api.get("/api/posts");
 
     return data;
   } catch (error: any) {

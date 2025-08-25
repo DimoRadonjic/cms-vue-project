@@ -1,6 +1,6 @@
 import { ref, watch } from "vue";
 import type { PostData, StorageData } from "../../types/types";
-import apiPosts from "../../backend/api/posts";
+import apiPosts from "../../axios/api/posts";
 import { useToastService } from "../toastService/AppToastService";
 import { useLocalStorage } from "../localStorage/useLocalStorage";
 
@@ -18,11 +18,11 @@ export const usePosts = () => {
     try {
       const res = await apiPosts.getPosts();
 
-      setTimeout(() => {
+      if (res) {
         posts.value = res;
         setItem("data", { dataType: "posts", data: posts.value });
         loading.value = false;
-      }, 10000);
+      }
     } catch (apiError) {
       console.error("Failed to fetch posts:", apiError);
       showError("Failed to fetch posts. Please try again later.", apiError);

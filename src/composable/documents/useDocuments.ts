@@ -1,7 +1,7 @@
 import { ref, watch } from "vue";
 import { useLocalStorage } from "../localStorage/useLocalStorage";
 import { useToastService } from "../toastService/AppToastService";
-import apiDocuments from "../../backend/api/documents";
+import apiDocuments from "../../axios/api/documents";
 import type { StorageData } from "../../types/types";
 
 export const useDocuments = () => {

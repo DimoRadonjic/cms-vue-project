@@ -1,6 +1,6 @@
 import { ref } from "vue";
 import type { PostData } from "../../types/types";
-import apiPosts from "../../backend/api/posts";
+import apiPosts from "../../axios/api/posts";
 
 export const usePost = (id: string) => {
   const data = ref<Array<PostData>>();

@@ -1,5 +1,5 @@
 import bcrypt from "bcryptjs";
-import type { LoginProfileData } from "../../types/types";
+import type { LoginProfileData } from "../types/types";
 
 export const baseUrl = import.meta.env.VITE_API_BASE_URL;
 
@@ -9,7 +9,7 @@ export const errorMessage = (error: any, label: string) => {
   if (error instanceof Error) {
     throw new Error(label + ": " + error.message);
   } else {
-    throw new Error(label + ": " + "Unknown error");
+    throw new Error(label + ": " + error.message);
   }
 };
 export const salt = bcrypt.genSaltSync(10);

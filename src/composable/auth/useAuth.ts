@@ -1,6 +1,6 @@
 import { useLocalStorage } from "../localStorage/useLocalStorage";
 import type { LoginProfileData } from "../../types/types";
-import apiProfiles from "../../backend/api/profiles";
+import apiProfiles from "../../axios/api/profiles";
 import { useToastService } from "../toastService/AppToastService";
 import { useAppRouter } from "../router/useAppRouter";
 import { useProfileStore } from "../../store";

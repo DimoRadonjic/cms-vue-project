@@ -1,5 +1,5 @@
-import api from "./axios";
-import { errorMessage } from "./utils";
+import api from "..";
+import { errorMessage } from "../utils";
 
 const getDocuments = async () => {
   try {

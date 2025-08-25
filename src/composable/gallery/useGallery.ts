@@ -2,7 +2,7 @@ import { ref, watch } from "vue";
 import { useLocalStorage } from "../localStorage/useLocalStorage";
 import { useToastService } from "../toastService/AppToastService";
 import type { StorageData } from "../../types/types";
-import apiImages from "../../backend/api/images";
+import apiImages from "../../axios/api/images";
 
 export const useGallery = () => {
   const { showError, showSuccess } = useToastService();

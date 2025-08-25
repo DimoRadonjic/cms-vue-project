@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { zodResolver } from "@primevue/forms/resolvers/zod";
 import { z } from "zod";
-import apiProfiles from "../backend/api/profiles";
+import apiProfiles from "../axios/api/profiles";
 import type { FormSubmitEvent, ProfileData } from "../types/types";
 import { useLocalStorage } from "../composable";
 import { useToastService } from "../composable/toastService/AppToastService";
@@ -69,14 +69,15 @@ const onFormSubmit = async (e: FormSubmitEvent) => {
       setItem("token", res);
 
       showSuccess("Registration successful.", 3000);
-      navigateTo("/dashboard");
+      navigateTo("dashboard");
+      return;
     } catch (error) {
       showError("Registration failed.", 3000);
 
       return;
     }
   } else {
-    showError("Registration failed.", 3000);
+    showError("Registration is invalid.", 3000);
   }
 };
 </script>
