@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import apiPosts from "../../../axios/api/posts";
 import { useAppRouter } from "../../../composable/router/useAppRouter";
 import type { FilterType, PostData } from "../../../types/types";
 
@@ -20,15 +21,24 @@ const props = withDefaults(
 
 const emit = defineEmits(["refetch", "update:data", "update:selectedItem"]);
 const { navigateTo } = useAppRouter();
-const handleDeletion = () => {
-  const { selectedItem, data } = props;
+
+const handleDeletion = async () => {
+  const { selectedItem } = props;
+  let newData;
 
   if (!selectedItem) return;
 
-  const newData = data.filter((item) => !selectedItem?.includes(item));
+  const ids: string[] = selectedItem.map((item) => item.id);
 
-  emit("update:data", newData);
+  if (selectedItem.length === 1) {
+    newData = await apiPosts.deletePost(ids[0]);
+    console.log("newData", newData);
+  } else {
+    newData = await apiPosts.deletePosts(ids);
+  }
+
   emit("update:selectedItem", null);
+  emit("refetch");
 };
 
 const handleExport = (posts: PostData[]) => {

@@ -39,9 +39,23 @@ const createPost = async (data: PostData) => {
 
 const deletePost = async (id: string) => {
   try {
-    const status = await api.delete("/post");
+    // const status = await api.delete("/post");
 
-    return status;
+    const { status, data } = await supabase.from("Posts").delete().eq("id", id);
+
+    return { status, data };
+  } catch (error: any) {
+    errorMessage(`Failed to delete post with id: ${id}`, error);
+  }
+};
+
+const deletePosts = async (id: string[]) => {
+  try {
+    // const status = await api.delete("/post");
+
+    const { status, data } = await supabase.from("Posts").delete().in("id", id);
+
+    return { status, data };
   } catch (error: any) {
     errorMessage(`Failed to delete post with id: ${id}`, error);
   }
@@ -74,6 +88,7 @@ const apiPosts = {
   updatePost,
   getPost,
   searchPosts,
+  deletePosts,
 };
 
 export default apiPosts;
