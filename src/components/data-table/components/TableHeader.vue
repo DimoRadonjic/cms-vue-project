@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { useTemplateRef, watchEffect } from "vue";
 import apiPosts from "../../../axios/api/posts";
 import { useAppRouter } from "../../../composable/router/useAppRouter";
 import type { FilterType, PostData } from "../../../types/types";
@@ -87,6 +88,22 @@ const handleExport = (posts: PostData[]) => {
   link.click();
   URL.revokeObjectURL(url);
 };
+
+import { ref } from "vue";
+const searchBar = ref<HTMLInputElement | null>(null);
+
+const expandSearchBar = () => {
+  if (searchBar.value) {
+    searchBar.value.style.width = "300px";
+    searchBar.value.focus();
+  }
+};
+
+watchEffect(() => {
+  if (searchBar) {
+    console.log("searchBar.value:", searchBar.value?.style);
+  }
+});
 </script>
 
 <template>
@@ -95,42 +112,46 @@ const handleExport = (posts: PostData[]) => {
     <div class="flex place-content-center place-items-center gap-x-2.5">
       <Toolbar class="border-none">
         <template #start>
-          <div class="flex gap-x-4">
+          <div class="flex flex-wrap gap-4">
             <IconField>
               <InputIcon>
-                <i class="pi pi-search" />
+                <i class="pi pi-search" @click="expandSearchBar" />
               </InputIcon>
               <InputText
                 v-model="filterGlobal['global'].value"
                 placeholder="Keyword Search"
+                ref="searchBar"
+                class="search-input"
+                pt:root="w-full"
               />
             </IconField>
-            <Button
-              label="New"
-              icon="pi pi-plus"
-              class="mr-2"
-              @click="navigateTo('new-post')"
-            />
+            <div class="flex flex-wrap gap-4">
+              <Button
+                label="New"
+                icon="pi pi-plus"
+                class="mr-2"
+                @click="navigateTo('new-post')"
+              />
 
-            <Button
-              :label="
-                selectedItem
-                  ? selectedItem.length > 1
-                    ? selectedItem.length + ' items to ' + 'delete'
-                    : 'Delete a item '
-                  : 'Delete'
-              "
-              icon="pi pi-trash"
-              severity="danger"
-              variant="outlined"
-              :disabled="!selectedItem"
-              @click="handleDeletion()"
-            />
+              <Button
+                :label="
+                  selectedItem
+                    ? selectedItem.length > 1
+                      ? selectedItem.length + ' items to ' + 'delete'
+                      : 'Delete a item '
+                    : 'Delete'
+                "
+                icon="pi pi-trash"
+                severity="danger"
+                variant="outlined"
+                :disabled="!selectedItem"
+                @click="handleDeletion()"
+              />
+            </div>
           </div>
         </template>
-
-        <template #end>
-          <div class="flex gap-x-4">
+        <template #center>
+          <div class="flex flex-wrap w-full gap-x-4">
             <Button
               label="Export"
               icon="pi pi-upload"

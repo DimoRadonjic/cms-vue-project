@@ -35,6 +35,7 @@ export const useAuth = () => {
         isAuth.value = true;
 
         navigateTo("dashboard");
+        return;
       }
     } catch (error) {
       showError(

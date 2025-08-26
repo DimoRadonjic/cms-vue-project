@@ -1,5 +1,7 @@
 <script setup lang="ts">
 import { ref } from "vue";
+import AppSimpleTableHeader from "../AppSimpleTableHeader.vue";
+import AppDocumentCard from "./AppDocumentCard.vue";
 
 interface DocumentItem {
   id: string;
@@ -26,51 +28,16 @@ const addSelectedDocument = (document: any) => {
 
 <template>
   <div class="w-full space-y-10">
+    <AppSimpleTableHeader :itemSelected="documentsSelected" title="Documents" />
     <div
-      class="flex w-full place-items-center place-content-center gap-6 relative"
+      class="grid grid-cols-1 px-6 md:px-4 w-full md:grid-cols-4 gap-7 place-content-center place-items-center"
     >
-      <h1 class="text-4xl font-bold">Documents</h1>
-      <p class="text-2xl font-bold absolute bottom-0 right-0">
-        Documnets Selected : <span>{{ documentsSelected.length }}</span>
-        <FileUpload
-          mode="basic"
-          accept="image/*"
-          :maxFileSize="1000000"
-          label="Import"
-          customUpload
-          chooseLabel="Import"
-          class="mr-2"
-          auto
-          :chooseButtonProps="{ severity: 'secondary' }"
+      <div class="w-full" v-for="document in data" :key="document.id">
+        <AppDocumentCard
+          :addSelectedDocument="addSelectedDocument"
+          :document="document"
+          :documentsSelected="documentsSelected"
         />
-      </p>
-    </div>
-    <div class="grid grid-cols-4 gap-7 place-content-center">
-      <div v-for="document in data" :key="document.id">
-        <div
-          class="flex flex-col gap-6 rounded-xl overflow-hidden pb-3 text-center bg-primary"
-          @click="addSelectedDocument(document)"
-        >
-          <div class="relative">
-            <iframe
-              :src="document.url"
-              style="width: 100%; height: 100%"
-              frameborder="0"
-            ></iframe>
-
-            <div class="absolute top-0 right-4 scale-150">
-              <input
-                type="checkbox"
-                name=""
-                id=""
-                :checked="documentsSelected.includes(document)"
-              />
-            </div>
-          </div>
-          <div>
-            {{ document.title }}
-          </div>
-        </div>
       </div>
     </div>
   </div>

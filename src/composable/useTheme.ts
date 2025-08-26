@@ -10,13 +10,11 @@ export const useTheme = () => {
 
   function setLigtTheme() {
     document.documentElement.classList.remove("my-app-dark");
-
     document.documentElement.classList.add("my-app-light");
   }
 
   function setDarkTheme() {
     document.documentElement.classList.remove("my-app-light");
-
     document.documentElement.classList.add("my-app-dark");
   }
 
@@ -29,8 +27,6 @@ export const useTheme = () => {
   }
 
   function setTheme() {
-    console.log("get", getItem("theme"));
-    console.log("tes", getItem("theme") === null);
     if (getItem("theme") === null) {
       const prefersDark = window.matchMedia("(prefers-color-scheme: dark)");
 

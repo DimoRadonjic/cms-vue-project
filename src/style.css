@@ -3,23 +3,27 @@
 
 :root {
   --dark-background: #151d1f;
-  --light-background: #fafafa;
+  --light-background: #cac4c4;
 }
 
 .my-app-light {
-  @apply bg-gradient-to-br from-green-100 via-[#efeeee] to-green-200;
+  @apply bg-gradient-to-br from-green-100 via-[#efeeee] to-green-200 h-fit w-full;
 }
 
 .my-app-dark {
-  @apply bg-gradient-to-br from-[#151d1f] from-70%  to-[#1d6139];
+  @apply bg-gradient-to-br from-[#151d1f] from-70%  to-[#1d6139] h-fit w-full;
 }
 
 body {
-  @apply h-screen w-full bg-blend-screen;
+  @apply min-h-screen w-full bg-blend-screen;
 }
 
 #app {
-  @apply h-full w-full;
+  @apply h-fit w-full min-h-screen;
+}
+
+html {
+  @apply scroll-smooth h-fit min-h-screen;
 }
 
 .no-radius {
@@ -35,4 +39,8 @@ h2,
 h3,
 h4 {
   color: var(--p-surface-0);
+}
+
+.search-input {
+  @apply w-full transition-all duration-300 ease-in-out;
 }

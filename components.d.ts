@@ -9,12 +9,16 @@ export {}
 declare module 'vue' {
   export interface GlobalComponents {
     AppDataTable: typeof import('./src/components/data-table/AppDataTable.vue')['default']
+    AppDocumentCard: typeof import('./src/components/documents-table/AppDocumentCard.vue')['default']
     AppDocumentsTable: typeof import('./src/components/documents-table/AppDocumentsTable.vue')['default']
+    AppImageCard: typeof import('./src/components/image-table/AppImageCard.vue')['default']
     AppImageTable: typeof import('./src/components/image-table/AppImageTable.vue')['default']
+    AppImageTableHeader: typeof import('./src/components/image-table/AppImageTableHeader.vue')['default']
     AppInputArrayField: typeof import('./src/components/inputs/AppInputArrayField.vue')['default']
     AppInputPasswordField: typeof import('./src/components/inputs/AppInputPasswordField.vue')['default']
     AppInputTextField: typeof import('./src/components/inputs/AppInputTextField.vue')['default']
     AppSidebar: typeof import('./src/components/AppSidebar.vue')['default']
+    AppSimpleTableHeader: typeof import('./src/components/AppSimpleTableHeader.vue')['default']
     AppTextAreaField: typeof import('./src/components/inputs/AppTextAreaField.vue')['default']
     AppTopbar: typeof import('./src/components/topbar/AppTopbar.vue')['default']
     Button: typeof import('primevue/button')['default']

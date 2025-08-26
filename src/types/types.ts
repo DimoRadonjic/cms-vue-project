@@ -25,6 +25,13 @@ type PostData = {
   };
 };
 
+export type ImageItem = {
+  id: string;
+  title: string;
+  url: string;
+  alt: string;
+};
+
 export type NewPost = {
   title: string;
   mainImageId: string;

@@ -32,9 +32,27 @@ const protectedRoutes: RouteRecordRaw[] = [
       },
 
       {
+        path: "post/:id",
+        name: "post-view",
+        component: () => import("../pages/PostDetail.vue"),
+      },
+
+      {
         path: "gallery",
         name: "gallery",
         component: () => import("../pages/Gallery.vue"),
+      },
+
+      {
+        path: "gallery/:id",
+        name: "image-view",
+        component: () => import("../pages/PostDetail.vue"),
+      },
+
+      {
+        path: "new-image",
+        name: "new-image",
+        component: () => import("../pages/NewPost.vue"),
       },
 
       {
@@ -44,21 +62,15 @@ const protectedRoutes: RouteRecordRaw[] = [
       },
 
       {
-        path: "profile",
-        name: "profile",
-        component: () => import("../pages/ProfileDetail.vue"),
-      },
-
-      {
         path: "document/:id",
         name: "document-view",
         component: () => import("../pages/DocumentViewer.vue"),
       },
 
       {
-        path: "post/:id",
-        name: "post-view",
-        component: () => import("../pages/PostDetail.vue"),
+        path: "profile",
+        name: "profile",
+        component: () => import("../pages/ProfileDetail.vue"),
       },
     ],
   },

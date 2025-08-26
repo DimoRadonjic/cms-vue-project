@@ -7,7 +7,7 @@ reRouteAuth();
 </script>
 
 <template>
-  <div class="pb-11 w-full">
+  <div class="w-full h-full pb-11">
     <router-view />
   </div>
 </template>
