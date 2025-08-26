@@ -1,3 +1,21 @@
+<script setup lang="ts">
+import { ref } from "vue";
+import { useProfileStore } from "../store";
+import type { ProfileData } from "../types/types";
+import { Form } from "@primevue/forms";
+import { AppInputTextField } from "../components/inputs";
+
+const { getUser } = useProfileStore();
+
+const user: ProfileData | null = getUser();
+
+const editing = ref(false);
+
+const initialValue = ref<ProfileData>(
+  user ? { ...user } : { username: "", password: "", email: "" }
+);
+</script>
+
 <template>
   <div class="flex place-content-center place-items-center h-full w-full">
     <div
@@ -88,21 +106,3 @@
     </div>
   </div>
 </template>
-
-<script setup lang="ts">
-import { ref } from "vue";
-import { useProfileStore } from "../store";
-import type { ProfileData } from "../types/types";
-import { Form } from "@primevue/forms";
-import { AppInputTextField } from "../components/inputs";
-
-const { getUser } = useProfileStore();
-
-const user: ProfileData | null = getUser();
-
-const editing = ref(false);
-
-const initialValue = ref<ProfileData>(
-  user ? { ...user } : { username: "", password: "", email: "" }
-);
-</script>

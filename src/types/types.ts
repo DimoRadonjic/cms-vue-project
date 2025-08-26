@@ -32,6 +32,12 @@ export type ImageItem = {
   alt: string;
 };
 
+export type DocumentItem = {
+  id: string;
+  title: string;
+  url: string;
+};
+
 export type NewPost = {
   title: string;
   mainImageId: string;
