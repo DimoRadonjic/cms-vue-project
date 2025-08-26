@@ -11,9 +11,14 @@ export const useAppRouter = () => {
     router.back();
   };
 
+  const getRouteID = (): string => {
+    return router.currentRoute.value.params.id as string;
+  };
+
   return {
     navigateTo,
     goBack,
     router,
+    getRouteID,
   };
 };

@@ -16,13 +16,11 @@ type PostData = {
   description: string;
   documentIds: string[];
   authorUsername: string;
-  seo: {
-    slug: string;
-    metaTitle: string;
-    metaDescription: string;
-    keywords: Array<string>;
-    canonicalUrl: string;
-  };
+  seo_slug: string;
+  seo_metaTitle: string;
+  seo_metaDescription: string;
+  seo_keywords: Array<string>;
+  seo_canonicalUrl: string;
 };
 
 export type ImageItem = {

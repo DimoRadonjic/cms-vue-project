@@ -70,6 +70,11 @@ export const usePosts = () => {
     }
   };
 
+  const getPostById = async (id: string): Promise<PostData | undefined> => {
+    const post = await apiPosts.getPost(id);
+    return post ?? undefined;
+  };
+
   const onFetched = (callback: (data: PostData[]) => void) => {
     watch(
       posts,
@@ -90,5 +95,6 @@ export const usePosts = () => {
     error,
     onFetched,
     searchPosts,
+    getPostById,
   };
 };

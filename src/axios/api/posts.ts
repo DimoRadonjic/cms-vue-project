@@ -17,9 +17,15 @@ const getPosts = async () => {
   }
 };
 
-const getPost = async (id: string) => {
+const getPost = async (id: string): Promise<PostData | undefined> => {
   try {
-    const data = await api.get(`/post/${id}`);
+    // const data = await api.get(`/post/${id}`);
+
+    const { data } = await supabase
+      .from("Posts")
+      .select()
+      .eq("id", id)
+      .single();
 
     return data;
   } catch (error: any) {
@@ -76,7 +82,12 @@ const updatePost = async (data: PostData) => {
 
 const searchPosts = async (query: string) => {
   try {
-    const data = await api.get(`/posts?search=${query}`);
+    // const data = await api.get(`/posts?search=${query}`);
+
+    const { data } = await supabase
+      .from("Posts")
+      .select()
+      .ilike("title", `%${query}%`);
     return data;
   } catch (error: any) {
     errorMessage("Failed to search posts", error);

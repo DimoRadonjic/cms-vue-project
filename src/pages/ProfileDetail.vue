@@ -95,13 +95,21 @@ const initialValue = ref<ProfileData>(
         >
           Edit Profile
         </Button>
-        <Button
-          v-else
-          @click="editing = false"
-          class="bg-secondary px-4 py-2 font-semibold"
-        >
-          Save Changes
-        </Button>
+        <div class="flex" v-else>
+          <Button
+            @click="editing = false"
+            class="bg-secondary px-4 py-2 font-semibold"
+          >
+            Save Changes
+          </Button>
+
+          <Button
+            @click="editing = false"
+            class="bg-secondary px-4 py-2 font-semibold"
+          >
+            Cancel
+          </Button>
+        </div>
       </div>
     </div>
   </div>
