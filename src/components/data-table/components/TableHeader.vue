@@ -59,9 +59,9 @@ const handleExport = (posts: PostData[]) => {
     mainImageId: post.mainImageId,
     imageCount: post.imageIds.length,
     documentCount: post.documentIds.length,
-    slug: post.seo.slug,
-    metaTitle: post.seo.metaTitle,
-    keywords: post.seo.keywords.join(", "),
+    slug: post.seo_slug,
+    metaTitle: post.seo_metaTitle,
+    keywords: post.seo_keywords.join(", "),
   }));
 
   const headers = Object.keys(csvData[0]);
