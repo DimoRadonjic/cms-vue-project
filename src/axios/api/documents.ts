@@ -1,9 +1,10 @@
-import api from "..";
+import { supabase } from "../../supabase";
 import { errorMessage } from "../utils";
 
 const getDocuments = async () => {
   try {
-    const data = await api.get("/documents");
+    // const data = await api.get("/documents");
+    const { data } = await supabase.from("Documents").select("*");
 
     return data;
   } catch (error: any) {
