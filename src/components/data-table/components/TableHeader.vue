@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { useTemplateRef, watchEffect } from "vue";
+import { watchEffect } from "vue";
 import apiPosts from "../../../axios/api/posts";
 import { useAppRouter } from "../../../composable/router/useAppRouter";
 import type { FilterType, PostData } from "../../../types/types";
