@@ -13,7 +13,7 @@ const getAllPosts = async () => {
 };
 
 const getPostById = async (id: number) => {
-  const { data, error } = await supabase
+  const { data, error, status } = await supabase
     .from(table)
     .select("*")
     .eq("id", id)
@@ -21,7 +21,10 @@ const getPostById = async (id: number) => {
   if (error) {
     throw new Error(error.message);
   }
-  return data;
+
+  console.log("supabase data", data);
+
+  return { data, status };
 };
 
 const deletePostById = async (id: number) => {

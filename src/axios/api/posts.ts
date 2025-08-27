@@ -1,5 +1,4 @@
 import type { PostData } from "../../types/types";
-import api from "..";
 import { errorMessage } from "../utils";
 import { supabase } from "../../supabase";
 import { tablePosts } from "../../supabase/api/tablePosts";
@@ -23,6 +22,8 @@ const getPost = async (id: string): Promise<PostData | undefined> => {
     // const data = await api.get(`/post/${id}`);
 
     const { data } = await tablePosts.getPostById(Number(id));
+
+    console.log("axios data", data);
 
     return data;
   } catch (error: any) {
@@ -74,6 +75,8 @@ const deletePosts = async (id: string[]) => {
 
 const updatePost = async (data: PostData) => {
   const { id } = data;
+  console.log("updatePost id", id);
+  console.log("updatePost number id", Number(id));
   try {
     // const status = await api.put("/post", data);
 

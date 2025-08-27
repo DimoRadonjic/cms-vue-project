@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { FormSubmitEvent } from "@primevue/forms";
 import { zodResolver } from "@primevue/forms/resolvers/zod";
-import { onMounted, ref } from "vue";
+import { computed, ref, watchEffect } from "vue";
 import z from "zod";
 import { useToastService } from "../composable/toastService/AppToastService";
 import apiPosts from "../axios/api/posts";
@@ -17,13 +17,28 @@ const postId = getRouteID();
 
 const { reFetchPosts, getPostById } = usePosts();
 
-const initialValues = ref();
+const basic = {
+  title: "",
+  mainImageId: "",
+  description: "",
+  authorUsername: "",
+  documentIds: [],
+  imageIds: [],
+  seo_slug: "",
+  seo_metaTitle: "",
+  seo_metaDescription: "",
+  seo_keywords: [],
+  seo_canonicalUrl: "",
+};
 
-onMounted(async () => {
+const postDetail = ref<PostData>();
+const initialValues = computed(() => postDetail.value ?? basic);
+const editingPost = ref(false);
+
+watchEffect(async () => {
   try {
     const post = await getPostById(postId);
-    console.log(post);
-    initialValues.value = post;
+    postDetail.value = post;
   } catch (error) {
     showError("Failed to load post data", 3000);
   }
@@ -31,71 +46,66 @@ onMounted(async () => {
 
 const schema = z.object({
   title: z.string().min(1, {
-    message: "Username is required.",
+    message: "title is required.",
   }),
   mainImageId: z.string().min(1, {
-    message: "Password is required.",
+    message: "mainImageId is required.",
   }),
   description: z.string().min(1, {
-    message: "Password is required.",
+    message: "description is required.",
   }),
   authorUsername: z.string().min(1, {
-    message: "Password is required.",
+    message: "authorUsername is required.",
   }),
   documentIds: z.string().min(1, {
-    message: "Password is required.",
+    message: "documentIds is required.",
   }),
   seo_slug: z.string().min(1, {
-    message: "Password is required.",
+    message: "seo_slug is required.",
   }),
   seo_metaTitle: z.string().min(1, {
-    message: "Password is required.",
+    message: "seo_metaTitle is required.",
   }),
   seo_metaDescription: z.string().min(1, {
-    message: "Password is required.",
+    message: "seo_metaDescription is required.",
   }),
   seo_keywords: z.string().min(1, {
-    message: "Password is required.",
+    message: "seo_keywords is required.",
   }),
   seo_canonicalUrl: z.string().min(1, {
-    message: "Password is required.",
+    message: "seo_canonicalUrl is required.",
   }),
 });
 
-const resolver = zodResolver(schema);
-
-const onFormSubmit = async ({ valid, values }: FormSubmitEvent) => {
-  if (!valid) {
-    showError("Creatiton failed.", 3000);
-    return;
-  }
-
+const onFormSubmit = async ({ values }: FormSubmitEvent) => {
   const valuesToSend: PostData = {
     ...(values as PostData),
+    id: postId,
     documentIds: values.documentIds
-      .split(",")
-      .map((v: any) => Number(v.trim())),
-    seo_keywords: values.seo_keywords.split(",").map((v: any) => v.trim()),
-    imageIds: values.seo_keywords.split(",").map((v: any) => v.trim()),
+      ? values.documentIds.split(",").map((v: any) => Number(v.trim()))
+      : [],
+    seo_keywords: values.seo_keywords
+      ? values.seo_keywords.split(",").map((v: any) => v.trim())
+      : [],
+    imageIds: values.imageIds
+      ? values.imageIds.split(",").map((v: any) => v.trim())
+      : [],
   };
-
   try {
-    const status = await apiPosts.createPost(valuesToSend as PostData);
-    if (status === 201) {
-      showSuccess("Post created");
-      reFetchPosts();
-      goBack();
+    await apiPosts.updatePost(valuesToSend);
+    showSuccess("Post edited successfully!");
+    reFetchPosts();
+    goBack();
 
-      values = initialValues;
-      return;
-    }
-  } catch (error) {
-    showError("Creatiton failed.", 3000);
+    values = initialValues;
     return;
+  } catch (error) {
+    showError("Edit failed.", 3000);
+    return;
+  } finally {
+    editingPost.value = false;
   }
 };
-
-const editingPost = ref(false);
 </script>
 
 <template>
@@ -107,14 +117,8 @@ const editingPost = ref(false);
     >
       Post Details
     </h1>
-    <Form
-      :initialValues
-      :resolver
-      @submit="onFormSubmit"
-      :validateOnValueUpdate="true"
-      :validateOnBlur="true"
-      v-if="editingPost"
-    >
+
+    <Form @submit="onFormSubmit" v-if="editingPost && postDetail">
       <div
         class="flex flex-col w-full place-content-center place-items-center gap-y-5"
       >
@@ -126,41 +130,41 @@ const editingPost = ref(false);
               <AppInputTextField
                 placeholder="Title"
                 fieldName="title"
-                initialValue=""
+                :initalValue="initialValues.title"
                 type="text"
               />
 
               <AppInputTextField
                 placeholder="Main Image ID"
                 fieldName="mainImageId"
-                initialValue=""
+                :initalValue="initialValues.mainImageId"
                 type="text"
               />
 
               <AppInputTextField
                 placeholder="authorUsername"
                 fieldName="authorUsername"
-                initialValue=""
+                :initalValue="initialValues.authorUsername"
                 type="text"
               />
 
               <AppInputArrayField
                 placeholder="documentIds"
                 fieldName="documentIds"
-                initialValue=""
+                :initalValue="initialValues.documentIds"
                 type="text"
               />
 
               <AppInputArrayField
                 placeholder="imageIds"
+                :initalValue="initialValues.imageIds"
                 fieldName="imageIds"
-                initialValue=""
                 type="text"
               />
               <AppTextAreaField
+                :initalValue="initialValues.description"
                 placeholder="Description"
                 fieldName="description"
-                initialValue=""
               />
             </div>
           </div>
@@ -172,40 +176,37 @@ const editingPost = ref(false);
               <AppInputTextField
                 placeholder="slug"
                 fieldName="seo_slug"
-                initialValue=""
+                :initalValue="initialValues.seo_slug"
                 type="text"
               />
               <AppInputTextField
                 placeholder="metaTitle"
                 fieldName="seo_metaTitle"
-                initialValue=""
+                :initalValue="initialValues.seo_metaTitle"
                 type="text"
               />
               <AppInputArrayField
                 placeholder="keywords"
+                :initalValue="initialValues.seo_keywords"
                 fieldName="seo_keywords"
-                initialValue=""
                 type="text"
               />
               <AppInputTextField
+                :initalValue="initialValues.seo_canonicalUrl"
                 placeholder="canonicalUrl"
                 fieldName="seo_canonicalUrl"
-                initialValue=""
                 type="text"
               />
               <AppTextAreaField
                 placeholder="metaDescription"
+                :initalValue="initialValues.seo_metaDescription"
                 fieldName="seo_metaDescription"
-                initialValue=""
               />
             </div>
           </div>
         </div>
         <div class="w-full flex place-content-center place-items-center gap-5">
-          <Button
-            @click="editingPost = false"
-            class="bg-secondary px-4 py-2 font-semibold"
-          >
+          <Button type="submit" class="bg-secondary px-4 py-2 font-semibold">
             Save Changes
           </Button>
 

@@ -71,8 +71,13 @@ export const usePosts = () => {
   };
 
   const getPostById = async (id: string): Promise<PostData | undefined> => {
-    const post = await apiPosts.getPost(id);
-    return post ?? undefined;
+    try {
+      const post = await apiPosts.getPost(id);
+      return post;
+    } catch (error) {
+      console.error(`Failed to fetch post with id ${id}:`, error);
+      showError(`Failed to fetch post. Please try again later.`, error);
+    }
   };
 
   const onFetched = (callback: (data: PostData[]) => void) => {
