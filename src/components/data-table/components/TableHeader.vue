@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { watchEffect } from "vue";
 import apiPosts from "../../../axios/api/posts";
 import { useAppRouter } from "../../../composable/router/useAppRouter";
 import type { FilterType, PostData } from "../../../types/types";
@@ -25,18 +24,14 @@ const { navigateTo } = useAppRouter();
 
 const handleDeletion = async () => {
   const { selectedItem } = props;
-  let newData;
 
   if (!selectedItem) return;
 
   const ids: string[] = selectedItem.map((item) => item.id);
 
-  if (selectedItem.length === 1) {
-    newData = await apiPosts.deletePost(ids[0]);
-    console.log("newData", newData);
-  } else {
-    newData = await apiPosts.deletePosts(ids);
-  }
+  try {
+    await apiPosts.deletePosts(ids);
+  } catch (error) {}
 
   emit("update:selectedItem", null);
   emit("refetch");
@@ -88,22 +83,6 @@ const handleExport = (posts: PostData[]) => {
   link.click();
   URL.revokeObjectURL(url);
 };
-
-import { ref } from "vue";
-const searchBar = ref<HTMLInputElement | null>(null);
-
-const expandSearchBar = () => {
-  if (searchBar.value) {
-    searchBar.value.style.width = "300px";
-    searchBar.value.focus();
-  }
-};
-
-watchEffect(() => {
-  if (searchBar) {
-    console.log("searchBar.value:", searchBar.value?.style);
-  }
-});
 </script>
 
 <template>
@@ -115,12 +94,11 @@ watchEffect(() => {
           <div class="flex flex-wrap gap-4">
             <IconField>
               <InputIcon>
-                <i class="pi pi-search" @click="expandSearchBar" />
+                <i class="pi pi-search" />
               </InputIcon>
               <InputText
                 v-model="filterGlobal['global'].value"
                 placeholder="Keyword Search"
-                ref="searchBar"
                 class="search-input"
                 pt:root="w-full"
               />

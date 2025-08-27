@@ -1,7 +1,8 @@
-import type { NewPost, PostData } from "../../types/types";
+import type { PostData } from "../../types/types";
 import api from "..";
 import { errorMessage } from "../utils";
 import { supabase } from "../../supabase";
+import { tablePosts } from "../../supabase/api/tablePosts";
 
 const getPosts = async () => {
   try {
@@ -21,11 +22,7 @@ const getPost = async (id: string): Promise<PostData | undefined> => {
   try {
     // const data = await api.get(`/post/${id}`);
 
-    const { data } = await supabase
-      .from("Posts")
-      .select()
-      .eq("id", id)
-      .single();
+    const { data } = await tablePosts.getPostById(Number(id));
 
     return data;
   } catch (error: any) {
@@ -33,11 +30,13 @@ const getPost = async (id: string): Promise<PostData | undefined> => {
   }
 };
 
-const createPost = async (data: NewPost) => {
+const createPost = async (data: PostData) => {
   try {
     // const status = await api.post("/posts", data);
 
-    const { status } = await supabase.from("Posts").insert(data);
+    // const { status } = await supabase.from("Posts").insert(data);
+
+    const { status } = await tablePosts.createPost(data);
 
     return status;
   } catch (error: any) {
@@ -49,7 +48,9 @@ const deletePost = async (id: string) => {
   try {
     // const status = await api.delete("/post");
 
-    const { status, data } = await supabase.from("Posts").delete().eq("id", id);
+    // const { status, data } = await supabase.from("Posts").delete().eq("id", id);
+
+    const { status, data } = await tablePosts.deletePostById(Number(id));
 
     return { status, data };
   } catch (error: any) {
@@ -61,7 +62,9 @@ const deletePosts = async (id: string[]) => {
   try {
     // const status = await api.delete("/post");
 
-    const { status, data } = await supabase.from("Posts").delete().in("id", id);
+    // const { status, data } = await supabase.from("Posts").delete().in("id", id);
+
+    const { status, data } = await tablePosts.deletePosts(id.map(Number));
 
     return { status, data };
   } catch (error: any) {
@@ -72,7 +75,9 @@ const deletePosts = async (id: string[]) => {
 const updatePost = async (data: PostData) => {
   const { id } = data;
   try {
-    const status = await api.put("/post", data);
+    // const status = await api.put("/post", data);
+
+    const { status } = await tablePosts.updatePost(Number(id), data);
 
     return status;
   } catch (error: any) {
@@ -84,10 +89,12 @@ const searchPosts = async (query: string) => {
   try {
     // const data = await api.get(`/posts?search=${query}`);
 
-    const { data } = await supabase
-      .from("Posts")
-      .select()
-      .ilike("title", `%${query}%`);
+    // const { data } = await supabase
+    //   .from("Posts")
+    //   .select()
+    //   .ilike("title", `%${query}%`);
+
+    const { data } = await tablePosts.searchPosts(query);
     return data;
   } catch (error: any) {
     errorMessage("Failed to search posts", error);

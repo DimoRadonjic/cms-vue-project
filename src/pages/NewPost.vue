@@ -5,7 +5,7 @@ import { reactive } from "vue";
 import z from "zod";
 import { useToastService } from "../composable/toastService/AppToastService";
 import apiPosts from "../axios/api/posts";
-import type { NewPost } from "../types/types";
+import type { NewPost, PostData } from "../types/types";
 import { useAppRouter } from "../composable/router/useAppRouter";
 import { usePosts } from "../composable";
 
@@ -70,8 +70,8 @@ const onFormSubmit = async ({ valid, values }: FormSubmitEvent) => {
     return;
   }
 
-  const valuesToSend: NewPost = {
-    ...(values as NewPost),
+  const valuesToSend: PostData = {
+    ...(values as PostData),
     documentIds: values.documentIds
       .split(",")
       .map((v: any) => Number(v.trim())),
@@ -80,15 +80,13 @@ const onFormSubmit = async ({ valid, values }: FormSubmitEvent) => {
   };
 
   try {
-    const status = await apiPosts.createPost(valuesToSend as NewPost);
-    if (status === 201) {
-      showSuccess("Post created");
-      reFetchPosts();
-      goBack();
+    await apiPosts.createPost(valuesToSend as PostData);
+    showSuccess("Post created");
+    reFetchPosts();
+    goBack();
 
-      values = initialValues;
-      return;
-    }
+    values = initialValues;
+    return;
   } catch (error) {
     showError("Creatiton failed.", 3000);
     return;
