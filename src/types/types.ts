@@ -36,21 +36,6 @@ export type DocumentItem = {
   url: string;
 };
 
-export type NewPost = {
-  title: string;
-  mainImageId: string;
-  imageIds: string[];
-  description: string;
-  documentIds: string[];
-  authorUsername: string;
-
-  seo_slug: string;
-  seo_metaTitle: string;
-  seo_metaDescription: string;
-  seo_keywords: Array<string>;
-  seo_canonicalUrl: string;
-};
-
 type Gallery = {
   id: string;
 };

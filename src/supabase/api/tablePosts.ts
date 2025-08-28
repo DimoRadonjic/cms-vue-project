@@ -22,8 +22,6 @@ const getPostById = async (id: number) => {
     throw new Error(error.message);
   }
 
-  console.log("supabase data", data);
-
   return { data, status };
 };
 

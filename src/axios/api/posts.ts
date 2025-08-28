@@ -5,11 +5,7 @@ import { tablePosts } from "../../supabase/api/tablePosts";
 
 const getPosts = async () => {
   try {
-    // const data = await api.get("/api/posts");
     const { data } = await supabase.from("Posts").select();
-
-    // vercel func not working , code 500
-    // const data = await api.get("/api/posts");
 
     return data;
   } catch (error: any) {
@@ -19,11 +15,7 @@ const getPosts = async () => {
 
 const getPost = async (id: string): Promise<PostData | undefined> => {
   try {
-    // const data = await api.get(`/post/${id}`);
-
     const { data } = await tablePosts.getPostById(Number(id));
-
-    console.log("axios data", data);
 
     return data;
   } catch (error: any) {
@@ -33,10 +25,6 @@ const getPost = async (id: string): Promise<PostData | undefined> => {
 
 const createPost = async (data: PostData) => {
   try {
-    // const status = await api.post("/posts", data);
-
-    // const { status } = await supabase.from("Posts").insert(data);
-
     const { status } = await tablePosts.createPost(data);
 
     return status;
@@ -47,10 +35,6 @@ const createPost = async (data: PostData) => {
 
 const deletePost = async (id: string) => {
   try {
-    // const status = await api.delete("/post");
-
-    // const { status, data } = await supabase.from("Posts").delete().eq("id", id);
-
     const { status, data } = await tablePosts.deletePostById(Number(id));
 
     return { status, data };
@@ -61,10 +45,6 @@ const deletePost = async (id: string) => {
 
 const deletePosts = async (id: string[]) => {
   try {
-    // const status = await api.delete("/post");
-
-    // const { status, data } = await supabase.from("Posts").delete().in("id", id);
-
     const { status, data } = await tablePosts.deletePosts(id.map(Number));
 
     return { status, data };
@@ -75,11 +55,7 @@ const deletePosts = async (id: string[]) => {
 
 const updatePost = async (data: PostData) => {
   const { id } = data;
-  console.log("updatePost id", id);
-  console.log("updatePost number id", Number(id));
   try {
-    // const status = await api.put("/post", data);
-
     const { status } = await tablePosts.updatePost(Number(id), data);
 
     return status;
@@ -90,13 +66,6 @@ const updatePost = async (data: PostData) => {
 
 const searchPosts = async (query: string) => {
   try {
-    // const data = await api.get(`/posts?search=${query}`);
-
-    // const { data } = await supabase
-    //   .from("Posts")
-    //   .select()
-    //   .ilike("title", `%${query}%`);
-
     const { data } = await tablePosts.searchPosts(query);
     return data;
   } catch (error: any) {

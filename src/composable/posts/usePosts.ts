@@ -58,7 +58,6 @@ export const usePosts = () => {
     loading.value = true;
     try {
       const res = await apiPosts.searchPosts(query);
-      // posts.value = res;
       console.log("Search results:", res);
       loading.value = false;
     } catch (apiError) {

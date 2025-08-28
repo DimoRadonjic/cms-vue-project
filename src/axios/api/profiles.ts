@@ -69,66 +69,6 @@ const getProfileById = async (id: string) => {
   }
 };
 
-// const getProfileByUsername = async (username: string): Promise<ProfileData> => {
-//   try {
-//     const data = await api.get(`/profiles?username=${username}`);
-//     if (data.length === 0) {
-//       throw new Error("Profile not found by username");
-//     }
-//     return data[0] as ProfileData;
-//   } catch (error: any) {
-//     errorMessage("Failed to get profile by username", error);
-//     throw error;
-//   }
-// };
-
-// const checkIfUserExists = async (username: string) => {
-//   const res = await api.get(`/profiles?username=${username}`);
-//   console.log("Checking if user exists:", res);
-//   return res.length > 0;
-// };
-
-// const createProfile = async (profileData: ProfileData) => {
-//   const { username, password } = profileData;
-
-//   if (await checkIfUserExists(username)) {
-//     throw new Error("Username already exists");
-//   }
-
-//   const hashedPassword = hashString(password);
-//   profileData.password = hashedPassword;
-
-//   try {
-//     await api.post("/profiles", profileData);
-
-//     const token = createDummyJWT(profileData);
-
-//     return token;
-//   } catch (error: any) {
-//     errorMessage("Failed to create profile", error);
-//   }
-// };
-
-// const profileLogin = async (profileData: LoginProfileData) => {
-//   const { username, password } = profileData;
-
-//   try {
-//     const profile: ProfileData = await getProfileByUsername(username);
-//     if (!profile) {
-//       throw new Error("Failed to login : profile not found");
-//     }
-//     if (!verifyPassword(password, profile.password)) {
-//       throw new Error("Invalid password");
-//     }
-
-//     const token = createDummyJWT(profileData);
-
-//     return { profile: profile, token: token };
-//   } catch (error: any) {
-//     errorMessage("Failed to login", error);
-//   }
-// };
-
 const getProfileByUsername = async (username: string): Promise<ProfileData> => {
   const { data, error } = await supabase
     .from("Profiles")
@@ -152,7 +92,7 @@ const getProfileByUsername = async (username: string): Promise<ProfileData> => {
 const checkIfUserExists = async (username: string) => {
   const { data, error } = await supabase
     .from("Profiles")
-    .select("id") // dovoljno samo id da smanji payload
+    .select("id")
     .eq("username", username);
 
   if (error) {

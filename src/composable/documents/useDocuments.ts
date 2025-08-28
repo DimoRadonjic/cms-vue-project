@@ -17,11 +17,13 @@ export const useDocuments = () => {
   const fetch = async () => {
     loading.value = true;
     try {
-      const res = await apiDocuments.getDocuments();
+      const { data: resData } = await apiDocuments.getDocumentsAPI();
 
-      data.value = res;
+      if (data) {
+        data.value = resData;
 
-      setItem("data", { dataType: "documents", data: data.value });
+        setItem("data", { dataType: "documents", data: data.value });
+      }
 
       loading.value = false;
     } catch (apiError) {

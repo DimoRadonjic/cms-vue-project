@@ -30,7 +30,6 @@ export const useProfile = () => {
     }
 
     profile.value = data[0];
-    console.log("User profiles data:", data);
   };
 
   void loadUserProfiles("test");

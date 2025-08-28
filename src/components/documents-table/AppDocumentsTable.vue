@@ -2,12 +2,7 @@
 import { ref } from "vue";
 import AppSimpleTableHeader from "../AppSimpleTableHeader.vue";
 import AppDocumentCard from "./AppDocumentCard.vue";
-
-interface DocumentItem {
-  id: string;
-  title: string;
-  url: string;
-}
+import type { DocumentItem } from "../../types/types";
 
 defineProps<{
   data: DocumentItem[];
@@ -32,10 +27,14 @@ const addSelectedDocument = (document: any) => {
     <div
       class="grid grid-cols-1 px-6 md:px-4 w-full md:grid-cols-4 gap-7 place-content-center place-items-center"
     >
-      <div class="w-full" v-for="document in data" :key="document.id">
+      <div
+        class="w-full"
+        v-for="singleDocument in data"
+        :key="singleDocument.id"
+      >
         <AppDocumentCard
           :addSelectedDocument="addSelectedDocument"
-          :document="document"
+          :document="singleDocument"
           :documentsSelected="documentsSelected"
         />
       </div>

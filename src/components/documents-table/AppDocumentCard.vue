@@ -46,7 +46,7 @@ const onMouseOver = (id: number) => {
     </div>
     <div class="flex flex-col gap-4 px-4">
       <p>
-        {{ document.title }}
+        {{ document.title ?? "test" }}
       </p>
 
       <Button
