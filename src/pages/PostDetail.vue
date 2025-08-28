@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import type { FormSubmitEvent } from "@primevue/forms";
 import { computed, ref, watchEffect } from "vue";
-import z from "zod";
 import { useToastService } from "../composable/toastService/AppToastService";
 import apiPosts from "../axios/api/posts";
 import type { PostData } from "../types/types";

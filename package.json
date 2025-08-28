@@ -9,8 +9,7 @@
     "preview": "vite preview",
     "backend": "json-server --watch db.json --port 3000",
     "prepare": "husky",
-    "ts-check": "vue-tsc --noEmit -p tsconfig.json",
-    "lint": "eslint . --ext .ts,.vue --report-unused-disable-directives --max-warnings 0"
+    "ts-check": "vue-tsc --noEmit -p tsconfig.json"
   },
   "dependencies": {
     "@primeuix/themes": "^1.2.1",
