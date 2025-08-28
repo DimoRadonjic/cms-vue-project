@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import type { FormSubmitEvent } from "@primevue/forms";
-import { zodResolver } from "@primevue/forms/resolvers/zod";
 import { computed, ref, watchEffect } from "vue";
 import z from "zod";
 import { useToastService } from "../composable/toastService/AppToastService";
@@ -42,39 +41,6 @@ watchEffect(async () => {
   } catch (error) {
     showError("Failed to load post data", 3000);
   }
-});
-
-const schema = z.object({
-  title: z.string().min(1, {
-    message: "title is required.",
-  }),
-  mainImageId: z.string().min(1, {
-    message: "mainImageId is required.",
-  }),
-  description: z.string().min(1, {
-    message: "description is required.",
-  }),
-  authorUsername: z.string().min(1, {
-    message: "authorUsername is required.",
-  }),
-  documentIds: z.string().min(1, {
-    message: "documentIds is required.",
-  }),
-  seo_slug: z.string().min(1, {
-    message: "seo_slug is required.",
-  }),
-  seo_metaTitle: z.string().min(1, {
-    message: "seo_metaTitle is required.",
-  }),
-  seo_metaDescription: z.string().min(1, {
-    message: "seo_metaDescription is required.",
-  }),
-  seo_keywords: z.string().min(1, {
-    message: "seo_keywords is required.",
-  }),
-  seo_canonicalUrl: z.string().min(1, {
-    message: "seo_canonicalUrl is required.",
-  }),
 });
 
 const onFormSubmit = async ({ values }: FormSubmitEvent) => {
