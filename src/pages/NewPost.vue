@@ -31,34 +31,30 @@ const { reFetchPosts } = usePosts();
 
 const schema = z.object({
   title: z.string().min(1, {
-    message: "Username is required.",
+    message: "title is required.",
   }),
-  mainImageId: z.string().min(1, {
-    message: "Password is required.",
-  }),
+
   description: z.string().min(1, {
-    message: "Password is required.",
+    message: "description is required.",
   }),
   authorUsername: z.string().min(1, {
-    message: "Password is required.",
+    message: "authorUsername is required.",
   }),
-  documentIds: z.string().min(1, {
-    message: "Password is required.",
-  }),
+
   seo_slug: z.string().min(1, {
-    message: "Password is required.",
+    message: "seo_slug is required.",
   }),
   seo_metaTitle: z.string().min(1, {
-    message: "Password is required.",
+    message: "seo_metaTitle is required.",
   }),
   seo_metaDescription: z.string().min(1, {
-    message: "Password is required.",
+    message: "seo_metaDescription is required.",
   }),
   seo_keywords: z.string().min(1, {
-    message: "Password is required.",
+    message: "seo_keywords is required.",
   }),
   seo_canonicalUrl: z.string().min(1, {
-    message: "Password is required.",
+    message: "seo_canonicalUrl is required.",
   }),
 });
 
@@ -69,15 +65,17 @@ const onFormSubmit = async ({ valid, values }: FormSubmitEvent) => {
     showError("Creatiton failed.", 3000);
     return;
   }
-
-  const valuesToSend: PostData = {
-    ...(values as PostData),
-    documentIds: values.documentIds
-      .split(",")
-      .map((v: any) => Number(v.trim())),
-    seo_keywords: values.seo_keywords.split(",").map((v: any) => v.trim()),
-    imageIds: values.seo_keywords.split(",").map((v: any) => v.trim()),
-  };
+  let valuesToSend: PostData = { ...(values as PostData) };
+  if ((values.documentIds && values.seo_keywords, values.imageIds)) {
+    valuesToSend = {
+      ...valuesToSend,
+      documentIds: values.documentIds
+        .split(",")
+        .map((v: any) => Number(v.trim())),
+      seo_keywords: values.seo_keywords.split(",").map((v: any) => v.trim()),
+      imageIds: values.seo_keywords.split(",").map((v: any) => v.trim()),
+    };
+  }
 
   try {
     await apiPosts.createPost(valuesToSend as PostData);
@@ -183,7 +181,7 @@ const onFormSubmit = async ({ valid, values }: FormSubmitEvent) => {
             <FileUpload
               ref="fileupload"
               mode="basic"
-              name="demo[]"
+              name="mainImageId"
               url="/api/upload"
               accept="image/*"
               :maxFileSize="1000000"
@@ -195,9 +193,10 @@ const onFormSubmit = async ({ valid, values }: FormSubmitEvent) => {
             <FileUpload
               ref="fileupload"
               mode="basic"
-              name="demo[]"
+              name="documentIds[]"
               url="/api/upload"
-              accept="image/*"
+              accept="application/pdf"
+              :multiple="true"
               :maxFileSize="1000000"
             />
           </div>
@@ -207,9 +206,10 @@ const onFormSubmit = async ({ valid, values }: FormSubmitEvent) => {
             <FileUpload
               ref="fileupload"
               mode="basic"
-              name="demo[]"
+              name="imageIds[]"
               url="/api/upload"
-              accept="image/*"
+              accept="image/jpeg"
+              :multiple="true"
               :maxFileSize="1000000"
             />
           </div>
