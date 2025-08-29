@@ -128,6 +128,7 @@ const onFormSubmit = async ({ valid, values }: FormSubmitEvent) => {
               placeholder="Main Image ID"
               fieldName="mainImageId"
               initialValue=""
+              :inputPattern="/^\d+$/"
               type="text"
             />
 
@@ -142,6 +143,7 @@ const onFormSubmit = async ({ valid, values }: FormSubmitEvent) => {
               placeholder="documentIds"
               fieldName="documentIds"
               initialValue=""
+              :inputPattern="/^\d+,\d+$/"
               type="text"
             />
 
@@ -149,6 +151,7 @@ const onFormSubmit = async ({ valid, values }: FormSubmitEvent) => {
               placeholder="imageIds"
               fieldName="imageIds"
               initialValue=""
+              :inputPattern="/^\d+,\d+$/"
               type="text"
             />
             <AppTextAreaField
@@ -179,6 +182,7 @@ const onFormSubmit = async ({ valid, values }: FormSubmitEvent) => {
               placeholder="keywords"
               fieldName="seo_keywords"
               initialValue=""
+              :inputPattern="/^\d+,\d+$/"
               type="text"
             />
             <AppInputTextField

@@ -49,6 +49,8 @@ export const useAuth = () => {
     if (!isAuth.value) {
       console.error("User is not authenticated");
       navigateTo("login");
+    } else {
+      navigateTo("dashboard");
     }
   };
 

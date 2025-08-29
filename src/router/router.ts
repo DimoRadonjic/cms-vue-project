@@ -80,9 +80,9 @@ const routes: RouteRecordRaw[] = [
   {
     path: "/",
     name: "base",
-    redirect: { name: "dashboard" },
-    component: PageLayout,
+    redirect: { name: "home" },
     meta: { requiresAuth: false },
+    component: PageLayout,
     children: [
       { path: "/", redirect: "login" },
 
