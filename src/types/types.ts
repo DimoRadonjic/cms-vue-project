@@ -27,6 +27,7 @@ export type ImageItem = {
   id: string;
   title: string;
   url: string;
+  path: string;
   alt: string;
 };
 
@@ -34,6 +35,7 @@ export type DocumentItem = {
   id: string;
   title: string;
   url: string;
+  path: string;
 };
 
 export type NewPost = {

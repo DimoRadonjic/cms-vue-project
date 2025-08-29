@@ -8,6 +8,7 @@ const bucket = BucketsName.documents;
 type Document = {
   title: string;
   url: string;
+  path: string;
 };
 
 const getDocuments = async () => {
@@ -36,8 +37,11 @@ const getDocument = async (id: number) => {
 
 const addDocument = async (
   document: Document
-): Promise<{ data: DocumentItem | null; status: number }> => {
-  const { data, status, error } = await supabase.from(table).insert(document);
+): Promise<{ data: DocumentItem[] | null; status: number }> => {
+  const { data, status, error } = await supabase
+    .from(table)
+    .insert([document])
+    .select();
   if (error) {
     throw new Error(error.message);
   }
@@ -98,14 +102,13 @@ const uploadDocumentToStorage = async (document: any) => {
   return { data, status: 201 };
 };
 
-const uploadDocumentsToStorage = async (files: File[]): Promise<string[]> => {
+const uploadDocumentsToStorage = async (
+  files: File[]
+): Promise<DocumentItem[]> => {
   const uploadPromises = files.map(async (file) => {
     const { error: uploadError } = await supabase.storage
       .from(bucket)
-      .upload(file.name, file, {
-        cacheControl: "3600",
-        upsert: false,
-      });
+      .upload(file.name, file, { cacheControl: "3600", upsert: false });
 
     if (uploadError) throw new Error(uploadError.message);
 
@@ -116,32 +119,30 @@ const uploadDocumentsToStorage = async (files: File[]): Promise<string[]> => {
     if (urlError || !urlData)
       throw new Error(urlError?.message || "Failed to create signed URL");
 
+    const fileTitle = file.name.replace(/\.[^/.]+$/, "");
+
     const { data: docData } = await addDocument({
-      title: file.name,
+      title: fileTitle,
       url: urlData.signedUrl,
+      path: file.name,
     });
 
-    if (!docData) {
-      throw new Error("Failed to add document or retrieve its ID");
+    if (!docData || docData.length === 0) {
+      throw new Error("Failed to add document or missing document id");
     }
 
-    return docData;
+    return docData[0]; // uvek objekat, nikad undefined
   });
 
-  const documentDatas = await Promise.all(uploadPromises);
-  return documentDatas.map((doc) => String(doc.id));
+  return Promise.all(uploadPromises);
 };
 
-const deleteDocumentFromStorage = async (path: string) => {
+const deleteDocumentFromStorage = async (document: DocumentItem) => {
+  const { id, path } = document;
   const { data, error } = await supabase.storage.from(bucket).remove([path]);
-  if (error) {
-    throw new Error(error.message);
-  }
+  await deleteDocument(Number(id));
 
-  console.log("path", path);
-
-  // ako je vezan za samo jedan blog post, obrisati i iz baze
-  // await deleteDocument(parseInt(path.split("/")[1])); // assuming path format is "pdfs/{id}_{name}"
+  if (error) throw new Error(error.message);
 
   return { data };
 };

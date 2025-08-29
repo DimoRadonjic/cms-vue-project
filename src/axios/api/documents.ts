@@ -1,4 +1,5 @@
 import tableDocuments from "../../supabase/api/tableDocuments";
+import type { DocumentItem } from "../../types/types";
 import { errorMessage } from "../utils";
 
 const getDocumentsAPI = async () => {
@@ -13,8 +14,10 @@ const getDocumentsAPI = async () => {
 };
 
 const uploadDocumentsAPI = async (files: File[]) => {
+  console.log("uploadDocumentsAPI files", files);
   try {
     const response = await tableDocuments.uploadDocumentsToStorage(files);
+    console.log("response", response);
 
     return { data: response, status: 200 };
   } catch (error: any) {
@@ -23,6 +26,16 @@ const uploadDocumentsAPI = async (files: File[]) => {
   }
 };
 
-const apiDocuments = { getDocumentsAPI, uploadDocumentsAPI };
+const removeDocumentAPI = async (document: DocumentItem) => {
+  try {
+    await tableDocuments.deleteDocumentFromStorage(document);
+    return { status: 200 };
+  } catch (error: any) {
+    errorMessage("Failed to delete document", error);
+    return { status: 500 };
+  }
+};
+
+const apiDocuments = { getDocumentsAPI, uploadDocumentsAPI, removeDocumentAPI };
 
 export default apiDocuments;

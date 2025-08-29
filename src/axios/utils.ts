@@ -5,13 +5,19 @@ export const baseUrl = import.meta.env.VITE_API_BASE_URL;
 
 const secretSignature = import.meta.env.VITE_SECRET_SIGNUTRE;
 
-export const errorMessage = (error: any, label: string) => {
-  if (error instanceof Error) {
-    throw new Error(label + ": " + error.message);
+export function errorMessage(message: string, error?: any) {
+  console.error(message, error);
+
+  if (error && typeof error === "object") {
+    if (Array.isArray(error)) {
+      console.error("Error array:", error);
+    } else {
+      console.error("Error object:", JSON.stringify(error, null, 2));
+    }
   } else {
-    throw new Error(label + ": " + error.message);
+    console.error("Error string:", String(error));
   }
-};
+}
 export const salt = bcrypt.genSaltSync(10);
 
 export const hashString = (str: string) => {

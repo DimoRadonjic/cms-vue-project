@@ -2,10 +2,10 @@
 import type { FormSubmitEvent } from "@primevue/forms";
 import { zodResolver } from "@primevue/forms/resolvers/zod";
 import { reactive, ref } from "vue";
-import z from "zod";
+import z, { file } from "zod";
 import { useToastService } from "../composable/toastService/AppToastService";
 import apiPosts from "../axios/api/posts";
-import type { NewPost, PostData } from "../types/types";
+import type { DocumentItem, NewPost, PostData } from "../types/types";
 import { useAppRouter } from "../composable/router/useAppRouter";
 import { usePosts } from "../composable";
 import apiDocuments from "../axios/api/documents";
@@ -62,27 +62,70 @@ const schema = z.object({
 
 const resolver = zodResolver(schema);
 
-const fileupload = ref<any>(null);
+const filesUploaded = ref<DocumentItem[]>([]);
+const fileUpload = ref<any>(null);
+
+const mainImageUpload = ref<any>(null);
+const imagesUpload = ref<any>(null);
+
+const imageIds = ref<string[]>([]);
 
 const ClearDocumentUpload = () => {
-  if (fileupload.value) {
-    fileupload.value.clear();
+  if (fileUpload.value) {
+    fileUpload.value.clear();
   }
 };
 
+const ClearMainImageUpload = () => {
+  if (mainImageUpload.value) {
+    mainImageUpload.value.clear();
+  }
+};
+
+const ClearImagesUpload = () => {
+  if (imagesUpload.value) {
+    imagesUpload.value.clear();
+  }
+};
+
+const resetUploads = () => {
+  filesUploaded.value = [];
+  imageIds.value = [];
+  mainImageUpload.value = null;
+};
+
 const onUpload = async (event: any) => {
-  const files: File[] = event.files;
+  const files: File[] = event.files || event.target?.files || [];
+
+  if (!files.length) {
+    console.error("Nema fajlova u eventu:", event);
+    return;
+  }
+
+  console.log("removed files", filesUploaded.value);
+
+  if (filesUploaded.value.length !== 0) {
+    try {
+      await apiDocuments.removeDocumentAPI(filesUploaded.value[0]);
+      filesUploaded.value = [];
+      ClearDocumentUpload();
+    } catch (error) {
+      console.error("Upload failed", error);
+      ClearDocumentUpload();
+    }
+    console.log("after removed files", filesUploaded.value);
+  }
 
   try {
-    const { data: documentIds } = await apiDocuments.uploadDocumentsAPI(files);
+    console.log("Uploading files", files);
+    const { data: document } = await apiDocuments.uploadDocumentsAPI(files);
+    console.log("Upload uspješan, documentIds:", document);
 
-    if (documentIds) {
-      console.log("Upload uspješan, documentIds:", documentIds);
-      initialValues.documentIds = documentIds;
+    if (document) {
+      filesUploaded.value = document;
     }
   } catch (error) {
     console.error("Upload failed", error);
-  } finally {
     ClearDocumentUpload();
   }
 };
@@ -92,17 +135,21 @@ const onFormSubmit = async ({ valid, values }: FormSubmitEvent) => {
     showError("Creatiton failed.", 3000);
     return;
   }
+
+  const fileIds = filesUploaded.value.map((file) => file.id);
+
+  console.log("Form values:", values);
+
   let valuesToSend: PostData = { ...(values as PostData) };
-  if ((values.documentIds && values.seo_keywords, values.imageIds)) {
-    valuesToSend = {
-      ...valuesToSend,
-      documentIds: values.documentIds
-        .split(",")
-        .map((v: any) => Number(v.trim())),
-      seo_keywords: values.seo_keywords.split(",").map((v: any) => v.trim()),
-      imageIds: values.seo_keywords.split(",").map((v: any) => v.trim()),
-    };
-  }
+  valuesToSend = {
+    ...valuesToSend,
+    documentIds: fileIds,
+    imageIds: imageIds.value,
+
+    seo_keywords: values.seo_keywords.split(",").map((v: any) => v.trim()),
+  };
+
+  console.log("Form values:", valuesToSend);
 
   try {
     await apiPosts.createPost(valuesToSend as PostData);
@@ -111,6 +158,7 @@ const onFormSubmit = async ({ valid, values }: FormSubmitEvent) => {
     goBack();
 
     values = initialValues;
+    resetUploads();
     return;
   } catch (error) {
     showError("Creatiton failed.", 3000);
