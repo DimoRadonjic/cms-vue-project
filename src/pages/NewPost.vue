@@ -125,35 +125,12 @@ const onFormSubmit = async ({ valid, values }: FormSubmitEvent) => {
             />
 
             <AppInputTextField
-              placeholder="Main Image ID"
-              fieldName="mainImageId"
-              initialValue=""
-              :inputPattern="/^\d+$/"
-              type="text"
-            />
-
-            <AppInputTextField
               placeholder="authorUsername"
               fieldName="authorUsername"
               initialValue=""
               type="text"
             />
 
-            <AppInputArrayField
-              placeholder="documentIds"
-              fieldName="documentIds"
-              initialValue=""
-              :inputPattern="/^\d+,\d+$/"
-              type="text"
-            />
-
-            <AppInputArrayField
-              placeholder="imageIds"
-              fieldName="imageIds"
-              initialValue=""
-              :inputPattern="/^\d+,\d+$/"
-              type="text"
-            />
             <AppTextAreaField
               placeholder="Description"
               fieldName="description"
@@ -198,13 +175,57 @@ const onFormSubmit = async ({ valid, values }: FormSubmitEvent) => {
             />
           </div>
         </div>
+        <div>
+          <span>Uploads</span>
+
+          <div>
+            <label>Main image</label>
+            <FileUpload
+              ref="fileupload"
+              mode="basic"
+              name="demo[]"
+              url="/api/upload"
+              accept="image/*"
+              :maxFileSize="1000000"
+            />
+          </div>
+
+          <div>
+            <label>Documents</label>
+            <FileUpload
+              ref="fileupload"
+              mode="basic"
+              name="demo[]"
+              url="/api/upload"
+              accept="image/*"
+              :maxFileSize="1000000"
+            />
+          </div>
+
+          <div>
+            <label>More images</label>
+            <FileUpload
+              ref="fileupload"
+              mode="basic"
+              name="demo[]"
+              url="/api/upload"
+              accept="image/*"
+              :maxFileSize="1000000"
+            />
+          </div>
+        </div>
       </div>
-      <div
-        class="w-full flex flex-col place-content-center place-items-center gap-y-5"
-      >
+      <div class="w-full flex place-content-center place-items-center gap-5">
         <Button
           type="submit"
           label="Create"
+          pt:root="!text-2xl"
+          class="w-fit py-3 rounded-xl bg-green-500 hover:bg-green-600 active:bg-green-700 text-white font-semibold shadow-md transition-transform duration-300 hover:scale-[1.02] active:scale-95"
+        />
+
+        <Button
+          @click="goBack()"
+          label="Cancel"
           pt:root="!text-2xl"
           class="w-fit py-3 rounded-xl bg-green-500 hover:bg-green-600 active:bg-green-700 text-white font-semibold shadow-md transition-transform duration-300 hover:scale-[1.02] active:scale-95"
         />

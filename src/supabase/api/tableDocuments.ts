@@ -13,6 +13,20 @@ const getDocuments = async () => {
   return { data, status };
 };
 
+const getDocument = async (id: number) => {
+  const { data, status, error } = await supabase
+    .from(table)
+    .select("*")
+    .eq("id", id)
+    .single();
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  return { data, status };
+};
+
 const addDocument = async (document: any) => {
   const { data, status, error } = await supabase.from(table).insert([document]);
   if (error) {
@@ -23,13 +37,31 @@ const addDocument = async (document: any) => {
 };
 
 const deleteDocument = async (id: number) => {
+  // First, delete the document from the documents table
   const { data, status, error } = await supabase
     .from(table)
     .delete()
     .eq("id", id);
+
   if (error) {
     throw new Error(error.message);
   }
+
+  // Then, update related blogs to remove the reference to this document
+  // Assuming blogs have a documents array or document_id field
+  // Example for documents array:
+  // await supabase
+  //   .from("blogs")
+  //   .update({ documents: supabase.raw('array_remove(documents, ?)', [id]) })
+  //   .contains('documents', [id]);
+
+  // Example for document_id field:
+  // await supabase
+  //   .from("blogs")
+  //   .update({ document_id: null })
+  //   .eq("document_id", id);
+
+  // Adjust the above logic based on your actual blog schema
 
   return { data, status };
 };
@@ -77,6 +109,7 @@ const deleteDocumentFromStorage = async (path: string) => {
 
 const tableDocuments = {
   getDocuments,
+  getDocument,
   addDocument,
   deleteDocument,
   uploadDocumentToStorage,

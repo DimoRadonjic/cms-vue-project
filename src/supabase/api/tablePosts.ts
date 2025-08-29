@@ -1,6 +1,7 @@
 import { TableName } from ".";
 import { supabase } from "..";
 import type { PostData } from "../../types/types";
+import tableDocuments from "./tableDocuments";
 
 const table = TableName.posts;
 
@@ -23,6 +24,38 @@ const getPostById = async (id: number) => {
   }
 
   return { data, status };
+};
+
+const updatePostDocuments = async (
+  postId: number,
+  documentId: number,
+  action: "add" | "remove" = "add"
+) => {
+  const { data: post } = await tableDocuments.getDocument(postId);
+
+  const currentDocuments: number[] = post?.documents || [];
+  let updatedDocuments: number[];
+
+  if (action === "add") {
+    updatedDocuments = currentDocuments.includes(documentId)
+      ? currentDocuments
+      : [...currentDocuments, documentId];
+  } else {
+    updatedDocuments = currentDocuments.filter((id) => id !== documentId);
+  }
+
+  const { data, error } = await supabase
+    .from(table)
+    .update({ documents: updatedDocuments })
+    .eq("id", postId)
+    .select()
+    .single();
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  return data;
 };
 
 const deletePostById = async (id: number) => {
@@ -97,4 +130,5 @@ export const tablePosts = {
   updatePost,
   deletePosts,
   searchPosts,
+  updatePostDocuments,
 };

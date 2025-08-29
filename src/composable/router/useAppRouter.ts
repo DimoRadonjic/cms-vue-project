@@ -1,4 +1,28 @@
+import { ref } from "vue";
 import { useRouter } from "vue-router";
+
+const protectedRoutes = {
+  home: "home",
+  dashboard: "dashboard",
+  posts: "posts",
+  newPost: "new-post",
+  postView: "post-view",
+  gallery: "gallery",
+  imageView: "image-view",
+  newImage: "new-image",
+  documents: "documents",
+  documentView: "document-view",
+  profileDetail: "profile",
+};
+
+const routes = {
+  register: "register",
+  login: "login",
+  notFound: "not-found",
+  resource404: "404Resource",
+  networkError: "NetworkError",
+  protected: protectedRoutes,
+};
 
 export const useAppRouter = () => {
   const router = useRouter();
@@ -20,5 +44,6 @@ export const useAppRouter = () => {
     goBack,
     router,
     getRouteID,
+    routes,
   };
 };

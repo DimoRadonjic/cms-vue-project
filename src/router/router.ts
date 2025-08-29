@@ -4,6 +4,8 @@ import {
   type RouteRecordRaw,
 } from "vue-router";
 import { LoginForm, RegisterForm, Page404, PageLayout } from "../pages";
+import { useAuth } from "../composable";
+import { useAppRouter } from "../composable/router/useAppRouter";
 
 const protectedRoutes: RouteRecordRaw[] = [
   {
@@ -109,4 +111,17 @@ const router = createRouter({
   history: createWebHistory(),
 });
 
+router.beforeEach((to, from, next) => {
+  const { isAuth } = useAuth();
+
+  if (to.meta.requiresAuth && !isAuth.value) {
+    return next({ name: "login" });
+  }
+
+  if (isAuth.value && (to.name === "login" || to.name === "register")) {
+    return next({ name: "dashboard" });
+  }
+
+  next();
+});
 export default router;

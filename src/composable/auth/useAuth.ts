@@ -45,20 +45,10 @@ export const useAuth = () => {
     }
   };
 
-  const reRouteAuth = () => {
-    if (!isAuth.value) {
-      console.error("User is not authenticated");
-      navigateTo("login");
-    } else {
-      navigateTo("dashboard");
-    }
-  };
-
   return {
     logout,
     login,
     getUser,
-    reRouteAuth,
     isAuth,
   };
 };

@@ -11,6 +11,7 @@
       :placeholder="placeholder"
       :autocomplete="fieldName"
       :readonly="readonly"
+      :pattern="inputPattern"
       :pt:root="
         inputRoot
           ? '!text-lg rounded-xl border border-gray-300 bg-white px-4 py-3 shadow-sm transition-all duration-300 focus:ring-2 focus:ring-green-500 focus:border-green-500 hover:border-green-400 hover:shadow-md ' +
@@ -42,6 +43,7 @@ defineProps<{
   inputRoot?: string;
   initalValue?: string | number;
   readonly?: boolean;
+  inputPattern?: string;
 }>();
 </script>
 
