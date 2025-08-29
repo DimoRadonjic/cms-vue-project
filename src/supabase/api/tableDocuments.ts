@@ -1,7 +1,14 @@
-import { TableName } from ".";
+import { BucketsName, TableName } from ".";
 import { supabase } from "../../supabase";
+import type { DocumentItem } from "../../types/types";
 
 const table = TableName.documents;
+const bucket = BucketsName.documents;
+
+type Document = {
+  title: string;
+  url: string;
+};
 
 const getDocuments = async () => {
   const { data, status, error } = await supabase.from(table).select("*");
@@ -27,8 +34,10 @@ const getDocument = async (id: number) => {
   return { data, status };
 };
 
-const addDocument = async (document: any) => {
-  const { data, status, error } = await supabase.from(table).insert([document]);
+const addDocument = async (
+  document: Document
+): Promise<{ data: DocumentItem | null; status: number }> => {
+  const { data, status, error } = await supabase.from(table).insert(document);
   if (error) {
     throw new Error(error.message);
   }
@@ -68,7 +77,7 @@ const deleteDocument = async (id: number) => {
 
 const uploadDocumentToStorage = async (document: any) => {
   const { data, error } = await supabase.storage
-    .from("pdfs")
+    .from(bucket)
     .upload(document.name, document.file, {
       cacheControl: "3600",
       upsert: false,
@@ -79,22 +88,52 @@ const uploadDocumentToStorage = async (document: any) => {
   }
 
   const { data: urlData, error: urlError } = await supabase.storage
-    .from("pdfs")
+    .from(bucket)
     .createSignedUrl(document.name, 60 * 60 * 24 * 7); // 7 days
 
   if (urlError || !urlData) {
     throw new Error(urlError?.message || "Failed to create signed URL");
   }
 
-  // ako vec postoji, ne dodavati ponovo
-
-  // await addDocument({ name: document.name, url: urlData.signedUrl });
-
   return { data, status: 201 };
 };
 
+const uploadDocumentsToStorage = async (files: File[]): Promise<string[]> => {
+  const uploadPromises = files.map(async (file) => {
+    const { error: uploadError } = await supabase.storage
+      .from(bucket)
+      .upload(file.name, file, {
+        cacheControl: "3600",
+        upsert: false,
+      });
+
+    if (uploadError) throw new Error(uploadError.message);
+
+    const { data: urlData, error: urlError } = await supabase.storage
+      .from(bucket)
+      .createSignedUrl(file.name, 60 * 60 * 24 * 7);
+
+    if (urlError || !urlData)
+      throw new Error(urlError?.message || "Failed to create signed URL");
+
+    const { data: docData } = await addDocument({
+      title: file.name,
+      url: urlData.signedUrl,
+    });
+
+    if (!docData) {
+      throw new Error("Failed to add document or retrieve its ID");
+    }
+
+    return docData;
+  });
+
+  const documentDatas = await Promise.all(uploadPromises);
+  return documentDatas.map((doc) => String(doc.id));
+};
+
 const deleteDocumentFromStorage = async (path: string) => {
-  const { data, error } = await supabase.storage.from("pdfs").remove([path]);
+  const { data, error } = await supabase.storage.from(bucket).remove([path]);
   if (error) {
     throw new Error(error.message);
   }
@@ -113,6 +152,7 @@ const tableDocuments = {
   addDocument,
   deleteDocument,
   uploadDocumentToStorage,
+  uploadDocumentsToStorage,
   deleteDocumentFromStorage,
 };
 export default tableDocuments;

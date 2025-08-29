@@ -1,13 +1,15 @@
 <script setup lang="ts">
 import type { FormSubmitEvent } from "@primevue/forms";
 import { zodResolver } from "@primevue/forms/resolvers/zod";
-import { reactive } from "vue";
+import { reactive, ref } from "vue";
 import z from "zod";
 import { useToastService } from "../composable/toastService/AppToastService";
 import apiPosts from "../axios/api/posts";
 import type { NewPost, PostData } from "../types/types";
 import { useAppRouter } from "../composable/router/useAppRouter";
 import { usePosts } from "../composable";
+import apiDocuments from "../axios/api/documents";
+import FileUpload from "primevue/fileupload";
 
 const initialValues = reactive<NewPost>({
   title: "",
@@ -59,6 +61,31 @@ const schema = z.object({
 });
 
 const resolver = zodResolver(schema);
+
+const fileupload = ref<any>(null);
+
+const ClearDocumentUpload = () => {
+  if (fileupload.value) {
+    fileupload.value.clear();
+  }
+};
+
+const onUpload = async (event: any) => {
+  const files: File[] = event.files;
+
+  try {
+    const { data: documentIds } = await apiDocuments.uploadDocumentsAPI(files);
+
+    if (documentIds) {
+      console.log("Upload uspješan, documentIds:", documentIds);
+      initialValues.documentIds = documentIds;
+    }
+  } catch (error) {
+    console.error("Upload failed", error);
+  } finally {
+    ClearDocumentUpload();
+  }
+};
 
 const onFormSubmit = async ({ valid, values }: FormSubmitEvent) => {
   if (!valid) {
@@ -157,7 +184,6 @@ const onFormSubmit = async ({ valid, values }: FormSubmitEvent) => {
               placeholder="keywords"
               fieldName="seo_keywords"
               initialValue=""
-              :inputPattern="/^\d+,\d+$/"
               type="text"
             />
             <AppInputTextField
@@ -179,12 +205,11 @@ const onFormSubmit = async ({ valid, values }: FormSubmitEvent) => {
           <div>
             <label>Main image</label>
             <FileUpload
-              ref="fileupload"
+              ref="mainImageUpload"
               mode="basic"
               name="mainImageId"
               url="/api/upload"
               accept="image/*"
-              :maxFileSize="1000000"
             />
           </div>
 
@@ -194,23 +219,22 @@ const onFormSubmit = async ({ valid, values }: FormSubmitEvent) => {
               ref="fileupload"
               mode="basic"
               name="documentIds[]"
-              url="/api/upload"
               accept="application/pdf"
               :multiple="true"
-              :maxFileSize="1000000"
+              @select="onUpload($event)"
+              customUpload
             />
           </div>
 
           <div>
             <label>More images</label>
             <FileUpload
-              ref="fileupload"
+              ref="imagesUpload"
               mode="basic"
               name="imageIds[]"
               url="/api/upload"
               accept="image/jpeg"
               :multiple="true"
-              :maxFileSize="1000000"
             />
           </div>
         </div>

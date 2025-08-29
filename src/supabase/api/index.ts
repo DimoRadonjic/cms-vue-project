@@ -5,7 +5,13 @@ const TableName = {
   documents: "Documents",
 } as const;
 
-type TableType = keyof typeof TableName;
+const BucketsName = {
+  gallery: "gallery",
+  documents: "Pdfs",
+} as const;
 
-export { TableName };
-export type { TableType };
+type TableType = keyof typeof TableName;
+type BucketsType = keyof typeof BucketsName;
+
+export { TableName, BucketsName };
+export type { TableType, BucketsType };
