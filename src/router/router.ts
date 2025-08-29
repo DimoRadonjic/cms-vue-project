@@ -77,22 +77,31 @@ const protectedRoutes: RouteRecordRaw[] = [
 ];
 
 const routes: RouteRecordRaw[] = [
-  { path: "/", redirect: "login" },
-
-  { path: "/login", name: "login", component: LoginForm },
   {
-    path: "/register",
-    name: "register",
-    component: RegisterForm,
+    path: "/",
+    name: "base",
+    redirect: { name: "dashboard" },
+    component: PageLayout,
+    meta: { requiresAuth: false },
+    children: [
+      { path: "/", redirect: "login" },
+
+      { path: "/login", name: "login", component: LoginForm },
+      {
+        path: "/register",
+        name: "register",
+        component: RegisterForm,
+      },
+
+      { path: "/:catchAll(.*)", name: "not-found", component: Page404 },
+
+      //Create a new page / view or use Page404 and pass props
+      { path: "/404/:resource", name: "404Resource", component: Page404 },
+      //Create a new page / view or use Page404 and pass props
+      { path: "/network-error", name: "NetworkError", component: Page404 },
+      ...protectedRoutes,
+    ],
   },
-
-  { path: "/:catchAll(.*)", name: "not-found", component: Page404 },
-
-  //Create a new page / view or use Page404 and pass props
-  { path: "/404/:resource", name: "404Resource", component: Page404 },
-  //Create a new page / view or use Page404 and pass props
-  { path: "/network-error", name: "NetworkError", component: Page404 },
-  ...protectedRoutes,
 ];
 
 const router = createRouter({

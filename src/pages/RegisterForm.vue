@@ -89,9 +89,13 @@ const onFormSubmit = async (e: FormSubmitEvent) => {
       @submit="onFormSubmit"
       :validateOnValueUpdate="true"
       :validateOnBlur="true"
-      class="flex flex-col gap-4 max-w-md bg-primary p-6 rounded-lg shadow-lg text-2xl place-content-center-safe place-items-center-safe"
+      class="flex flex-col gap-8 w-full max-w-md bg-primary backdrop-blur-md p-8 rounded-2xl shadow-xl border border-primary"
     >
-      <h1>Register</h1>
+      <h1
+        class="text-4xl pb-2 font-extrabold text-center bg-gradient-to-r from-green-600 to-green-400 bg-clip-text text-transparent"
+      >
+        Register
+      </h1>
 
       <AppInputTextField
         placeholder="Username"
@@ -118,15 +122,17 @@ const onFormSubmit = async (e: FormSubmitEvent) => {
         fieldName="retypepassword"
         initialValue=""
       />
-      <Button
-        type="submit"
-        label="Register"
-        pt:root="!text-2xl"
-        class="w-fit py-3 rounded-xl bg-gray-200 hover:bg-gray-300 active:bg-gray-400 text-gray-800 font-semibold shadow-md transition-transform duration-300 hover:scale-[1.02] active:scale-95"
-      />
 
-      <div class="flex flex-col content-start items-center gap-2s">
-        <p>Already have an account ?</p>
+      <div class="flex flex-col content-start items-center gap-2">
+        <Button
+          type="submit"
+          label="Register"
+          pt:root="!text-2xl"
+          class="w-fit py-3 rounded-xl bg-gray-200 hover:bg-gray-300 active:bg-gray-400 text-gray-800 font-semibold shadow-md transition-transform duration-300 hover:scale-[1.02] active:scale-95"
+        />
+
+        <p class="font-medium text-2xl">Already have an account ?</p>
+
         <router-link to="/login">
           <Button
             type="button"
