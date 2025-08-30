@@ -2,7 +2,7 @@
 import { ref } from "vue";
 import type { ImageItem } from "../../types/types";
 
-const props = defineProps<{
+defineProps<{
   data: ImageItem[];
   loading: Boolean;
   onRefetch?: () => void;
