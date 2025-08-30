@@ -1,25 +1,39 @@
 <script setup lang="ts">
 import { watch ,ref} from "vue";
 import { useAppRouter } from "../composable/router/useAppRouter";
+import apiDocuments from "../axios/api/documents";
 
 const props = defineProps<{
-  itemSelected: any[];
+  selectedItem: any[];
   title: string;
 }>();
 
+const emit = defineEmits(["refetch", "update:data", "update:selectedItem"]);
+
 const {navigateTo} = useAppRouter();
 
-const handleDeletion = () => {
-  // Logic to handle deletion of selected images
+const handleDeletion = async () => {
+  const { selectedItem } = props;
+
+  if (!selectedItem) return;
+
+  const ids: string[] = selectedItem.map((item) => item.id);
+
+  try {
+    await apiDocuments.deleteDocumentsAPI(ids);
+  } catch (error) {}
+
+  emit("update:selectedItem", null);
+  emit("refetch");
 };
 
 function setDeleteLabel() {
-  return props.itemSelected && props.itemSelected.length > 0 ? `Delete ${props.itemSelected.length}` : "No item selected"
+  return props.selectedItem && props.selectedItem.length > 0 ? `Delete ${props.selectedItem.length}` : "No item selected"
 }
 
 const deleteLabel = ref(setDeleteLabel()); ;
 
-watch(() => props.itemSelected, () => {
+watch(() => props.selectedItem, () => {
   deleteLabel.value = setDeleteLabel();
 });
 </script>
@@ -47,7 +61,7 @@ watch(() => props.itemSelected, () => {
               icon="pi pi-trash"
               severity="danger"
               variant="outlined"
-              :disabled="!itemSelected || itemSelected.length === 0"
+              :disabled="!selectedItem || selectedItem.length === 0"
               @click="handleDeletion()"
 
             />

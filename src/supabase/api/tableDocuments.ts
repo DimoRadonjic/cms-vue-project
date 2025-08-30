@@ -49,7 +49,7 @@ const addDocument = async (
   return { data, status };
 };
 
-const deleteDocument = async (id: number) => {
+const deleteDocumentByID = async (id: number) => {
   // First, delete the document from the documents table
   const { data, status, error } = await supabase
     .from(table)
@@ -76,6 +76,22 @@ const deleteDocument = async (id: number) => {
 
   // Adjust the above logic based on your actual blog schema
 
+  return { data, status };
+};
+
+const deleteDocuments = async (ids: string[]) => {
+  if (typeof ids[0] !== "number") {
+    ids.map(Number);
+  }
+
+  const { data, error, status } = await supabase
+    .from(table)
+    .delete()
+    .in("id", ids);
+
+  if (error) {
+    throw new Error(error.message);
+  }
   return { data, status };
 };
 
@@ -140,7 +156,7 @@ const uploadDocumentsToStorage = async (
 const deleteDocumentFromStorage = async (document: DocumentItem) => {
   const { id, path } = document;
   const { data, error } = await supabase.storage.from(bucket).remove([path]);
-  await deleteDocument(Number(id));
+  await deleteDocumentByID(Number(id));
 
   if (error) throw new Error(error.message);
 
@@ -151,7 +167,8 @@ const tableDocuments = {
   getDocuments,
   getDocument,
   addDocument,
-  deleteDocument,
+  deleteDocumentByID,
+  deleteDocuments,
   uploadDocumentToStorage,
   uploadDocumentsToStorage,
   deleteDocumentFromStorage,

@@ -36,6 +36,21 @@ const removeDocumentAPI = async (document: DocumentItem) => {
   }
 };
 
-const apiDocuments = { getDocumentsAPI, uploadDocumentsAPI, removeDocumentAPI };
+const deleteDocumentsAPI = async (documentIds: string[]) => {
+  try {
+    await tableDocuments.deleteDocuments(documentIds);
+    return { status: 200 };
+  } catch (error: any) {
+    errorMessage("Failed to delete document", error);
+    return { status: 500 };
+  }
+};
+
+const apiDocuments = {
+  getDocumentsAPI,
+  uploadDocumentsAPI,
+  removeDocumentAPI,
+  deleteDocumentsAPI,
+};
 
 export default apiDocuments;

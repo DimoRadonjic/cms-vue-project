@@ -45,7 +45,7 @@ export const useDocuments = () => {
     try {
       await fetch();
 
-      showSuccess("Posts refreshed successfully");
+      showSuccess("Documents refreshed successfully");
     } catch (apiError) {
       console.error("Failed to re-fetch posts:", apiError);
       showError("Failed to refresh posts. Please try again later.", apiError);
