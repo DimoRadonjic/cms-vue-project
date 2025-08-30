@@ -1,7 +1,9 @@
 <script setup lang="ts">
 import { ref } from "vue";
-import type { FilterType } from "../../../types/types";
+import type { FilterType, PostData } from "../../../types/types";
 import { useToastService } from "../../../composable/toastService/AppToastService";
+import { useAppRouter } from "../../../composable/router/useAppRouter";
+import apiPosts from "../../../axios/api/posts";
 
 const props = withDefaults(
   defineProps<{
@@ -34,8 +36,9 @@ const defaultOptions = {
   dataKey: "id",
 };
 
-const emit = defineEmits(["update:selection"]);
-const { showSuccess } = useToastService();
+const emit = defineEmits(["update:selection", "refetch"]);
+const { showSuccess, showError } = useToastService();
+const { navigateTo } = useAppRouter();
 
 const localSelection = ref<any>(props.selection);
 const cm = ref();
@@ -49,22 +52,35 @@ const menuModel = ref([
   {
     label: "View",
     icon: "pi pi-fw pi-search",
-    command: () => viewProduct(localSelection),
+    command: () => viewProduct(localSelection.value),
   },
   {
     label: "Delete",
     icon: "pi pi-fw pi-times",
-    command: () => deleteProduct(localSelection),
+    command: () => deleteProduct(localSelection.value),
   },
 ]);
 const onRowContextMenu = (event: any) => {
   cm.value.show(event.originalEvent);
 };
-const viewProduct = (item: any) => {
-  showSuccess(`Viewing product: ${item.value.title}`);
+const viewProduct = (item: PostData) => {
+  navigateTo("post-view", { id: item.id });
+  updateSelection(null);
 };
-const deleteProduct = (item: any) => {
-  showSuccess(`Deleting product: ${item.value.title}`);
+const deleteProduct = (item: PostData) => {
+  const deleteItem = async () => {
+    try {
+      await apiPosts.deletePost(item.id);
+      showSuccess("Post deleted successfully");
+      updateSelection(null);
+      emit("refetch", true);
+    } catch (error) {
+      console.error("Error deleting post:", error);
+      showError("Error deleting post", error);
+    }
+  };
+
+  deleteItem();
 
   localSelection.value = null;
 };

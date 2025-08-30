@@ -76,6 +76,7 @@ watchEffect(() => {
     :rows="10"
     v-model:selection="selectedData"
     @update:selection="onSelectionChange"
+    @refetch="onRefetch"
     :multiple="true"
   >
     <template #header>
