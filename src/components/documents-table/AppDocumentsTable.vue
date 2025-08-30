@@ -31,7 +31,12 @@ const addSelectedDocument = (document: any) => {
       @refetch="onRefetch"
     />
     <div
-      class="grid grid-cols-1 px-6 md:px-4 w-full md:grid-cols-4 gap-7 place-content-center place-items-center"
+      :class="
+        'grid  w-full gap-7 place-content-center place-items-center' +
+        (data.length
+          ? 'grid-cols-1  md:grid-cols-4 px-6 md:px-4'
+          : 'grid-cols-1')
+      "
     >
       <template v-if="loading">
         <div
@@ -47,7 +52,28 @@ const addSelectedDocument = (document: any) => {
         </div>
       </template>
       <template v-if="!data.length">
-        <div>No documents</div>
+        <div
+          class="flex flex-col items-center justify-center p-10 text-primary border-2 border-dashed border-primary rounded-lg bg-primary"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            class="h-12 w-12 mb-3 text-primary"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+            stroke-width="1.5"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6h.1a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"
+            />
+          </svg>
+          <p class="text-lg font-medium">No documents uploaded</p>
+          <p class="text-sm text-secondary">
+            Upload your first file to get started
+          </p>
+        </div>
       </template>
 
       <template v-if="data.length">
