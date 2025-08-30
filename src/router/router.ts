@@ -110,7 +110,7 @@ const router = createRouter({
   history: createWebHistory(),
 });
 
-router.beforeEach((to, from, next) => {
+router.beforeEach((to, _, next) => {
   const { isAuth } = useAuth();
 
   if (to.meta.requiresAuth && !isAuth.value) {
