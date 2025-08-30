@@ -16,18 +16,22 @@ const handleLogout = () => {
   <div class="card flex justify-content-center">
     <Sidebar
       v-model:visible="visible"
-      class="!h-full flex flex-col place-content-between place-items-start py-8"
+      class="!h-full flex flex-col place-content-between place-items-start py-14"
     >
       <template
         #container="{ closeCallback }"
         class="h-full flex place-items-center"
       >
         <div
-          class="flex flex-col place-content-center gap-y-40 place-items-start h-full"
+          class="flex flex-col place-content-center gap-y-40 place-items-start h-full px-5"
         >
           <h1 class="text-4xl">Blog CMS</h1>
-          <ul class="flex flex-col gap-y-24 place-items-start h-full text-2xl">
-            <li v-for="link in navLinks">
+          <ul class="flex flex-col gap-y-12 place-items-start h-full text-2xl">
+            <li
+              v-for="link in navLinks"
+              class="underline-animation"
+              :key="link.label"
+            >
               <router-link :to="{ name: link.routeName }">{{
                 link.label
               }}</router-link>
@@ -62,3 +66,24 @@ const handleLogout = () => {
     />
   </div>
 </template>
+
+<style lang="scss" scoped>
+.underline-animation {
+  position: relative;
+
+  &::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    width: 0;
+    height: 2px;
+    background: #10b981; /* emerald-500 */
+    transition: width 0.3s;
+  }
+
+  &:hover::after {
+    width: 100%;
+  }
+}
+</style>
