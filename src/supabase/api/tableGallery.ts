@@ -4,7 +4,7 @@ import { supabase } from "..";
 const table = TableName.gallery;
 
 const uploadImage = async (file: File) => {
-  const { data, error } = await supabase.storage
+  const { error } = await supabase.storage
     .from("images")
     .upload(file.name, file, {
       cacheControl: "3600",
