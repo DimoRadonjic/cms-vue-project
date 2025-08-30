@@ -131,7 +131,7 @@ const uploadDocumentsToStorage = async (
       throw new Error("Failed to add document or missing document id");
     }
 
-    return docData[0]; // uvek objekat, nikad undefined
+    return docData[0];
   });
 
   return Promise.all(uploadPromises);

@@ -5,7 +5,6 @@ import {
 } from "vue-router";
 import { LoginForm, RegisterForm, Page404, PageLayout } from "../pages";
 import { useAuth } from "../composable";
-import { useAppRouter } from "../composable/router/useAppRouter";
 
 const protectedRoutes: RouteRecordRaw[] = [
   {

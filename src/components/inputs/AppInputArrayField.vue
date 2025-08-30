@@ -35,9 +35,7 @@
 <script setup lang="ts">
 type InputTypes = "text" | "number";
 
-import { computed } from "vue";
-
-const props = defineProps<{
+defineProps<{
   placeholder: string;
   type: InputTypes;
   fieldName: string;

@@ -2,7 +2,7 @@
 import type { FormSubmitEvent } from "@primevue/forms";
 import { zodResolver } from "@primevue/forms/resolvers/zod";
 import { reactive, ref } from "vue";
-import z, { file } from "zod";
+import z from "zod";
 import { useToastService } from "../composable/toastService/AppToastService";
 import apiPosts from "../axios/api/posts";
 import type { DocumentItem, NewPost, PostData } from "../types/types";
@@ -76,17 +76,17 @@ const ClearDocumentUpload = () => {
   }
 };
 
-const ClearMainImageUpload = () => {
-  if (mainImageUpload.value) {
-    mainImageUpload.value.clear();
-  }
-};
+// const ClearMainImageUpload = () => {
+//   if (mainImageUpload.value) {
+//     mainImageUpload.value.clear();
+//   }
+// };
 
-const ClearImagesUpload = () => {
-  if (imagesUpload.value) {
-    imagesUpload.value.clear();
-  }
-};
+// const ClearImagesUpload = () => {
+//   if (imagesUpload.value) {
+//     imagesUpload.value.clear();
+//   }
+// };
 
 const resetUploads = () => {
   filesUploaded.value = [];
