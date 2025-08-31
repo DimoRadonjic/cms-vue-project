@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { FormSubmitEvent } from "@primevue/forms";
 import { zodResolver } from "@primevue/forms/resolvers/zod";
-import { reactive, ref } from "vue";
+import { computed, reactive, ref } from "vue";
 import z from "zod";
 import { useToastService } from "../composable/toastService/AppToastService";
 import apiPosts from "../axios/api/posts";
@@ -10,6 +10,7 @@ import { useAppRouter } from "../composable/router/useAppRouter";
 import { usePosts } from "../composable";
 import apiDocuments from "../axios/api/documents";
 import FileUpload from "primevue/fileupload";
+import apiImages from "../axios/api/images";
 
 const initialValues = reactive<NewPost>({
   title: "",
@@ -66,7 +67,15 @@ const filesUploaded = ref<DocumentItem[]>([]);
 const fileUpload = ref<any>(null);
 
 const mainImageUpload = ref<any>(null);
+const mainImageUploadRef = ref<any>(null);
 const imagesUpload = ref<any>(null);
+
+const mainImageLink = computed(() =>
+  mainImageUpload.value ? mainImageUpload.value.link : ""
+);
+
+const mainImageLoading = ref(false);
+const mainImageError = ref(false);
 
 const imageIds = ref<string[]>([]);
 
@@ -76,11 +85,12 @@ const ClearDocumentUpload = () => {
   }
 };
 
-// const ClearMainImageUpload = () => {
-//   if (mainImageUpload.value) {
-//     mainImageUpload.value.clear();
-//   }
-// };
+const ClearMainImageUpload = () => {
+  if (mainImageUploadRef.value) {
+    mainImageUploadRef.value.clear();
+    mainImageUpload.value = null;
+  }
+};
 
 // const ClearImagesUpload = () => {
 //   if (imagesUpload.value) {
@@ -94,15 +104,13 @@ const resetUploads = () => {
   mainImageUpload.value = null;
 };
 
-const onUpload = async (event: any) => {
+const onUploadDocument = async (event: any) => {
   const files: File[] = event.files || event.target?.files || [];
 
   if (!files.length) {
-    console.error("Nema fajlova u eventu:", event);
+    console.error("Nema fajlova u eventu  (document upload) :", event);
     return;
   }
-
-  console.log("removed files", filesUploaded.value);
 
   if (filesUploaded.value.length !== 0) {
     try {
@@ -117,9 +125,7 @@ const onUpload = async (event: any) => {
   }
 
   try {
-    console.log("Uploading files", files);
     const { data: document } = await apiDocuments.uploadDocumentsAPI(files);
-    console.log("Upload uspješan, documentIds:", document);
 
     if (document) {
       filesUploaded.value = document;
@@ -127,6 +133,32 @@ const onUpload = async (event: any) => {
   } catch (error) {
     console.error("Upload failed", error);
     ClearDocumentUpload();
+  }
+};
+
+const onUploadImage = async (event: any) => {
+  const files: File[] = event.files || event.target?.files;
+  const file = files[0];
+  mainImageLoading.value = true;
+
+  if (!files) {
+    console.error("Nema fajlova u eventu (image upload):", event);
+    return;
+  }
+  console.log("image upload", files);
+  console.log("image upload", file);
+
+  try {
+    const image = await apiImages.uploadMainImageAPI(files);
+
+    if (image) {
+      console.log("image uploaded", image);
+      mainImageUpload.value = image;
+      console.log("mainImageUpload after set:", mainImageUpload.value);
+    }
+  } catch (error) {
+    console.error("Upload failed", error);
+    ClearMainImageUpload();
   }
 };
 
@@ -185,7 +217,7 @@ const onFormSubmit = async ({ valid, values }: FormSubmitEvent) => {
     <div
       class="flex flex-col w-full place-content-center place-items-center gap-y-5"
     >
-      <div class="w-full max-w-fit flex gap-y-2 gap-x-12">
+      <div class="w-full max-w-fit flex flex-wrap gap-y-2 gap-x-12">
         <div class="w-full max-w-fit flex flex-col gap-y-2">
           <span>Main</span>
 
@@ -247,18 +279,53 @@ const onFormSubmit = async ({ valid, values }: FormSubmitEvent) => {
             />
           </div>
         </div>
-        <div>
+        <div class="flex flex-col gap-y-4">
           <span>Uploads</span>
 
-          <div>
-            <label>Main image</label>
-            <FileUpload
-              ref="mainImageUpload"
-              mode="basic"
-              name="mainImageId"
-              url="/api/upload"
-              accept="image/*"
-            />
+          <div class="flex flex-col gap-y-4">
+            <div>
+              <label>Main image</label>
+              <div v-if="mainImageLoading">
+                <ProgressSpinner
+                  style="width: 80px; height: 80px"
+                  strokeWidth="8"
+                  fill="transparent"
+                  animationDuration=".5s"
+                  aria-label="Custom ProgressSpinner"
+                />
+              </div>
+              <img
+                v-if="mainImageLink"
+                :src="mainImageLink"
+                alt="main-image"
+                class="w-sm"
+                @load="mainImageLoading = false"
+                @error="
+                  mainImageLoading = false;
+                  mainImageError = true;
+                "
+              />
+
+              <div v-if="mainImageError" class="text-red-500 text-sm">
+                Failed to load image
+              </div>
+            </div>
+            <div class="flex place-content-between">
+              <FileUpload
+                ref="mainImageUploadRef"
+                mode="basic"
+                :chooseLabel="mainImageLink ? 'Change' : 'Choose'"
+                name="mainImageId"
+                accept="image/jpeg"
+                @select="onUploadImage($event)"
+                customUpload
+              />
+              <Button
+                v-if="mainImageLink"
+                label="Clear"
+                @click="ClearMainImageUpload"
+              ></Button>
+            </div>
           </div>
 
           <div>
@@ -269,7 +336,7 @@ const onFormSubmit = async ({ valid, values }: FormSubmitEvent) => {
               name="documentIds[]"
               accept="application/pdf"
               :multiple="true"
-              @select="onUpload($event)"
+              @select="onUploadDocument($event)"
               customUpload
             />
           </div>
@@ -280,9 +347,10 @@ const onFormSubmit = async ({ valid, values }: FormSubmitEvent) => {
               ref="imagesUpload"
               mode="basic"
               name="imageIds[]"
-              url="/api/upload"
               accept="image/jpeg"
               :multiple="true"
+              @select="onUploadImage($event)"
+              customUpload
             />
           </div>
         </div>

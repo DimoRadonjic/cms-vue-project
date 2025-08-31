@@ -1,9 +1,9 @@
-import { supabase } from "../../supabase";
+import tableGallery from "../../supabase/api/tableGallery";
 import { errorMessage } from "../utils";
 
-const getImages = async () => {
+const getImagesAPI = async () => {
   try {
-    const { data } = await supabase.from("Images").select("*");
+    const { data } = await tableGallery.getGallery();
 
     return data;
   } catch (error: any) {
@@ -11,6 +11,18 @@ const getImages = async () => {
   }
 };
 
-const apiImages = { getImages };
+const uploadMainImageAPI = async (image: File[]) => {
+  try {
+    const res = await tableGallery.uploadImage(image[0]);
+
+    console.log("link", res);
+
+    return res;
+  } catch (error: any) {
+    errorMessage("Failed to fetch images", error);
+  }
+};
+
+const apiImages = { getImagesAPI, uploadMainImageAPI };
 
 export default apiImages;

@@ -1,29 +1,29 @@
-import { TableName } from ".";
+import { BucketsName, TableName } from ".";
 import { supabase } from "..";
 
 const table = TableName.gallery;
+const bucket = BucketsName.gallery;
 
 const uploadImage = async (file: File) => {
-  const { error } = await supabase.storage
-    .from("images")
-    .upload(file.name, file, {
-      cacheControl: "3600",
-      upsert: false,
-    });
+  const path = `gallery/${Date.now()}-${file.name}`;
+  const { error } = await supabase.storage.from(bucket).upload(path, file, {
+    cacheControl: "3600",
+    upsert: false,
+  });
 
   if (error) {
     throw new Error(error.message);
   }
 
   const { data: urlData, error: urlError } = await supabase.storage
-    .from("images")
-    .createSignedUrl(file.name, 60 * 60 * 24 * 7); // 7 days
+    .from(bucket)
+    .createSignedUrl(path, 60 * 60 * 24 * 7); // 7 days
 
   if (urlError || !urlData) {
     throw new Error(urlError?.message || "Failed to create signed URL");
   }
 
-  return { data: urlData, status: 201 };
+  return { link: urlData.signedUrl, status: 201 };
 };
 
 const getGallery = async () => {
@@ -58,7 +58,7 @@ const deleteImageFromGallery = async (id: number) => {
 };
 
 const deleteImageFromStorage = async (path: string) => {
-  const { data, error } = await supabase.storage.from("images").remove([path]);
+  const { data, error } = await supabase.storage.from(bucket).remove([path]);
 
   if (error) {
     throw new Error(error.message);
