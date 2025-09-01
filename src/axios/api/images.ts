@@ -45,11 +45,22 @@ const removeMainImageAPI = async (image: ImageItem) => {
   }
 };
 
+const removeImagesAPI = async (images: ImageItem[]) => {
+  try {
+    const res = await tableGallery.deleteImagesFromStorage(images);
+
+    return res;
+  } catch (error: any) {
+    errorMessage("Failed to fetch images", error);
+  }
+};
+
 const apiImages = {
   getImagesAPI,
   uploadMainImageAPI,
   removeMainImageAPI,
   uploadImagesAPI,
+  removeImagesAPI,
 };
 
 export default apiImages;
