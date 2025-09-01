@@ -1,17 +1,18 @@
 <template>
   <FormField
-    v-slot="{ value, invalid, error }"
     :name="fieldName"
     :initialValue="initalValue ? initalValue : ''"
     class="flex flex-col gap-2 w-full"
+    v-slot="{ invalid, error }"
   >
     <InputText
-      :modelValue="value"
+      v-model="inputValue"
       :type="type"
       :placeholder="placeholder"
       :autocomplete="fieldName"
       :readonly="readonly"
       :pattern="inputPattern"
+      @update:modelValue="handleChange && handleChange(inputValue)"
       :pt:root="
         inputRoot
           ? '!text-lg rounded-xl border border-gray-300 bg-white px-4 py-3 shadow-sm transition-all duration-300 focus:ring-2 focus:ring-green-500 focus:border-green-500 hover:border-green-400 hover:shadow-md ' +
@@ -33,7 +34,19 @@
 </template>
 
 <script setup lang="ts">
+import { ref } from "vue";
+
 type InputTypes = "text" | "number";
+
+const inputValue = ref("");
+
+const handleChange = (value: string) => {
+  let newValue = value;
+  if (newValue.endsWith(" ")) {
+    newValue = newValue.trimEnd() + ", ";
+  }
+  inputValue.value = newValue;
+};
 
 defineProps<{
   placeholder: string;
@@ -44,6 +57,7 @@ defineProps<{
   initalValue?: string[] | number[];
   readonly?: boolean;
   inputPattern?: string;
+  handleChange?: (e: any) => void;
 }>();
 </script>
 

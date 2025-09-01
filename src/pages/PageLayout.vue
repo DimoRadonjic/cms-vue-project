@@ -2,16 +2,18 @@
 
 <template>
   <div class="w-full h-full pb-11">
-    <Transition name="fade" mode="out-in">
-      <router-view />
-    </Transition>
+    <router-view v-slot="{ Component }">
+      <Transition name="fade" mode="out-in">
+        <component :is="Component" />
+      </Transition>
+    </router-view>
   </div>
 </template>
 
 <style scoped>
 .fade-enter-active,
 .fade-leave-active {
-  transition: opacity 2s ease;
+  transition: opacity 0.25s ease-in-out;
 }
 .fade-enter-from,
 .fade-leave-to {

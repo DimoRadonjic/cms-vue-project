@@ -3,15 +3,20 @@
     :name="fieldName"
     :initialValue="initalValue ? initalValue : ''"
     class="flex flex-col gap-2 w-full"
-    v-slot="{ value, invalid, error }"
+    v-slot="{ invalid, error }"
+    :key="fieldName + 'field'"
   >
     <InputText
-      :modelValue="value"
+      v-model="inputValue"
+      :key="fieldName + ' input'"
       :type="type"
       :placeholder="placeholder"
       :autocomplete="fieldName"
       :readonly="readonly"
       :pattern="inputPattern"
+      @update:modelValue="(val) => update(val)"
+      @focus="onFocus && onFocus($event)"
+      @input="onInput && onInput($event)"
       :pt:root="
         inputRoot
           ? '!text-lg rounded-xl border border-gray-300 bg-white px-4 py-3 shadow-sm transition-all duration-300 focus:ring-2 focus:ring-green-500 focus:border-green-500 hover:border-green-400 hover:shadow-md ' +
@@ -19,7 +24,6 @@
           : '!text-lg rounded-xl border border-gray-300 bg-white px-4 py-3 shadow-sm transition-all duration-300 focus:ring-2 focus:ring-green-500 focus:border-green-500 hover:border-green-400 hover:shadow-md'
       "
     />
-
     <Message
       v-if="invalid"
       severity="error"
@@ -33,9 +37,24 @@
 </template>
 
 <script setup lang="ts">
+import { ref } from "vue";
+
 type InputTypes = "text" | "number" | "email";
 
-defineProps<{
+const inputValue = ref();
+
+const emit = defineEmits<{
+  (e: "update:modelValue", value: string): void;
+}>();
+
+const update = (value: string | undefined) => {
+  if (!value) return;
+  const newValue = props.handleChange ? props.handleChange(value) : value;
+  inputValue.value = newValue;
+  emit("update:modelValue", newValue);
+};
+
+const props = defineProps<{
   placeholder: string;
   type: InputTypes;
   fieldName: string;
@@ -44,6 +63,9 @@ defineProps<{
   initalValue?: string | number;
   readonly?: boolean;
   inputPattern?: string;
+  handleChange?: (e: any) => string;
+  onFocus?: (e: FocusEvent) => void;
+  onInput?: (e: Event) => void;
 }>();
 </script>
 

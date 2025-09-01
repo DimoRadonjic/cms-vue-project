@@ -12,6 +12,8 @@ import apiDocuments from "../axios/api/documents";
 import FileUpload from "primevue/fileupload";
 import apiImages from "../axios/api/images";
 
+const BASE_URL = "https://www.example.com/";
+
 const initialValues = reactive<NewPost>({
   title: "",
   mainImageId: "",
@@ -31,6 +33,21 @@ const { showError, showSuccess } = useToastService();
 const { goBack } = useAppRouter();
 
 const { reFetchPosts } = usePosts();
+
+const canonicalUrlSchema = z
+  .string()
+  .min(1, { message: "Canonical URL cannot be empty." })
+  .refine((val) => val.startsWith(BASE_URL), {
+    message: `Canonical URL must start with ${BASE_URL}`,
+  })
+  .refine((val) => val !== BASE_URL, {
+    message: "Canonical URL cannot be just the base URL, slug is required.",
+  })
+  .transform((val) => {
+    // ukloni višestruke BASE_URL ako slučajno postoje
+    const slug = val.replace(new RegExp(`^(${BASE_URL})+`), "");
+    return `${BASE_URL}${slug}`;
+  });
 
 const schema = z.object({
   title: z.string().min(1, {
@@ -56,9 +73,7 @@ const schema = z.object({
   seo_keywords: z.string().min(1, {
     message: "seo_keywords is required.",
   }),
-  seo_canonicalUrl: z.string().min(1, {
-    message: "seo_canonicalUrl is required.",
-  }),
+  seo_canonicalUrl: canonicalUrlSchema,
 });
 
 const resolver = zodResolver(schema);
@@ -68,7 +83,7 @@ const fileUpload = ref<any>(null);
 
 const mainImageUpload = ref<any>(null);
 const mainImageUploadRef = ref<any>(null);
-const imagesUpload = ref<any>(null);
+const imagesUploadRef = ref<any>(null);
 
 const mainImageLink = computed(() =>
   mainImageUpload.value ? mainImageUpload.value.link : ""
@@ -177,11 +192,9 @@ const onFormSubmit = async ({ valid, values }: FormSubmitEvent) => {
     ...valuesToSend,
     documentIds: fileIds,
     imageIds: imageIds.value,
-
-    seo_keywords: values.seo_keywords.split(",").map((v: any) => v.trim()),
   };
 
-  console.log("Form values:", valuesToSend);
+  console.log("Form valuesToSend:", valuesToSend);
 
   try {
     await apiPosts.createPost(valuesToSend as PostData);
@@ -197,12 +210,78 @@ const onFormSubmit = async ({ valid, values }: FormSubmitEvent) => {
     return;
   }
 };
+
+const generateSeoSlug = (title: string) => {
+  return title
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[^a-z0-9\s-]/g, "")
+    .trim()
+    .replace(/\s+/g, "-")
+    .replace(/-+/g, "-");
+};
+
+const generateKeywords = (value: string) => {
+  return value
+    .toLowerCase()
+    .split(" ")
+    .filter((word) => word.length > 2)
+    .join(", ");
+};
+
+const generateCanonicalUrl = (value: string) => {
+  const cleanSlug = value.replace(BASE_URL, "").replace(/^\/+|\/+$/g, "");
+
+  return `${BASE_URL}${cleanSlug}`;
+};
+
+const onInput = (e: Event) => {
+  const target = e.target as HTMLInputElement;
+  return target.value; // ovo automatski update-uje slug
+};
+
+const generateMetaDescription = (title: string) => {
+  return title ? `Read more about ${title}` : "";
+};
+
+const updateSEO = (form: any, value: any) => {
+  if (
+    form.seo_slug &&
+    form.seo_canonicalUrl &&
+    form.seo_keywords &&
+    form.seo_metaDescription &&
+    form.seo_metaTitle
+  ) {
+    if (!form.seo_slug.touched) {
+      form.seo_slug.value = generateSeoSlug(value);
+    }
+
+    if (!form.seo_canonicalUrl.touched) {
+      const slug = generateSeoSlug(value);
+      form.seo_canonicalUrl.value = generateCanonicalUrl(slug);
+    }
+    if (!form.seo_keywords.touched) {
+      form.seo_keywords.value = generateKeywords(value);
+    }
+
+    if (!form.seo_metaDescription.touched) {
+      form.seo_metaDescription.value = generateMetaDescription(value);
+    }
+
+    if (!form.seo_metaTitle.touched) {
+      form.seo_metaTitle.value = value;
+    }
+  }
+};
 </script>
 
 <template>
   <Form
+    ref="formRef"
     :initialValues
     :resolver
+    v-slot="formSlot"
     @submit="onFormSubmit"
     :validateOnValueUpdate="true"
     :validateOnBlur="true"
@@ -227,6 +306,7 @@ const onFormSubmit = async ({ valid, values }: FormSubmitEvent) => {
               fieldName="title"
               initialValue=""
               type="text"
+              @update:modelValue="(value : string) => updateSEO(formSlot,value)"
             />
 
             <AppInputTextField
@@ -252,8 +332,10 @@ const onFormSubmit = async ({ valid, values }: FormSubmitEvent) => {
               placeholder="slug"
               fieldName="seo_slug"
               initialValue=""
+              @update:modelValue="(value : string) => generateSeoSlug(value)"
               type="text"
             />
+
             <AppInputTextField
               placeholder="metaTitle"
               fieldName="seo_metaTitle"
@@ -269,9 +351,12 @@ const onFormSubmit = async ({ valid, values }: FormSubmitEvent) => {
             <AppInputTextField
               placeholder="canonicalUrl"
               fieldName="seo_canonicalUrl"
-              initialValue=""
+              @update:modelValue="(value : string) => generateCanonicalUrl(value)"
+              :onInput="(e: any) => onInput(e)"
+              :initialValue="BASE_URL"
               type="text"
             />
+
             <AppTextAreaField
               placeholder="metaDescription"
               fieldName="seo_metaDescription"
@@ -344,7 +429,7 @@ const onFormSubmit = async ({ valid, values }: FormSubmitEvent) => {
           <div>
             <label>More images</label>
             <FileUpload
-              ref="imagesUpload"
+              ref="imagesUploadRef"
               mode="basic"
               name="imageIds[]"
               accept="image/jpeg"
