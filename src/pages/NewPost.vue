@@ -84,7 +84,7 @@ const schema = z.object({
 const resolver = zodResolver(schema);
 
 const filesUploaded = ref<DocumentItem[]>([]);
-const fileUpload = ref<any>(null);
+const fileUploadRef = ref<any>(null);
 
 const mainImageUpload = ref<ImageItem | null>(null);
 const mainImageUploadRef = ref<any>(null);
@@ -101,8 +101,8 @@ const mainImageError = ref(false);
 const imageIds = ref<string[]>([]);
 
 const ClearDocumentUpload = () => {
-  if (fileUpload.value) {
-    fileUpload.value.clear();
+  if (fileUploadRef.value) {
+    fileUploadRef.value.clear();
   }
 };
 
@@ -302,7 +302,7 @@ const updateSEO = (form: any, value: any) => {
   }
 };
 
-const cancelNewPost = async () => {
+const removeMainImage = async () => {
   if (mainImageUpload.value) {
     try {
       await apiImages.removeMainImageAPI(mainImageUpload.value);
@@ -310,7 +310,37 @@ const cancelNewPost = async () => {
       console.error("Upload removal failed", error);
     }
   }
+};
 
+const removeImages = async () => {
+  if (imagesUpload.value) {
+    try {
+      await apiImages.removeImagesAPI(imagesUpload.value);
+    } catch (error) {
+      console.error("Multiple images removal failed", error);
+    }
+  }
+};
+
+const removeDocuments = async () => {
+  if (filesUploaded.value) {
+    try {
+      const filesIds = filesUploaded.value.map(({ id }) => id);
+      await apiDocuments.deleteDocumentsAPI(filesIds);
+    } catch (error) {
+      console.error("Documents removal failed", error);
+    }
+  }
+};
+
+const removeAllUploads = () => {
+  removeMainImage();
+  removeImages();
+  removeDocuments();
+};
+
+const cancelNewPost = async () => {
+  removeAllUploads();
   clearAllUploads();
 };
 </script>
@@ -454,7 +484,7 @@ const cancelNewPost = async () => {
           <div>
             <label>Documents</label>
             <FileUpload
-              ref="fileupload"
+              ref="fileUploadRef"
               mode="basic"
               name="documentIds[]"
               accept="application/pdf"

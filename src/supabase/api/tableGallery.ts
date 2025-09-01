@@ -111,6 +111,16 @@ const deleteImageFromStorage = async (image: ImageItem) => {
   return { status: 204 };
 };
 
+const deleteImagesFromStorage = async (
+  images: ImageItem[]
+): Promise<void[]> => {
+  const uploadPromises = images.map(async (file) => {
+    await deleteImageFromStorage(file);
+  });
+
+  return Promise.all(uploadPromises);
+};
+
 const tableGallery = {
   getGallery,
   addImageToGallery,
@@ -118,6 +128,7 @@ const tableGallery = {
   uploadImage,
   deleteImageFromStorage,
   uploadImages,
+  deleteImagesFromStorage,
 };
 
 export default tableGallery;
