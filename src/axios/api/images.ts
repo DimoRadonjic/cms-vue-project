@@ -23,6 +23,18 @@ const uploadMainImageAPI = async (image: File[]) => {
   }
 };
 
+const uploadImagesAPI = async (images: File[]) => {
+  try {
+    const response = await tableGallery.uploadImages(images);
+    console.log("response", response);
+
+    return { data: response, status: 200 };
+  } catch (error: any) {
+    errorMessage("Failed to upload document", error);
+    return { data: null, status: 500 };
+  }
+};
+
 const removeMainImageAPI = async (image: ImageItem) => {
   try {
     const res = await tableGallery.deleteImageFromStorage(image);
@@ -33,6 +45,11 @@ const removeMainImageAPI = async (image: ImageItem) => {
   }
 };
 
-const apiImages = { getImagesAPI, uploadMainImageAPI, removeMainImageAPI };
+const apiImages = {
+  getImagesAPI,
+  uploadMainImageAPI,
+  removeMainImageAPI,
+  uploadImagesAPI,
+};
 
 export default apiImages;

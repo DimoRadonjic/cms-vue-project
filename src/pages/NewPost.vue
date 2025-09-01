@@ -89,6 +89,7 @@ const fileUpload = ref<any>(null);
 const mainImageUpload = ref<ImageItem | null>(null);
 const mainImageUploadRef = ref<any>(null);
 const imagesUploadRef = ref<any>(null);
+const imagesUpload = ref<ImageItem[]>([]);
 
 const mainImageLink = computed(() =>
   mainImageUpload.value ? mainImageUpload.value.url : ""
@@ -112,16 +113,23 @@ const ClearMainImageUpload = () => {
   }
 };
 
-// const ClearImagesUpload = () => {
-//   if (imagesUpload.value) {
-//     imagesUpload.value.clear();
-//   }
-// };
+const ClearImagesUpload = () => {
+  if (imagesUploadRef.value) {
+    imagesUploadRef.value.clear();
+  }
+};
 
 const resetUploads = () => {
   filesUploaded.value = [];
   imageIds.value = [];
   mainImageUpload.value = null;
+};
+
+const clearAllUploads = () => {
+  ClearDocumentUpload();
+  ClearMainImageUpload();
+  ClearImagesUpload;
+  resetUploads();
 };
 
 const onUploadDocument = async (event: any) => {
@@ -172,6 +180,28 @@ const onUploadImage = async (event: any) => {
       console.log("image uploaded", image);
       mainImageUpload.value = image;
       console.log("mainImageUpload after set:", mainImageUpload.value);
+    }
+  } catch (error) {
+    console.error("Upload failed", error);
+    ClearMainImageUpload();
+  }
+};
+
+const onUploadImages = async (event: any) => {
+  const files: File[] = event.files || event.target?.files;
+
+  if (!files) {
+    console.error("Nema fajlova u eventu (image upload):", event);
+    return;
+  }
+
+  try {
+    const { data: image } = await apiImages.uploadImagesAPI(files);
+
+    if (image) {
+      console.log("imagesUpload uploaded", image);
+      imagesUpload.value = image;
+      console.log("imagesUpload after set:", imagesUpload.value);
     }
   } catch (error) {
     console.error("Upload failed", error);
@@ -238,11 +268,6 @@ const generateCanonicalUrl = (value: string) => {
   return `${BASE_URL}${cleanSlug}`;
 };
 
-const onInput = (e: Event) => {
-  const target = e.target as HTMLInputElement;
-  return target.value; // ovo automatski update-uje slug
-};
-
 const generateMetaDescription = (title: string) => {
   return title ? `Read more about ${title}` : "";
 };
@@ -281,12 +306,12 @@ const cancelNewPost = async () => {
   if (mainImageUpload.value) {
     try {
       await apiImages.removeMainImageAPI(mainImageUpload.value);
-
-      ClearMainImageUpload();
     } catch (error) {
       console.error("Upload removal failed", error);
     }
   }
+
+  clearAllUploads();
 };
 </script>
 
@@ -366,7 +391,6 @@ const cancelNewPost = async () => {
               placeholder="canonicalUrl"
               fieldName="seo_canonicalUrl"
               @update:modelValue="(value : string) => generateCanonicalUrl(value)"
-              :onInput="(e: any) => onInput(e)"
               :initialValue="BASE_URL"
               type="text"
             />
@@ -448,7 +472,7 @@ const cancelNewPost = async () => {
               name="imageIds[]"
               accept="image/jpeg"
               :multiple="true"
-              @select="onUploadImage($event)"
+              @select="onUploadImages($event)"
               customUpload
             />
           </div>

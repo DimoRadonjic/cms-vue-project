@@ -5,7 +5,9 @@ import type { ImageItem } from "../../types/types";
 const table = TableName.gallery;
 const bucket = BucketsName.gallery;
 
-const uploadImage = async (file: File) => {
+const uploadImage = async (
+  file: File
+): Promise<{ data: ImageItem; status: number }> => {
   const path = `${Date.now()}-${file.name}`;
   const { error, data } = await supabase.storage
     .from(bucket)
@@ -47,6 +49,16 @@ const uploadImage = async (file: File) => {
   }
 };
 
+const uploadImages = async (files: File[]) => {
+  const uploadPromises = files.map(async (file): Promise<ImageItem> => {
+    const { data } = await uploadImage(file);
+
+    return data;
+  });
+
+  return Promise.all(uploadPromises);
+};
+
 const getGallery = async () => {
   const { data, status, error } = await supabase.from(table).select("*");
 
@@ -57,7 +69,9 @@ const getGallery = async () => {
   return { data, status };
 };
 
-const addImageToGallery = async (image: ImageItem) => {
+const addImageToGallery = async (
+  image: ImageItem
+): Promise<{ data: ImageItem; status: number }> => {
   const { data, status, error } = await supabase
     .from(table)
     .insert([image])
@@ -68,7 +82,7 @@ const addImageToGallery = async (image: ImageItem) => {
     throw new Error(error.message);
   }
 
-  return { data: data[0], status };
+  return { data: data[0] as ImageItem, status };
 };
 
 const deleteImageFromGallery = async (id: string) => {
@@ -103,6 +117,7 @@ const tableGallery = {
   deleteImageFromGallery,
   uploadImage,
   deleteImageFromStorage,
+  uploadImages,
 };
 
 export default tableGallery;
