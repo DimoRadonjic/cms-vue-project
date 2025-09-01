@@ -5,7 +5,12 @@ import { computed, reactive, ref } from "vue";
 import z from "zod";
 import { useToastService } from "../composable/toastService/AppToastService";
 import apiPosts from "../axios/api/posts";
-import type { DocumentItem, NewPost, PostData } from "../types/types";
+import type {
+  DocumentItem,
+  ImageItem,
+  NewPost,
+  PostData,
+} from "../types/types";
 import { useAppRouter } from "../composable/router/useAppRouter";
 import { usePosts } from "../composable";
 import apiDocuments from "../axios/api/documents";
@@ -81,12 +86,12 @@ const resolver = zodResolver(schema);
 const filesUploaded = ref<DocumentItem[]>([]);
 const fileUpload = ref<any>(null);
 
-const mainImageUpload = ref<any>(null);
+const mainImageUpload = ref<ImageItem | null>(null);
 const mainImageUploadRef = ref<any>(null);
 const imagesUploadRef = ref<any>(null);
 
 const mainImageLink = computed(() =>
-  mainImageUpload.value ? mainImageUpload.value.link : ""
+  mainImageUpload.value ? mainImageUpload.value.url : ""
 );
 
 const mainImageLoading = ref(false);
@@ -153,18 +158,15 @@ const onUploadDocument = async (event: any) => {
 
 const onUploadImage = async (event: any) => {
   const files: File[] = event.files || event.target?.files;
-  const file = files[0];
   mainImageLoading.value = true;
 
   if (!files) {
     console.error("Nema fajlova u eventu (image upload):", event);
     return;
   }
-  console.log("image upload", files);
-  console.log("image upload", file);
 
   try {
-    const image = await apiImages.uploadMainImageAPI(files);
+    const { data: image } = await apiImages.uploadMainImageAPI(files);
 
     if (image) {
       console.log("image uploaded", image);
@@ -274,6 +276,18 @@ const updateSEO = (form: any, value: any) => {
     }
   }
 };
+
+const cancelNewPost = async () => {
+  if (mainImageUpload.value) {
+    try {
+      await apiImages.removeMainImageAPI(mainImageUpload.value);
+
+      ClearMainImageUpload();
+    } catch (error) {
+      console.error("Upload removal failed", error);
+    }
+  }
+};
 </script>
 
 <template>
@@ -285,7 +299,7 @@ const updateSEO = (form: any, value: any) => {
     @submit="onFormSubmit"
     :validateOnValueUpdate="true"
     :validateOnBlur="true"
-    class="flex flex-col gap-8 bg-primary backdrop-blur-md p-8 rounded-2xl shadow-xl border border-primary"
+    class="flex flex-col gap-8 bg-primary w-fit mx-auto backdrop-blur-md p-8 rounded-2xl shadow-xl border border-primary"
   >
     <h1
       class="text-4xl pb-2 font-extrabold text-center bg-gradient-to-r from-green-600 to-green-400 bg-clip-text text-transparent"
@@ -296,7 +310,7 @@ const updateSEO = (form: any, value: any) => {
     <div
       class="flex flex-col w-full place-content-center place-items-center gap-y-5"
     >
-      <div class="w-full max-w-fit flex flex-wrap gap-y-2 gap-x-12">
+      <div class="w-full flex flex-wrap place-content-center gap-y-2 gap-x-12">
         <div class="w-full max-w-fit flex flex-col gap-y-2">
           <span>Main</span>
 
@@ -324,10 +338,10 @@ const updateSEO = (form: any, value: any) => {
           </div>
         </div>
 
-        <div class="w-full max-w-fit flex flex-col gap-y-2">
+        <div class="w-md flex flex-col gap-y-2">
           <span>SEO</span>
 
-          <div class="w-full max-w-fit flex flex-col gap-y-2">
+          <div class="w-full flex flex-col gap-y-2">
             <AppInputTextField
               placeholder="slug"
               fieldName="seo_slug"
@@ -368,7 +382,7 @@ const updateSEO = (form: any, value: any) => {
           <span>Uploads</span>
 
           <div class="flex flex-col gap-y-4">
-            <div>
+            <div class="w-sm">
               <label>Main image</label>
               <div v-if="mainImageLoading">
                 <ProgressSpinner
@@ -449,7 +463,7 @@ const updateSEO = (form: any, value: any) => {
         />
 
         <Button
-          @click="goBack()"
+          @click="cancelNewPost"
           label="Cancel"
           pt:root="!text-2xl"
           class="w-fit py-3 rounded-xl bg-green-500 hover:bg-green-600 active:bg-green-700 text-white font-semibold shadow-md transition-transform duration-300 hover:scale-[1.02] active:scale-95"
