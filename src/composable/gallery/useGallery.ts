@@ -16,7 +16,7 @@ export const useGallery = () => {
   const fetch = async () => {
     loading.value = true;
     try {
-      const res = await apiImages.getImages();
+      const res = await apiImages.getImagesAPI();
 
       data.value = res;
       setItem("data", { dataType: "gallery", data: data.value });
