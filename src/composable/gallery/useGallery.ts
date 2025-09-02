@@ -23,8 +23,8 @@ export const useGallery = () => {
 
       loading.value = false;
     } catch (apiError) {
-      console.error("Failed to fetch posts:", apiError);
-      showError("Failed to fetch posts. Please try again later.", apiError);
+      console.error("Failed to fetch gallery:", apiError);
+      showError("Failed to fetch images. Please try again later.", apiError);
       loading.value = false;
       error.value =
         error instanceof Error ? error : new Error("An error occurred");
@@ -42,10 +42,10 @@ export const useGallery = () => {
 
       await fetch();
 
-      showSuccess("Posts refreshed successfully");
+      showSuccess("Images refreshed successfully");
     } catch (apiError) {
-      console.error("Failed to re-fetch posts:", apiError);
-      showError("Failed to refresh posts. Please try again later.", apiError);
+      console.error("Failed to re-fetch images:", apiError);
+      showError("Failed to refresh images. Please try again later.", apiError);
       error.value =
         error instanceof Error ? error : new Error("An error occurred");
     }

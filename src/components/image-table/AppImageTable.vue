@@ -49,7 +49,7 @@ const addSelectedImage = (image: ImageItem) => {
           />
         </div>
       </template>
-      <template v-if="!data.length">
+      <template v-if="!data.length && !loading">
         <div
           class="flex flex-col items-center justify-center p-10 text-primary border-2 border-dashed border-primary rounded-lg bg-primary"
         >
