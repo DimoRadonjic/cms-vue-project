@@ -128,7 +128,7 @@ const resetUploads = () => {
 const clearAllUploads = () => {
   ClearDocumentUpload();
   ClearMainImageUpload();
-  ClearImagesUpload;
+  ClearImagesUpload();
   resetUploads();
 };
 
@@ -325,8 +325,7 @@ const removeImages = async () => {
 const removeDocuments = async () => {
   if (filesUploaded.value) {
     try {
-      const filesIds = filesUploaded.value.map(({ id }) => id);
-      await apiDocuments.deleteDocumentsAPI(filesIds);
+      await apiDocuments.deleteDocumentsAPI(filesUploaded.value);
     } catch (error) {
       console.error("Documents removal failed", error);
     }

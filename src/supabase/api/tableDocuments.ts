@@ -1,6 +1,7 @@
 import { BucketsName, TableName } from ".";
 import { supabase } from "../../supabase";
 import type { DocumentItem } from "../../types/types";
+import { sanitizeFileName } from "./utils";
 
 const table = TableName.documents;
 const bucket = BucketsName.documents;
@@ -96,15 +97,18 @@ const deleteDocuments = async (ids: string[]) => {
 };
 
 const uploadDocumentToStorage = async (file: File) => {
+  const sanitizedFileName = sanitizeFileName(file.name);
+  console.log("sanitizedFileName", sanitizedFileName);
+
   const { error: uploadError } = await supabase.storage
     .from(bucket)
-    .upload(file.name, file, { cacheControl: "3600", upsert: false });
+    .upload(sanitizedFileName, file, { cacheControl: "3600", upsert: false });
 
   if (uploadError) throw new Error(uploadError.message);
 
   const { data: urlData, error: urlError } = await supabase.storage
     .from(bucket)
-    .createSignedUrl(file.name, 60 * 60 * 24 * 7);
+    .createSignedUrl(sanitizedFileName, 60 * 60 * 24 * 7);
 
   if (urlError || !urlData)
     throw new Error(urlError?.message || "Failed to create signed URL");
@@ -114,7 +118,7 @@ const uploadDocumentToStorage = async (file: File) => {
   const document: Document = {
     title: fileTitle,
     url: urlData.signedUrl,
-    path: file.name,
+    path: sanitizedFileName,
   };
 
   const { data: docData } = await addDocument(document);
@@ -146,6 +150,14 @@ const deleteDocumentFromStorage = async (document: DocumentItem) => {
   return { data };
 };
 
+const deleteDocumentsFromStorage = async (documents: DocumentItem[]) => {
+  const deletionPromises = documents.map(async (document) => {
+    await deleteDocumentFromStorage(document);
+  });
+
+  return Promise.all(deletionPromises);
+};
+
 const tableDocuments = {
   getDocuments,
   getDocument,
@@ -155,5 +167,6 @@ const tableDocuments = {
   uploadDocumentToStorage,
   uploadDocumentsToStorage,
   deleteDocumentFromStorage,
+  deleteDocumentsFromStorage,
 };
 export default tableDocuments;

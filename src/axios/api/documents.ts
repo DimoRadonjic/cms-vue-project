@@ -36,9 +36,9 @@ const removeDocumentAPI = async (document: DocumentItem) => {
   }
 };
 
-const deleteDocumentsAPI = async (documentIds: string[]) => {
+const deleteDocumentsAPI = async (documents: DocumentItem[]) => {
   try {
-    await tableDocuments.deleteDocuments(documentIds);
+    await tableDocuments.deleteDocumentsFromStorage(documents);
     return { status: 200 };
   } catch (error: any) {
     errorMessage("Failed to delete document", error);
