@@ -2,17 +2,33 @@
 import { ref, computed } from "vue";
 import { useAppRouter } from "../composable/router/useAppRouter";
 import type { DocumentItem } from "../types/types";
-import AppInputTextField from "./inputs/AppInputTextField.vue";
 
-const props = defineProps<{
+type BaseProps = {
   selectedItem: DocumentItem[];
   title: string;
   buttonAddLabel?: string;
-  fileUpload?: boolean;
-  accept?: string;
-  upload?: (file: File[]) => void;
-  delete?: (file: DocumentItem[]) => void;
-}>();
+};
+
+type UploadProps =
+  | ({
+      fileUpload: true;
+      accept: string;
+      upload: (file: File[]) => void;
+      delete: (file: DocumentItem[]) => void;
+    } & BaseProps)
+  | ({
+      fileUpload?: false;
+      accept?: never;
+      upload?: never;
+      delete?: never;
+    } & BaseProps);
+
+type Props = UploadProps;
+
+const props = withDefaults(defineProps<Props>(), {
+  buttonAddLabel: "New",
+  fileUpload: false,
+});
 
 const emit = defineEmits([
   "refetch",
@@ -118,7 +134,7 @@ const uploadFunc = async (event: any) => {
           v-else
           ref="fileUploadRef"
           mode="basic"
-          :chooseLabel="uploading ? 'Uploading' : 'Upload'"
+          :chooseLabel="uploading ? 'Uploading' : buttonAddLabel"
           name="mainImageId"
           :accept
           :auto="true"
