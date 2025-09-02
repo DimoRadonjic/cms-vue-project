@@ -1,12 +1,13 @@
 <script setup lang="ts">
 import { ref } from "vue";
 import type { ImageItem } from "../../types/types";
-import AppTablePagination from "../AppTablePagination.vue";
 
 defineProps<{
   data: ImageItem[];
   loading: Boolean;
   onRefetch?: () => void;
+  upload: () => Promise<void>;
+  delete: () => Promise<void>;
 }>();
 
 const imagesSelected = ref<Array<ImageItem>>([]);
@@ -25,14 +26,19 @@ const addSelectedImage = (image: ImageItem) => {
 <template>
   <div class="w-full h-full space-y-10">
     <AppSimpleTableHeader
-      :itemSelected="imagesSelected"
+      v-model:selectedItem="imagesSelected"
       title="Gallery"
+      buttonAddLabel="Upload"
+      :fileUpload="true"
+      :accept="'image/jpeg'"
+      :upload
+      :delete
       @refetch="onRefetch"
     />
     <div
       :class="
         'grid  w-full  gap-7 place-content-center place-items-start ' +
-        (data.length
+        (data.length && !loading
           ? ' grid-cols-1 md:grid-cols-4 px-6 md:px-4'
           : ' grid-cols-1')
       "
@@ -75,7 +81,7 @@ const addSelectedImage = (image: ImageItem) => {
         </div>
       </template>
 
-      <template v-if="data.length">
+      <template v-if="data.length && !loading">
         <div class="w-full h-full" v-for="image in data" :key="image.id">
           <AppImageCard
             :addSelectedImage="addSelectedImage"
@@ -85,6 +91,6 @@ const addSelectedImage = (image: ImageItem) => {
         </div>
       </template>
     </div>
-    <AppTablePagination />
+    <AppTablePagination v-if="data.length && !loading" />
   </div>
 </template>

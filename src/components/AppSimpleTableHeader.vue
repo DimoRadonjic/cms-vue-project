@@ -144,7 +144,7 @@ const uploadFunc = async (event: any) => {
         ref="fileUploadRef"
         mode="basic"
         :chooseLabel="uploading ? 'Uploading' : buttonAddLabel"
-        name="mainImageId"
+        name="mainFileUpload"
         :accept
         :auto="true"
         @select="uploadFunc($event)"

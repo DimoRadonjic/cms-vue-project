@@ -1,7 +1,7 @@
 import { ref, watch } from "vue";
 import { useSessionStorage } from "../sessionStorage/useSessionStorage";
 import { useToastService } from "../toastService/AppToastService";
-import type { StorageData } from "../../types/types";
+import type { ImageItem, StorageData } from "../../types/types";
 import apiImages from "../../axios/api/images";
 
 export const useGallery = () => {
@@ -79,6 +79,29 @@ export const useGallery = () => {
     );
   };
 
+  const uploadImages = async (files: File[]) => {
+    loading.value = true;
+
+    try {
+      await apiImages.uploadImagesAPI(files);
+      loading.value = false;
+    } catch (error: any) {
+      const detail = new Error(error.message);
+      showError("Failed to upload images. Please try again later.", detail);
+    }
+  };
+  const deleteImages = async (images: ImageItem[]) => {
+    loading.value = true;
+
+    try {
+      await apiImages.removeImagesAPI(images);
+      loading.value = false;
+    } catch (error: any) {
+      const detail = new Error(error.message);
+      showError("Failed to delete images. Please try again later.", detail);
+    }
+  };
+
   return {
     data,
     fetch,
@@ -87,5 +110,7 @@ export const useGallery = () => {
     error,
     onFetched,
     searchPosts,
+    uploadImages,
+    deleteImages,
   };
 };

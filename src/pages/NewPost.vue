@@ -352,6 +352,7 @@ const checkNewPostData = () => {
 
 const cancelNewPost = async () => {
   checkNewPostData();
+
   if (shouldConfirmLeave.value) {
     removeAllUploads();
   }

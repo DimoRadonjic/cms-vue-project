@@ -103,7 +103,7 @@ export const useDocuments = () => {
       loading.value = false;
     } catch (error: any) {
       const detail = new Error(error.message);
-      showError("Failed to upload document. Please try again later.", detail);
+      showError("Failed to delete document. Please try again later.", detail);
     }
   };
 

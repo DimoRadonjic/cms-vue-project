@@ -1,7 +1,5 @@
 <script setup lang="ts">
 import { ref } from "vue";
-import AppSimpleTableHeader from "../AppSimpleTableHeader.vue";
-import AppDocumentCard from "./AppDocumentCard.vue";
 import type { DocumentItem } from "../../types/types";
 
 defineProps<{
@@ -32,7 +30,7 @@ const addSelectedDocument = (document: any) => {
       title="Documents"
       buttonAddLabel="Upload"
       :fileUpload="true"
-      accept="application/pdf"
+      :accept="'application/pdf'"
       :upload
       :delete
       @refetch="onRefetch"
@@ -97,6 +95,6 @@ const addSelectedDocument = (document: any) => {
         </div>
       </template>
     </div>
-    <AppTablePagination />
+    <AppTablePagination v-if="data.length && !loading" />
   </div>
 </template>
