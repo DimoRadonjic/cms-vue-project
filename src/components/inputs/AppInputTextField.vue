@@ -17,12 +17,7 @@
       @update:modelValue="(val) => update(val)"
       @focus="onFocus && onFocus($event)"
       @input="onInput && onInput($event)"
-      :pt:root="
-        inputRoot
-          ? '!text-lg rounded-xl border border-gray-300 bg-white px-4 py-3 shadow-sm transition-all duration-300 focus:ring-2 focus:ring-green-500 focus:border-green-500 hover:border-green-400 hover:shadow-md ' +
-            inputRoot
-          : '!text-lg rounded-xl border border-gray-300 bg-white px-4 py-3 shadow-sm transition-all duration-300 focus:ring-2 focus:ring-green-500 focus:border-green-500 hover:border-green-400 hover:shadow-md'
-      "
+      :pt:root="inputRoot"
     />
     <Message
       v-if="invalid"
@@ -41,19 +36,6 @@ import { ref } from "vue";
 
 type InputTypes = "text" | "number" | "email";
 
-const inputValue = ref();
-
-const emit = defineEmits<{
-  (e: "update:modelValue", value: string): void;
-}>();
-
-const update = (value: string | undefined) => {
-  if (!value) return;
-  const newValue = props.handleChange ? props.handleChange(value) : value;
-  inputValue.value = newValue;
-  emit("update:modelValue", newValue);
-};
-
 const props = defineProps<{
   placeholder: string;
   type: InputTypes;
@@ -67,6 +49,19 @@ const props = defineProps<{
   onFocus?: (e: FocusEvent) => void;
   onInput?: (e: Event) => void;
 }>();
+
+const inputValue = ref();
+
+const emit = defineEmits<{
+  (e: "update:modelValue", value: string): void;
+}>();
+
+const update = (value: string | undefined) => {
+  if (!value) return;
+  const newValue = props.handleChange ? props.handleChange(value) : value;
+  inputValue.value = newValue;
+  emit("update:modelValue", newValue);
+};
 </script>
 
 <style scoped></style>

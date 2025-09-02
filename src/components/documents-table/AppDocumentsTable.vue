@@ -7,7 +7,9 @@ import type { DocumentItem } from "../../types/types";
 defineProps<{
   data: DocumentItem[];
   loading: Boolean;
-  onRefetch?: () => void;
+  onRefetch?: () => Promise<void>;
+  upload: () => Promise<void>;
+  delete: () => Promise<void>;
 }>();
 
 const documentsSelected = ref<Array<any>>([]);
@@ -26,14 +28,19 @@ const addSelectedDocument = (document: any) => {
 <template>
   <div class="w-full space-y-10">
     <AppSimpleTableHeader
-      :selectedItem="documentsSelected"
+      v-model:selectedItem="documentsSelected"
       title="Documents"
+      buttonAddLabel="Upload"
+      :fileUpload="true"
+      accept="application/pdf"
+      :upload
+      :delete
       @refetch="onRefetch"
     />
     <div
       :class="
-        'grid  w-full gap-7 place-content-center place-items-center' +
-        (data.length
+        'grid  w-full gap-7 place-content-center place-items-center ' +
+        (data.length && !loading
           ? 'grid-cols-1  md:grid-cols-4 px-6 md:px-4'
           : 'grid-cols-1')
       "
@@ -51,7 +58,7 @@ const addSelectedDocument = (document: any) => {
           />
         </div>
       </template>
-      <template v-if="!data.length">
+      <template v-if="!data.length && !loading">
         <div
           class="flex flex-col items-center justify-center p-10 text-primary border-2 border-dashed border-primary rounded-lg bg-primary"
         >
@@ -76,7 +83,7 @@ const addSelectedDocument = (document: any) => {
         </div>
       </template>
 
-      <template v-if="data.length">
+      <template v-if="data.length && !loading">
         <div
           class="w-full"
           v-for="singleDocument in data"

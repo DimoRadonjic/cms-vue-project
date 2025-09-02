@@ -67,6 +67,7 @@ const viewProduct = (item: PostData) => {
   navigateTo("post-view", { id: item.id });
   updateSelection(null);
 };
+
 const deleteProduct = (item: PostData) => {
   const deleteItem = async () => {
     try {

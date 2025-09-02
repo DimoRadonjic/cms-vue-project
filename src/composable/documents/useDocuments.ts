@@ -2,7 +2,7 @@ import { ref, watch } from "vue";
 import { useSessionStorage } from "../sessionStorage/useSessionStorage";
 import { useToastService } from "../toastService/AppToastService";
 import apiDocuments from "../../axios/api/documents";
-import type { StorageData } from "../../types/types";
+import type { DocumentItem, StorageData } from "../../types/types";
 
 export const useDocuments = () => {
   const { showError, showSuccess } = useToastService();
@@ -12,6 +12,7 @@ export const useDocuments = () => {
 
   const data = ref(storageData?.data || []);
   const loading = ref<boolean>(false);
+  const uploading = ref<boolean>(false);
   const error = ref<Error>();
 
   const fetch = async () => {
@@ -43,14 +44,14 @@ export const useDocuments = () => {
 
   const reFetch = async () => {
     try {
+      data.value = [];
       await fetch();
 
       showSuccess("Documents refreshed successfully");
-    } catch (apiError) {
-      console.error("Failed to re-fetch posts:", apiError);
-      showError("Failed to refresh posts. Please try again later.", apiError);
-      error.value =
-        error instanceof Error ? error : new Error("An error occurred");
+    } catch (apiError: any) {
+      console.error("Failed to re-fetch documents:", apiError);
+      const detail = new Error(apiError.message);
+      showError("Failed to refresh documents. Please try again later.", detail);
     }
   };
 
@@ -82,6 +83,30 @@ export const useDocuments = () => {
     );
   };
 
+  const uploadDocuments = async (documents: File[]) => {
+    loading.value = true;
+
+    try {
+      await apiDocuments.uploadDocumentsAPI(documents);
+      loading.value = false;
+    } catch (error: any) {
+      const detail = new Error(error.message);
+      showError("Failed to upload document. Please try again later.", detail);
+    }
+  };
+
+  const deleteDocuments = async (documents: DocumentItem[]) => {
+    loading.value = true;
+
+    try {
+      await apiDocuments.deleteDocumentsAPI(documents);
+      loading.value = false;
+    } catch (error: any) {
+      const detail = new Error(error.message);
+      showError("Failed to upload document. Please try again later.", detail);
+    }
+  };
+
   return {
     data,
     fetch,
@@ -90,5 +115,8 @@ export const useDocuments = () => {
     error,
     onFetched,
     searchPosts,
+    uploading,
+    uploadDocuments,
+    deleteDocuments,
   };
 };

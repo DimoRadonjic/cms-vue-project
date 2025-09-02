@@ -25,9 +25,19 @@ const getDocumentByIDAPI = async (id: string) => {
 };
 
 const uploadDocumentsAPI = async (files: File[]) => {
-  console.log("uploadDocumentsAPI files", files);
   try {
     const response = await tableDocuments.uploadDocumentsToStorage(files);
+
+    return { data: response, status: 200 };
+  } catch (error: any) {
+    errorMessage("Failed to upload document", error);
+    return { data: null, status: 500 };
+  }
+};
+
+const uploadDocumentAPI = async (file: File) => {
+  try {
+    const response = await tableDocuments.uploadDocumentToStorage(file);
     console.log("response", response);
 
     return { data: response, status: 200 };
@@ -60,6 +70,7 @@ const deleteDocumentsAPI = async (documents: DocumentItem[]) => {
 const apiDocuments = {
   getDocumentsAPI,
   uploadDocumentsAPI,
+  uploadDocumentAPI,
   removeDocumentAPI,
   deleteDocumentsAPI,
   getDocumentByIDAPI,

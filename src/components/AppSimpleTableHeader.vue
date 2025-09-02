@@ -1,50 +1,102 @@
 <script setup lang="ts">
-import { watch, ref } from "vue";
+import { ref, computed } from "vue";
 import { useAppRouter } from "../composable/router/useAppRouter";
-import apiDocuments from "../axios/api/documents";
+import type { DocumentItem } from "../types/types";
+import AppInputTextField from "./inputs/AppInputTextField.vue";
 
 const props = defineProps<{
-  selectedItem: any[];
+  selectedItem: DocumentItem[];
   title: string;
+  buttonAddLabel?: string;
+  fileUpload?: boolean;
+  accept?: string;
+  upload?: (file: File[]) => void;
+  delete?: (file: DocumentItem[]) => void;
 }>();
 
-const emit = defineEmits(["refetch", "update:data", "update:selectedItem"]);
+const emit = defineEmits([
+  "refetch",
+  "update:data",
+  "update:selectedItem",
+  "uploading",
+]);
 
 const { navigateTo } = useAppRouter();
+
+const fileUploadRef = ref<any>();
+const uploading = ref<boolean>(false);
+const deleting = ref(false);
+
+const search = ref<string>("");
+
+const deleteLabel = computed(() => {
+  return deleting.value
+    ? "Deleting"
+    : props.selectedItem && props.selectedItem.length > 0
+    ? `Delete ${props.selectedItem.length}`
+    : "No item selected";
+});
 
 const handleDeletion = async () => {
   const { selectedItem } = props;
 
   if (!selectedItem) return;
 
-  try {
-    await apiDocuments.deleteDocumentsAPI(selectedItem);
-  } catch (error) {}
+  deleting.value = true;
 
-  emit("update:selectedItem", null);
-  emit("refetch");
+  try {
+    if (props.delete) {
+      await props.delete(selectedItem);
+    }
+  } catch (error: any) {
+    throw new Error(error.message);
+  }
+
+  emit("update:selectedItem", []);
+
+  emit("refetch", true);
+
+  uploading.value = false;
+
+  deleting.value = false;
 };
 
-function setDeleteLabel() {
-  return props.selectedItem && props.selectedItem.length > 0
-    ? `Delete ${props.selectedItem.length}`
-    : "No item selected";
-}
+const uploadFunc = async (event: any) => {
+  const files: File[] = event.files || event.target?.files || [];
 
-const deleteLabel = ref(setDeleteLabel());
+  if (files.length === 0) return;
 
-watch(
-  () => props.selectedItem,
-  () => {
-    deleteLabel.value = setDeleteLabel();
+  uploading.value = true;
+
+  try {
+    if (props.upload) {
+      await props.upload(files);
+    }
+  } catch (error: any) {
+    throw new Error(error.message);
   }
-);
+
+  emit("update:selectedItem", []);
+
+  emit("refetch", true);
+
+  uploading.value = false;
+};
 </script>
 
 <template>
   <div
     class="flex flex-wrap md:grid md:grid-cols-3 w-full h-full place-items-center place-content-between md:place-content-center gap-6 px-3 relative"
   >
+    <div class="flex place-content-center place-items-center mr-auto gap-4">
+      <InputText placeholder="Search" type="text" v-model="search" />
+      <Button
+        label="Search"
+        icon="pi pi-search"
+        class="!px-5"
+        :disabled="search === '' ? true : false"
+      />
+    </div>
     <h1
       class="text-4xl font-bold md:col-start-2 md:col-end-2 md:w-full text-start md:text-center capitalize"
     >
@@ -55,17 +107,32 @@ watch(
         class="flex w-full place-items-center place-content-between md:gap-x-4 gap-x-2 relative"
       >
         <Button
+          v-if="!fileUpload"
           label="New"
           icon="pi pi-plus"
           class="mr-2"
           @click="navigateTo('new-image')"
+        />
+
+        <FileUpload
+          v-else
+          ref="fileUploadRef"
+          mode="basic"
+          :chooseLabel="uploading ? 'Uploading' : 'Upload'"
+          name="mainImageId"
+          :accept
+          :auto="true"
+          @select="uploadFunc($event)"
+          customUpload
+          :multiple="true"
+          :disabled="uploading"
         />
         <Button
           :label="deleteLabel"
           icon="pi pi-trash"
           severity="danger"
           variant="outlined"
-          :disabled="!selectedItem || selectedItem.length === 0"
+          :disabled="!selectedItem || selectedItem.length === 0 || deleting"
           @click="handleDeletion()"
         />
         <Button icon="pi pi-refresh" rounded raised @click="$emit('refetch')" />

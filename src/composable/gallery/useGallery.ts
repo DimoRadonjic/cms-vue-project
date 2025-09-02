@@ -38,6 +38,8 @@ export const useGallery = () => {
 
   const reFetch = async () => {
     try {
+      data.value = [];
+
       await fetch();
 
       showSuccess("Posts refreshed successfully");
