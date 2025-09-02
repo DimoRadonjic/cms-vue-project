@@ -48,7 +48,10 @@ const onMouseOver = (id: number) => {
       </h2>
 
       <TransitionGroup name="fade-slide">
-        <Button v-if="itemHovered == Number(document.id)" label="Edit"></Button>
+        <Button
+          v-if="itemHovered == Number(document.id)"
+          label="Rename"
+        ></Button>
 
         <Button
           v-if="itemHovered == Number(document.id)"

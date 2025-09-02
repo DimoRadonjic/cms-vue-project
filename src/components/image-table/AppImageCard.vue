@@ -48,7 +48,7 @@ const onMouseOver = (id: string) => {
       <TransitionGroup name="fade-slide">
         <Button
           v-if="itemHovered == image.id"
-          label="Edit"
+          label="Rename"
           class="transition-all duration-300"
         />
 
