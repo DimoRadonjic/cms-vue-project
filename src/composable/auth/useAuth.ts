@@ -3,8 +3,9 @@ import type { LoginProfileData } from "../../types/types";
 import apiProfiles from "../../axios/api/profiles";
 import { useToastService } from "../toastService/AppToastService";
 import { useAppRouter } from "../router/useAppRouter";
-import { useProfileStore } from "../../store";
+import { useAuthStore } from "../../store";
 import { ref } from "vue";
+import { auth } from "../../supabase/api/tableProfiles";
 
 const { getItem, clearStorage, setItem } = useSessionStorage();
 
@@ -13,7 +14,7 @@ const isAuth = ref<boolean>(!!getItem("token"));
 export const useAuth = () => {
   const { showError, showSuccess } = useToastService();
   const { navigateTo } = useAppRouter();
-  const { setUser, getUser } = useProfileStore();
+  const { setUser, getUser } = useAuthStore();
 
   const logout = () => {
     clearStorage();
@@ -25,13 +26,14 @@ export const useAuth = () => {
 
   const login = async (newUser: LoginProfileData) => {
     try {
-      const res = await apiProfiles.profileLogin(newUser);
+      const res = await auth.loginUser(newUser);
 
       if (res) {
-        setItem("token", res.token);
+        const { session, user } = res;
+        setItem("token", session.access_token);
 
         showSuccess("Logged in successfully");
-        setUser(res.profile);
+        setUser(user);
         isAuth.value = true;
 
         navigateTo("dashboard");

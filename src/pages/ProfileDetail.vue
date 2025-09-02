@@ -1,11 +1,11 @@
 <script setup lang="ts">
 import { ref } from "vue";
-import { useProfileStore } from "../store";
+import { useAuthStore } from "../store";
 import type { ProfileData } from "../types/types";
 import { Form } from "@primevue/forms";
 import { AppInputTextField } from "../components/inputs";
 
-const { getUser } = useProfileStore();
+const { getUser } = useAuthStore();
 
 const user: ProfileData | null = getUser();
 

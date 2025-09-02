@@ -6,6 +6,7 @@ import type { FormSubmitEvent, ProfileData } from "../types/types";
 import { useSessionStorage } from "../composable";
 import { useToastService } from "../composable/toastService/AppToastService";
 import { useAppRouter } from "../composable/router/useAppRouter";
+import { auth } from "../supabase/api/tableProfiles";
 
 const { showError, showSuccess } = useToastService();
 const { navigateTo } = useAppRouter();
@@ -64,7 +65,7 @@ const onFormSubmit = async (e: FormSubmitEvent) => {
         email: values.email,
         password: values.password,
       };
-      const token = await apiProfiles.createProfile(data);
+      const token = await auth.registerUser(data);
 
       setItem("token", token);
 

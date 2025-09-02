@@ -142,6 +142,7 @@ const profileLogin = async (profileData: LoginProfileData) => {
     throw error;
   }
 };
+
 const apiProfiles = {
   createProfile,
   getProfile,

@@ -5,7 +5,7 @@ import { useSessionStorage } from "../composable";
 
 const pinia = createPinia();
 
-export const useProfileStore = defineStore("profile", () => {
+export const useAuthStore = defineStore("profile", () => {
   const user = ref<ProfileData>({ password: "", username: "", email: "" });
   const { setItem, getItem, removeItem } = useSessionStorage();
 
