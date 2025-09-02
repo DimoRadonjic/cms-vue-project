@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref } from "vue";
 import type { ImageItem } from "../../types/types";
+import AppTablePagination from "../AppTablePagination.vue";
 
 defineProps<{
   data: ImageItem[];
@@ -30,7 +31,7 @@ const addSelectedImage = (image: ImageItem) => {
     />
     <div
       :class="
-        'grid  w-full  gap-7 place-content-center place-items-center ' +
+        'grid  w-full  gap-7 place-content-center place-items-start ' +
         (data.length
           ? ' grid-cols-1 md:grid-cols-4 px-6 md:px-4'
           : ' grid-cols-1')
@@ -75,7 +76,7 @@ const addSelectedImage = (image: ImageItem) => {
       </template>
 
       <template v-if="data.length">
-        <div class="w-full" v-for="image in data" :key="image.id">
+        <div class="w-full h-full" v-for="image in data" :key="image.id">
           <AppImageCard
             :addSelectedImage="addSelectedImage"
             :image="image"
@@ -84,5 +85,6 @@ const addSelectedImage = (image: ImageItem) => {
         </div>
       </template>
     </div>
+    <AppTablePagination />
   </div>
 </template>

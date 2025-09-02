@@ -90,7 +90,7 @@ const deleteProduct = (item: PostData) => {
 
 <template>
   <ContextMenu ref="cm" :model="menuModel" @hide="localSelection = null" />
-  <div class="w-full h-full" v-memo="[props.data, localSelection]">
+  <div class="w-full h-full shadow-md" v-memo="[props.data, localSelection]">
     <DataTable
       :value="data"
       :filters="filters"

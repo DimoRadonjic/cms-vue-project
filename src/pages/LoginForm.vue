@@ -45,11 +45,7 @@ const onFormSubmit = async ({ valid, values }: FormSubmitEvent) => {
       :validateOnBlur="true"
       class="flex flex-col gap-8 w-full max-w-md bg-primary backdrop-blur-md p-8 rounded-2xl shadow-xl border border-primary"
     >
-      <h1
-        class="text-4xl pb-2 font-extrabold text-center bg-gradient-to-r from-green-600 to-green-400 bg-clip-text text-transparent"
-      >
-        Login
-      </h1>
+      <h1 class="text-4xl pb-2 font-extrabold text-center">Login</h1>
 
       <div
         class="flex flex-col w-full place-content-center place-items-center gap-y-5"

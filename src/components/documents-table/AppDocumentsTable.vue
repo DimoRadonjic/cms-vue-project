@@ -39,7 +39,7 @@ const addSelectedDocument = (document: any) => {
     />
     <div
       :class="
-        'grid  w-full gap-7 place-content-center place-items-center ' +
+        'grid  w-full  gap-7 place-content-center place-items-start ' +
         (data.length && !loading
           ? 'grid-cols-1  md:grid-cols-4 px-6 md:px-4'
           : 'grid-cols-1')
@@ -97,5 +97,6 @@ const addSelectedDocument = (document: any) => {
         </div>
       </template>
     </div>
+    <AppTablePagination />
   </div>
 </template>

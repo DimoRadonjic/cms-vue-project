@@ -102,57 +102,64 @@ const uploadFunc = async (event: any) => {
 
 <template>
   <div
-    class="flex flex-wrap md:grid md:grid-cols-3 w-full h-full place-items-center place-content-between md:place-content-center gap-6 px-3 relative"
+    class="flex flex-col md:flex-row w-full h-full place-items-center place-content-between md:place-content-between gap-6 px-3 relative"
   >
-    <div class="flex place-content-center place-items-center mr-auto gap-4">
-      <InputText placeholder="Search" type="text" v-model="search" />
-      <Button
-        label="Search"
-        icon="pi pi-search"
-        class="!px-5"
-        :disabled="search === '' ? true : false"
-      />
-    </div>
-    <h1
-      class="text-4xl font-bold md:col-start-2 md:col-end-2 md:w-full text-start md:text-center capitalize"
+    <div
+      class="flex flex-row-reverse w-full max-w-none md:max-w-full md:flex-row flex-wrap-reverse gap-4 place-content-between flex-1"
     >
-      {{ title }}
-    </h1>
-    <div class="text-2xl font-bold ml-0 md:ml-auto md:col-start-3 md:col-end-3">
       <div
-        class="flex w-full place-items-center place-content-between md:gap-x-4 gap-x-2 relative"
+        class="flex place-content-start md:place-content-center place-items-end h-full w-full md:max-w-fit md:mr-auto gap-4"
       >
-        <Button
-          v-if="!fileUpload"
-          label="New"
-          icon="pi pi-plus"
-          class="mr-2"
-          @click="navigateTo('new-image')"
-        />
-
-        <FileUpload
-          v-else
-          ref="fileUploadRef"
-          mode="basic"
-          :chooseLabel="uploading ? 'Uploading' : buttonAddLabel"
-          name="mainImageId"
-          :accept
-          :auto="true"
-          @select="uploadFunc($event)"
-          customUpload
-          :multiple="true"
-          :disabled="uploading"
+        <InputText
+          placeholder="Search"
+          type="text"
+          pt:root="w-full max-w-fit"
+          v-model="search"
         />
         <Button
-          :label="deleteLabel"
-          icon="pi pi-trash"
-          severity="danger"
-          variant="outlined"
-          :disabled="!selectedItem || selectedItem.length === 0 || deleting"
-          @click="handleDeletion()"
+          label="Search"
+          icon="pi pi-search"
+          class="!px-5 my-auto"
+          :disabled="search === '' ? true : false"
         />
-        <Button icon="pi pi-refresh" rounded raised @click="$emit('refetch')" />
       </div>
+      <h1
+        class="text-4xl font-bold text-start md:text-center capitalize mr-auto"
+      >
+        {{ title }}
+      </h1>
+    </div>
+    <div
+      class="flex mt-auto flex-wrap text-2xl font-bold h-full place-content-between gap-4 relative"
+    >
+      <Button
+        v-if="!fileUpload"
+        label="New"
+        icon="pi pi-plus"
+        @click="navigateTo('new-image')"
+      />
+
+      <FileUpload
+        v-else
+        ref="fileUploadRef"
+        mode="basic"
+        :chooseLabel="uploading ? 'Uploading' : buttonAddLabel"
+        name="mainImageId"
+        :accept
+        :auto="true"
+        @select="uploadFunc($event)"
+        customUpload
+        :multiple="true"
+        :disabled="uploading"
+      />
+      <Button
+        :label="deleteLabel"
+        icon="pi pi-trash"
+        severity="danger"
+        :disabled="!selectedItem || selectedItem.length === 0 || deleting"
+        @click="handleDeletion()"
+      />
+      <Button icon="pi pi-refresh" rounded raised @click="$emit('refetch')" />
     </div>
   </div>
 </template>

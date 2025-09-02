@@ -86,10 +86,10 @@ const handleExport = (posts: PostData[]) => {
 </script>
 
 <template>
-  <div class="flex flex-wrap items-center justify-center gap-x-12">
-    <span class="text-4xl font-bold">{{ title }}</span>
-    <div class="flex place-content-center place-items-center gap-x-2.5">
-      <Toolbar class="border-none">
+  <div class="flex flex-wrap items-end justify-center gap-x-12">
+    <h1 class="text-5xl font-bold">{{ title }}</h1>
+    <div class="flex place-content-center place-items-end gap-x-2.5 h-full">
+      <Toolbar class="!border-none !rounded-none !p-0 !gap-4">
         <template #start>
           <div class="flex flex-wrap gap-4">
             <IconField>
@@ -98,7 +98,7 @@ const handleExport = (posts: PostData[]) => {
               </InputIcon>
               <InputText
                 v-model="filterGlobal['global'].value"
-                placeholder="Keyword Search"
+                placeholder="Search"
                 class="search-input"
                 pt:root="w-full"
               />
@@ -107,7 +107,6 @@ const handleExport = (posts: PostData[]) => {
               <Button
                 label="New"
                 icon="pi pi-plus"
-                class="mr-2"
                 @click="navigateTo('new-post')"
               />
 
@@ -121,7 +120,6 @@ const handleExport = (posts: PostData[]) => {
                 "
                 icon="pi pi-trash"
                 severity="danger"
-                variant="outlined"
                 :disabled="!selectedItem"
                 @click="handleDeletion()"
               />
@@ -148,9 +146,3 @@ const handleExport = (posts: PostData[]) => {
     </div>
   </div>
 </template>
-
-<style scoped>
-.p-toolbar {
-  @apply border-none rounded-none;
-}
-</style>

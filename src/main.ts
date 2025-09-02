@@ -15,8 +15,8 @@ const MyPreset = definePreset(Aura, {
       light: {
         surface: {
           0: "#f7f7f7",
-          50: "#f0fdf4",
-          100: "#dcfce7",
+          50: "#c6f6d5",
+          100: "#86efac",
           200: "#bbf7d0",
           300: "{zinc.300}",
           400: "{zinc.400}",
@@ -42,9 +42,9 @@ const MyPreset = definePreset(Aura, {
       colorScheme: {
         light: {
           row: {
-            hoverBackground: "#f0fdf4",
-            selectedBackground: "#dcfce7",
-            stripedBackground: "#f9fafb",
+            hoverBackground: "#c6f6d5",
+            selectedBackground: "#86efac",
+            stripedBackground: "#e8ecf0",
             selectedColor: "black",
           },
         },
@@ -58,6 +58,30 @@ const MyPreset = definePreset(Aura, {
             selectedBackground: "#14543c94",
             stripedBackground: "#14543c94",
             selectedColor: "white",
+          },
+        },
+      },
+    },
+
+    paginator: {
+      colorScheme: {
+        light: {
+          navButton: {
+            hoverBackground: "#c6f6d5", //hover row color
+            selectedBackground: "#86efac", //selected row color
+          },
+        },
+      },
+    },
+
+    button: {
+      colorScheme: {
+        light: {
+          root: {
+            danger: {
+              activeBackground: "red",
+              hoverBackground: "green",
+            },
           },
         },
       },
