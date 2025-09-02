@@ -354,8 +354,8 @@ const cancelNewPost = async () => {
   checkNewPostData();
   if (shouldConfirmLeave.value) {
     removeAllUploads();
-    goBack();
   }
+  goBack();
 };
 
 onBeforeRouteLeave((_, __, next) => {
