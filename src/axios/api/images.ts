@@ -48,6 +48,7 @@ const removeMainImageAPI = async (image: ImageItem) => {
 const removeImagesAPI = async (images: ImageItem[]) => {
   try {
     const res = await tableGallery.deleteImagesFromStorage(images);
+    console.log("deletion", res);
 
     return res;
   } catch (error: any) {

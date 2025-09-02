@@ -122,7 +122,7 @@ const ClearImagesUpload = () => {
 
 const resetUploads = () => {
   filesUploaded.value = [];
-  imageIds.value = [];
+  imagesUpload.value = [];
   mainImageUpload.value = null;
 };
 
@@ -314,7 +314,8 @@ const removeMainImage = async () => {
 };
 
 const removeImages = async () => {
-  if (imagesUpload.value) {
+  console.log("imagesUpload", imagesUpload.value);
+  if (imagesUpload.value.length > 0) {
     try {
       await apiImages.removeImagesAPI(imagesUpload.value);
     } catch (error) {
@@ -340,11 +341,21 @@ const removeAllUploads = () => {
   clearAllUploads();
 };
 
-const cancelNewPost = async () => {
-  shouldConfirmLeave.value = false;
+const checkNewPostData = () => {
+  shouldConfirmLeave.value =
+    filesUploaded.value.length > 0 ||
+    imagesUpload.value.length > 0 ||
+    mainImageUpload.value
+      ? true
+      : false;
+};
 
-  removeAllUploads();
-  goBack();
+const cancelNewPost = async () => {
+  checkNewPostData();
+  if (shouldConfirmLeave.value) {
+    removeAllUploads();
+    goBack();
+  }
 };
 
 onBeforeRouteLeave((_, __, next) => {
