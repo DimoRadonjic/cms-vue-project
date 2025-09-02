@@ -67,21 +67,14 @@ const MyPreset = definePreset(Aura, {
       colorScheme: {
         light: {
           navButton: {
-            hoverBackground: "#c6f6d5", //hover row color
-            selectedBackground: "#86efac", //selected row color
+            hoverBackground: "#c6f6d5",
+            selectedBackground: "#86efac",
           },
         },
-      },
-    },
-
-    button: {
-      colorScheme: {
-        light: {
-          root: {
-            danger: {
-              activeBackground: "red",
-              hoverBackground: "green",
-            },
+        dark: {
+          navButton: {
+            hoverBackground: "#064e3b",
+            selectedBackground: "#14543c94",
           },
         },
       },
