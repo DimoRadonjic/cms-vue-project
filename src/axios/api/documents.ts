@@ -13,6 +13,17 @@ const getDocumentsAPI = async () => {
   }
 };
 
+const getDocumentByIDAPI = async (id: string) => {
+  try {
+    const { data, status } = await tableDocuments.getDocument(Number(id));
+
+    return { data, status };
+  } catch (error: any) {
+    errorMessage("Failed to fetch documents", error);
+    return { data: null, status: 500 };
+  }
+};
+
 const uploadDocumentsAPI = async (files: File[]) => {
   console.log("uploadDocumentsAPI files", files);
   try {
@@ -51,6 +62,7 @@ const apiDocuments = {
   uploadDocumentsAPI,
   removeDocumentAPI,
   deleteDocumentsAPI,
+  getDocumentByIDAPI,
 };
 
 export default apiDocuments;

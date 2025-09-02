@@ -16,6 +16,7 @@ import { usePosts } from "../composable";
 import apiDocuments from "../axios/api/documents";
 import FileUpload from "primevue/fileupload";
 import apiImages from "../axios/api/images";
+import { onBeforeRouteLeave } from "vue-router";
 
 const BASE_URL = "https://www.example.com/";
 
@@ -82,7 +83,7 @@ const schema = z.object({
 });
 
 const resolver = zodResolver(schema);
-
+const shouldConfirmLeave = ref(true);
 const filesUploaded = ref<DocumentItem[]>([]);
 const fileUploadRef = ref<any>(null);
 
@@ -336,12 +337,29 @@ const removeAllUploads = () => {
   removeMainImage();
   removeImages();
   removeDocuments();
+  clearAllUploads();
 };
 
 const cancelNewPost = async () => {
+  shouldConfirmLeave.value = false;
+
   removeAllUploads();
-  clearAllUploads();
+  goBack();
 };
+
+onBeforeRouteLeave((_, __, next) => {
+  if (shouldConfirmLeave.value) {
+    const answer = window.confirm(
+      "Da li si siguran da želiš napustiti stranicu?"
+    );
+    if (answer) {
+      removeAllUploads();
+      next();
+    } else next(false);
+  } else {
+    next();
+  }
+});
 </script>
 
 <template>

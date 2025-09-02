@@ -26,8 +26,12 @@ const routes = {
 export const useAppRouter = () => {
   const router = useRouter();
 
-  const navigateTo = (name: string, params?: Record<string, any>) => {
-    router.push({ name, params });
+  const navigateTo = (
+    name: string,
+    params?: Record<string, any>,
+    state?: Record<string, any>
+  ) => {
+    router.push({ name, params, state });
   };
 
   const goBack = () => {

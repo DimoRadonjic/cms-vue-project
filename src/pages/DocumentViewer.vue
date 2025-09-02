@@ -1,12 +1,76 @@
+<script setup lang="ts">
+import { ref, onMounted } from "vue";
+import { useAppRouter } from "../composable/router/useAppRouter";
+import apiDocuments from "../axios/api/documents";
+import type { DocumentItem } from "../types/types";
+
+const { getRouteID } = useAppRouter();
+const id = getRouteID();
+const documentByAPI = ref<DocumentItem | null>(null);
+
+onMounted(async () => {
+  try {
+    const { data } = await apiDocuments.getDocumentByIDAPI(id);
+    if (data) {
+      documentByAPI.value = data;
+    }
+  } catch (error) {}
+});
+
+const isLoading = ref(true);
+const showError = ref(false);
+
+const onPdfLoad = () => {
+  isLoading.value = false;
+  showError.value = false;
+};
+
+const onPdfError = () => {
+  isLoading.value = false;
+  showError.value = true;
+};
+
+const openInNewTab = () => {
+  if (documentByAPI.value) {
+    window.open(documentByAPI.value.url, "_blank");
+  }
+};
+
+const downloadPdf = () => {
+  if (documentByAPI.value) {
+    const link = document.createElement("a");
+    link.href = documentByAPI.value.url;
+    link.download = `${documentByAPI.value.title}.pdf`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  }
+};
+</script>
+
 <template>
   <div
     class="w-full h-full flex place-content-center flex-col place-items-center p-4"
   >
-    <h2 class="text-2xl font-bold mb-4 text-center">{{ document.title }}</h2>
-
+    <h2 class="text-2xl font-bold mb-4 text-center">
+      {{ documentByAPI?.title }}
+    </h2>
+    <div v-if="isLoading">
+      <div
+        class="flex place-content-center place-items-center w-full h-full text-3xl"
+      >
+        <ProgressSpinner
+          style="width: 80px; height: 80px"
+          strokeWidth="8"
+          fill="transparent"
+          animationDuration=".5s"
+          aria-label="Custom ProgressSpinner"
+        />
+      </div>
+    </div>
     <div class="pdf-container">
       <iframe
-        :src="document.url"
+        :src="documentByAPI?.url"
         height="100%"
         width="100%"
         frameborder="0"
@@ -16,7 +80,7 @@
 
       <div v-if="showError" class="error-message">
         <p>Ne mogu da učitam PDF dokument.</p>
-        <a :href="document.url" target="_blank" class="download-link">
+        <a :href="documentByAPI?.url" target="_blank" class="download-link">
           Klikni ovde za download
         </a>
       </div>
@@ -42,49 +106,6 @@
     </div>
   </div>
 </template>
-
-<script setup>
-import { ref, computed } from "vue";
-
-const document = ref({
-  id: "3",
-  title: "Test PDF Document",
-  url: "https://pdfobject.com/pdf/sample.pdf",
-  blogIds: [4],
-  createdAt: "2025-05-15T14:20:00Z",
-  updatedAt: "2025-05-15T15:00:00Z",
-});
-const isLoading = ref(true);
-const showError = ref(false);
-
-const pdfUrl = computed(() => {
-  const baseUrl = document.value.url;
-  return `${baseUrl}#toolbar=1&navpanes=1&scrollbar=1&page=1&view=FitH`;
-});
-
-const onPdfLoad = () => {
-  isLoading.value = false;
-  showError.value = false;
-};
-
-const onPdfError = () => {
-  isLoading.value = false;
-  showError.value = true;
-};
-
-const openInNewTab = () => {
-  window.open(document.value.url, "_blank");
-};
-
-const downloadPdf = () => {
-  const link = document.createElement("a");
-  link.href = document.value.url;
-  link.download = `${document.value.title}.pdf`;
-  document.body.appendChild(link);
-  link.click();
-  document.body.removeChild(link);
-};
-</script>
 
 <style scoped>
 .pdf-container {

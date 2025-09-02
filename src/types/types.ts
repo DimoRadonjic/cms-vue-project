@@ -23,7 +23,7 @@ type PostData = {
   seo_canonicalUrl: string;
 };
 
-export type ImageItem = {
+type ImageItem = {
   id: string;
   title: string;
   url: string;
@@ -31,14 +31,14 @@ export type ImageItem = {
   alt: string;
 };
 
-export type DocumentItem = {
+type DocumentItem = {
   id: string;
   title: string;
   url: string;
   path: string;
 };
 
-export type NewPost = {
+type NewPost = {
   title: string;
   mainImageId: string;
   imageIds: string[];
@@ -81,4 +81,8 @@ export type {
   FilterType,
   StorageData,
   LoginProfileData,
+  DocumentItem,
+  Gallery,
+  ImageItem,
+  NewPost,
 };
