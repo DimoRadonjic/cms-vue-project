@@ -17,10 +17,8 @@ const handleDeletion = async () => {
 
   if (!selectedItem) return;
 
-  const ids: string[] = selectedItem.map((item) => item.id);
-
   try {
-    await apiDocuments.deleteDocumentsAPI(ids);
+    await apiDocuments.deleteDocumentsAPI(selectedItem);
   } catch (error) {}
 
   emit("update:selectedItem", null);
