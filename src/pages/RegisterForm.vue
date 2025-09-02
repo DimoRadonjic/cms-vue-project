@@ -65,14 +65,17 @@ const onFormSubmit = async (e: FormSubmitEvent) => {
         email: values.email,
         password: values.password,
       };
-      const token = await auth.registerUser(data);
+      const { session } = await auth.registerUser(data);
 
-      setItem("token", token);
+      if (session) {
+        setItem("token", session?.access_token);
+      }
 
       showSuccess("Registration successful.", 3000);
       navigateTo("dashboard");
-    } catch (error) {
-      showError("Registration failed.", 3000);
+    } catch (error: any) {
+      const detail = new Error(error.message);
+      showError("Registration failed.", detail, 3000);
 
       return;
     }

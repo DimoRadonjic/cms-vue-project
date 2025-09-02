@@ -26,7 +26,7 @@ export const useDocuments = () => {
       }
 
       loading.value = false;
-    } catch (apiError) {
+    } catch (apiError: any) {
       console.error("Failed to fetch posts:", apiError);
       showError("Failed to fetch posts. Please try again later.", apiError);
       loading.value = false;

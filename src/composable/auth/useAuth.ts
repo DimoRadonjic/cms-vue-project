@@ -39,11 +39,10 @@ export const useAuth = () => {
         navigateTo("dashboard");
         return;
       }
-    } catch (error) {
-      showError(
-        "Login failed",
-        error instanceof Error ? error : new Error("An error occurred")
-      );
+    } catch (error: any) {
+      const detail = new Error(error.message);
+
+      showError("Login failed", detail);
     }
   };
 

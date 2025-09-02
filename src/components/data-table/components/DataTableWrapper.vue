@@ -74,9 +74,10 @@ const deleteProduct = (item: PostData) => {
       showSuccess("Post deleted successfully");
       updateSelection(null);
       emit("refetch", true);
-    } catch (error) {
+    } catch (error: any) {
+      const detail = new Error(error.message);
       console.error("Error deleting post:", error);
-      showError("Error deleting post", error);
+      showError("Error deleting post", detail);
     }
   };
 

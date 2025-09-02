@@ -57,9 +57,7 @@ const getUserByID = async (id: string): Promise<ProfileData> => {
   return data as ProfileData;
 };
 
-const getUserByUsername = async (
-  username: string
-): Promise<ProfileData | null> => {
+const getUserByUsername = async (username: string): Promise<ProfileData> => {
   const { data, error } = await supabase
     .from(table)
     .select("*")
@@ -70,48 +68,41 @@ const getUserByUsername = async (
     throw new Error(error.message);
   }
 
-  return data as ProfileData | null;
+  return data as ProfileData;
 };
 
-const checkIfUserExistsByUsername = async (
+const checkIfUserExistsByUsernameOrEmail = async (
   user: ProfileData
-): Promise<{ result: boolean; error: string }> => {
+): Promise<void> => {
   const { username, email } = user;
-  const { data: existing, error } = await supabase
+  const { data, error } = await supabase
     .from(table)
     .select("id, username, email")
-    .or(`username.eq.${username},email.eq.${email}`)
-    .maybeSingle();
+    .or(`username.eq.${username},email.eq.${email}`);
 
   if (error) {
     throw new Error("User check failed: " + error.message);
   }
 
-  if (existing) {
-    if (existing.username === username) {
-      return { result: true, error: "Username already exists" };
-    }
-
-    if (existing.email === email) {
-      return { result: true, error: "User with that email already exists" };
+  if (data && data.length > 0) {
+    for (const existing of data) {
+      if (existing.username === username)
+        throw new Error("Username already exists");
+      if (existing.email === email)
+        throw new Error("User with that email already exists");
     }
   }
-  return { result: false, error: "" };
 };
 
 const registerUser = async (
   profileData: ProfileData
 ): Promise<{
-  session: Session;
-  user: ProfileData;
-} | null> => {
+  session: Session | null;
+  user: ProfileData | null;
+}> => {
   const { email, password, username } = profileData;
-  // const { result, error: checkError } = await checkIfUserExistsByUsername(
-  //   userRegister
-  // );
-  // if (result) {
-  //   throw new Error(checkError);
-  // }
+  await checkIfUserExistsByUsernameOrEmail(profileData);
+
   const { data, error } = await supabase.auth.signUp({
     email,
     password,
@@ -128,10 +119,14 @@ const registerUser = async (
 
     if (profileError) throw new Error(profileError.message);
     const res = await loginUser({ username, password });
-
-    return res;
+    if (res) {
+      return { ...res };
+    }
   }
-  return null;
+  return {
+    session: null,
+    user: null,
+  };
 };
 
 const loginUser = async (
@@ -141,21 +136,23 @@ const loginUser = async (
   user: ProfileData;
 } | null> => {
   const { password, username } = loginData;
+
   const gottenUser = await getUserByUsername(username);
 
-  if (gottenUser) {
-    const { data, error } = await supabase.auth.signInWithPassword({
-      email: gottenUser.email,
-      password,
-    });
-
-    if (error) throw new Error(error.message);
-
-    const user = await getUserByID(data.user.id);
-
-    return { session: data.session, user };
+  if (!gottenUser) {
+    throw new Error("No user found");
   }
-  return null;
+
+  const { data, error } = await supabase.auth.signInWithPassword({
+    email: gottenUser.email,
+    password,
+  });
+
+  if (error) throw new Error(error.message);
+
+  const user = await getUserByID(data.user.id);
+
+  return { session: data.session, user };
 };
 
 export const auth = {
