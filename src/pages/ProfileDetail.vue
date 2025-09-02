@@ -19,71 +19,100 @@ const initialValue = ref<ProfileData>(
 <template>
   <div class="flex place-content-center place-items-center h-full w-full">
     <div
-      class="flex flex-col place-content-center place-items-center gap-8 w-fit bg-primary backdrop-blur-md p-8 rounded-2xl shadow-xl border border-primary"
+      class="flex flex-col place-content-center place-items-center gap-8 w-full max-w-xl bg-primary backdrop-blur-md p-8 rounded-2xl shadow-xl border-2 border-primary"
     >
-      <h2 class="text-black text-2xl font-semibold text-center">
-        User Profile
-      </h2>
+      <h1>User Profile</h1>
 
       <Form
         :initial-values="initialValue"
         v-if="editing"
-        class="w-full min-w-sm"
+        class="w-full space-y-4 text-xl"
       >
         <div
           class="flex flex-col place-content-center place-items-center w-full"
         >
-          <div class="w-full max-w-lg grid grid-rows-3 gap-y-6">
-            <div>
-              <label class="font-semibold mb-1">Username:</label>
+          <div class="flex flex-col gap-y-6 w-full">
+            <div
+              class="flex gap-4 border-2 rounded-2xl p-6 border-primary w-full"
+            >
+              <i key="sun" class="pi pi-user" style="font-size: 2rem"></i>
+              <div class="flex flex-col gap-2 w-full">
+                <label for="username" class="font-semibold mb-1"
+                  >Username:</label
+                >
 
-              <AppInputTextField
-                placeholder="Username"
-                fieldName="username"
-                :initialValue="initialValue.username"
-                type="text"
-                readonly
-              />
+                <AppInputTextField
+                  placeholder="Username"
+                  fieldName="username"
+                  :inputRoot="'!text-2xl !w-full'"
+                  :initialValue="initialValue.username"
+                  type="text"
+                />
+              </div>
             </div>
 
-            <div>
-              <label class="font-semibold mb-1">Email:</label>
+            <div
+              class="flex gap-4 border-2 rounded-2xl p-6 border-primary w-full"
+            >
+              <i key="sun" class="pi pi-envelope" style="font-size: 2rem"></i>
+              <div class="flex flex-col gap-2 w-full">
+                <label for="email" class="font-semibold mb-1">Email:</label>
 
-              <AppInputTextField
-                placeholder="Email"
-                fieldName="email"
-                :initialValue="initialValue.email"
-                type="email"
-                readonly
-              />
+                <AppInputTextField
+                  placeholder="Email"
+                  fieldName="email"
+                  :inputRoot="'!text-2xl !w-full '"
+                  :initialValue="initialValue.email"
+                  type="email"
+                />
+              </div>
             </div>
-            <div>
-              <label class="font-semibold mb-1">Password:</label>
 
-              <AppInputTextField
-                placeholder="Password"
-                fieldName="password"
-                :initialValue="initialValue.password"
-                type="text"
-                readonly
-              />
+            <div
+              class="flex gap-4 border-2 rounded-2xl p-6 border-primary w-full"
+            >
+              <i key="sun" class="pi pi-unlock" style="font-size: 2rem"></i>
+              <div class="flex flex-col gap-2 w-full">
+                <label for="password" class="font-semibold mb-1"
+                  >Password:</label
+                >
+
+                <AppInputTextField
+                  placeholder="Password"
+                  fieldName="password"
+                  :inputRoot="'!text-2xl !w-full'"
+                  :initialValue="initialValue.password"
+                  type="text"
+                />
+              </div>
             </div>
           </div>
         </div>
       </Form>
 
-      <div v-else class="space-y-4">
-        <div class="flex flex-col">
-          <label class="font-semibold mb-1">Username:</label>
-          <p>{{ user?.username }}</p>
+      <div v-else class="space-y-4 text-xl">
+        <div class="flex gap-4 border-2 rounded-2xl p-6 border-primary">
+          <i key="sun" class="pi pi-user" style="font-size: 2rem"></i>
+          <div class="flex flex-col gap-2">
+            <label class="font-semibold mb-1">Username:</label>
+            <p>{{ user?.username }}</p>
+          </div>
         </div>
-        <div class="flex flex-col">
-          <label class="font-semibold mb-1">Email:</label>
-          <p>{{ user?.email }}</p>
+
+        <div class="flex gap-4 border-2 rounded-2xl p-6 border-primary">
+          <i key="sun" class="pi pi-envelope" style="font-size: 2rem"></i>
+          <div class="flex flex-col gap-2">
+            <label class="font-semibold mb-1">Email:</label>
+            <p>{{ user?.email }}</p>
+          </div>
         </div>
-        <div class="flex flex-col">
-          <label class="font-semibold mb-1">Password:</label>
-          <p>{{ user?.password }}</p>
+
+        <div class="flex gap-4 border-2 rounded-2xl p-6 border-primary">
+          <i key="sun" class="pi pi-lock" style="font-size: 2rem"></i>
+          <div class="flex flex-col gap-2">
+            <label class="font-semibold mb-1">Password:</label>
+            <p>{{ user?.password }}</p>
+          </div>
         </div>
       </div>
 
@@ -91,21 +120,21 @@ const initialValue = ref<ProfileData>(
         <Button
           v-if="!editing"
           @click="editing = true"
-          class="bg-secondary px-4 py-2 font-semibold"
+          class="!bg-secondary px-4 py-2 !font-semibold !text-2xl"
         >
           Edit Profile
         </Button>
-        <div class="flex" v-else>
+        <div class="flex gap-6" v-else>
           <Button
             @click="editing = false"
-            class="bg-secondary px-4 py-2 font-semibold"
+            class="bg-secondary px-4 py-2 font-semibold !text-2xl"
           >
             Save Changes
           </Button>
 
           <Button
             @click="editing = false"
-            class="bg-secondary px-4 py-2 font-semibold"
+            class="bg-secondary px-4 py-2 font-semibold !text-2xl"
           >
             Cancel
           </Button>

@@ -27,7 +27,7 @@ const MyPreset = definePreset(Aura, {
           900: "{zinc.900}",
           950: "{zinc.950}",
 
-          primary: "#f7f7f7",
+          primary: "#f3f1ef",
         },
       },
       dark: {
@@ -75,6 +75,21 @@ const MyPreset = definePreset(Aura, {
           navButton: {
             hoverBackground: "#064e3b",
             selectedBackground: "#14543c94",
+          },
+        },
+      },
+    },
+
+    inputtext: {
+      colorScheme: {
+        light: {
+          root: {
+            background: "#fefcf9",
+          },
+        },
+        dark: {
+          root: {
+            background: "#09090b",
           },
         },
       },

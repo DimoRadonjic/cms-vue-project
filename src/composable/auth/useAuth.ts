@@ -27,13 +27,16 @@ export const useAuth = () => {
     try {
       const res = await auth.loginUser(newUser);
 
+      console.log("res", res);
+
       if (res) {
         const { session, user } = res;
         setItem("token", session.access_token);
 
-        showSuccess("Logged in successfully");
         setUser(user);
         isAuth.value = true;
+        console.log("user", user);
+        showSuccess("Logged in successfully");
 
         navigateTo("dashboard");
         return;

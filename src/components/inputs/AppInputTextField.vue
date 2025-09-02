@@ -1,36 +1,3 @@
-<template>
-  <FormField
-    :name="fieldName"
-    :initialValue="initalValue ? initalValue : ''"
-    class="flex flex-col gap-2 w-full"
-    v-slot="{ invalid, error }"
-    :key="fieldName + 'field'"
-  >
-    <InputText
-      v-model="inputValue"
-      :key="fieldName + ' input'"
-      :type="type"
-      :placeholder="placeholder"
-      :autocomplete="fieldName"
-      :readonly="readonly"
-      :pattern="inputPattern"
-      @update:modelValue="(val) => update(val)"
-      @focus="onFocus && onFocus($event)"
-      @input="onInput && onInput($event)"
-      :pt:root="inputRoot"
-    />
-    <Message
-      v-if="invalid"
-      severity="error"
-      size="small"
-      variant="simple"
-      class="text-sm text-red-500"
-    >
-      {{ error?.message }}
-    </Message>
-  </FormField>
-</template>
-
 <script setup lang="ts">
 import { ref } from "vue";
 
@@ -63,5 +30,39 @@ const update = (value: string | undefined) => {
   emit("update:modelValue", newValue);
 };
 </script>
+
+<template>
+  <FormField
+    :name="fieldName"
+    :initialValue="initalValue ? initalValue : ''"
+    class="flex flex-col gap-2 w-full"
+    v-slot="{ invalid, error }"
+    :key="fieldName + 'field'"
+  >
+    <InputText
+      :id="fieldName"
+      v-model="inputValue"
+      :key="fieldName + ' input'"
+      :type="type"
+      :placeholder="placeholder"
+      :autocomplete="fieldName"
+      :readonly="readonly"
+      :pattern="inputPattern"
+      @update:modelValue="(val) => update(val)"
+      @focus="onFocus && onFocus($event)"
+      @input="onInput && onInput($event)"
+      :pt:root="inputRoot"
+    />
+    <Message
+      v-if="invalid"
+      severity="error"
+      size="small"
+      variant="simple"
+      class="text-sm text-red-500"
+    >
+      {{ error?.message }}
+    </Message>
+  </FormField>
+</template>
 
 <style scoped></style>

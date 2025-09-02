@@ -44,17 +44,13 @@ const deleteUser = async (id: string) => {
 };
 
 const getUserByID = async (id: string): Promise<ProfileData> => {
-  const { data, error } = await supabase
-    .from(table)
-    .select("*")
-    .eq("id", id)
-    .maybeSingle();
+  const { data, error } = await supabase.from(table).select("*").eq("id", id);
 
   if (error) {
     throw new Error(error.message);
   }
 
-  return data as ProfileData;
+  return data[0] as ProfileData;
 };
 
 const getUserByUsername = async (username: string): Promise<ProfileData> => {
@@ -101,6 +97,7 @@ const registerUser = async (
   user: ProfileData | null;
 }> => {
   const { email, password, username } = profileData;
+
   await checkIfUserExistsByUsernameOrEmail(profileData);
 
   const { data, error } = await supabase.auth.signUp({
@@ -115,7 +112,7 @@ const registerUser = async (
   if (user) {
     const { error: profileError } = await supabase
       .from(table)
-      .insert([profileData]);
+      .insert([{ ...profileData, id: user.id }]);
 
     if (profileError) throw new Error(profileError.message);
     const res = await loginUser({ username, password });
@@ -150,9 +147,13 @@ const loginUser = async (
 
   if (error) throw new Error(error.message);
 
+  console.log("data.user.id", data.user.id);
+
   const user = await getUserByID(data.user.id);
 
-  return { session: data.session, user };
+  console.log("user getUserByID", user);
+
+  return { session: data.session, user: user };
 };
 
 export const auth = {
