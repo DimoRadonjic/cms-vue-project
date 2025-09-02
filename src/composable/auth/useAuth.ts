@@ -1,6 +1,5 @@
 import { useSessionStorage } from "../sessionStorage/useSessionStorage";
 import type { LoginProfileData } from "../../types/types";
-import apiProfiles from "../../axios/api/profiles";
 import { useToastService } from "../toastService/AppToastService";
 import { useAppRouter } from "../router/useAppRouter";
 import { useAuthStore } from "../../store";
