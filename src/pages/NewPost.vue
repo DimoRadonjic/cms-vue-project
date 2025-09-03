@@ -83,7 +83,7 @@ const schema = z.object({
 });
 
 const resolver = zodResolver(schema);
-const shouldConfirmLeave = ref(true);
+const shouldConfirmLeave = ref(false);
 const filesUploaded = ref<DocumentItem[]>([]);
 const fileUploadRef = ref<any>(null);
 
@@ -92,12 +92,27 @@ const mainImageUploadRef = ref<any>(null);
 const imagesUploadRef = ref<any>(null);
 const imagesUpload = ref<ImageItem[]>([]);
 
+const imagesUploading = ref<boolean>(false);
+const imagesError = ref(false);
+
+const documentsUploading = ref<boolean>(false);
+const documentError = ref(false);
+
+const mainImageLoading = ref<boolean>(false);
+const mainImageError = ref<boolean>(false);
+
+const uploadsDone = computed(
+  () =>
+    !mainImageError.value &&
+    !documentError.value &&
+    !imagesUploading.value &&
+    !documentsUploading.value &&
+    !imagesError.value
+);
+
 const mainImageLink = computed(() =>
   mainImageUpload.value ? mainImageUpload.value.url : ""
 );
-
-const mainImageLoading = ref(false);
-const mainImageError = ref(false);
 
 const ClearDocumentUpload = () => {
   if (fileUploadRef.value) {
@@ -139,27 +154,35 @@ const onUploadDocument = async (event: any) => {
     return;
   }
 
-  if (filesUploaded.value.length !== 0) {
+  documentsUploading.value = true;
+
+  if (filesUploaded.value.length > 0) {
     try {
-      await apiDocuments.removeDocumentAPI(filesUploaded.value[0]);
-      filesUploaded.value = [];
-      ClearDocumentUpload();
+      await apiDocuments.deleteDocumentsAPI(filesUploaded.value);
+
+      documentsUploading.value = false;
+
+      return;
     } catch (error) {
       console.error("Upload failed", error);
-      ClearDocumentUpload();
+      documentError.value = true;
+      documentsUploading.value = false;
     }
-    console.log("after removed files", filesUploaded.value);
   }
 
   try {
     const { data: document } = await apiDocuments.uploadDocumentsAPI(files);
-
     if (document) {
       filesUploaded.value = document;
     }
+
+    documentsUploading.value = false;
+
+    return;
   } catch (error) {
     console.error("Upload failed", error);
-    ClearDocumentUpload();
+    documentError.value = true;
+    documentsUploading.value = false;
   }
 };
 
@@ -184,10 +207,14 @@ const onUploadImage = async (event: any) => {
     console.error("Upload failed", error);
     ClearMainImageUpload();
   }
+
+  mainImageLoading.value = false;
 };
 
 const onUploadImages = async (event: any) => {
   const files: File[] = event.files || event.target?.files;
+
+  imagesUploading.value = true;
 
   if (!files) {
     console.error("Nema fajlova u eventu (image upload):", event);
@@ -205,19 +232,21 @@ const onUploadImages = async (event: any) => {
   } catch (error) {
     console.error("Upload failed", error);
     ClearMainImageUpload();
+
+    imagesError.value = true;
   }
+
+  imagesUploading.value = false;
 };
 
 const onFormSubmit = async ({ valid, values }: FormSubmitEvent) => {
   if (!valid) {
-    showError("Creatiton failed.", 3000);
+    showError("Creatiton failed.", new Error("Invalid fields"), 3000);
     return;
   }
 
   const fileIds = filesUploaded.value.map((file) => file.id);
   const imageIds = imagesUpload.value.map((image) => image.id);
-
-  console.log("Form values:", values);
 
   let valuesToSend: PostData = { ...(values as PostData) };
   valuesToSend = {
@@ -231,14 +260,17 @@ const onFormSubmit = async ({ valid, values }: FormSubmitEvent) => {
   try {
     await apiPosts.createPost(valuesToSend as PostData);
     showSuccess("Post created");
-    reFetchPosts();
-    goBack();
+    if (uploadsDone.value) {
+      reFetchPosts();
+      goBack();
 
-    values = initialValues;
-    resetUploads();
+      values = initialValues;
+      resetUploads();
+    }
     return;
-  } catch (error) {
-    showError("Creatiton failed.", 3000);
+  } catch (error: any) {
+    const detail = new Error(error.message);
+    showError("Creatiton failed.", detail, 3000);
     return;
   }
 };
@@ -500,6 +532,9 @@ onBeforeRouteLeave((_, __, next) => {
                 accept="image/jpeg"
                 @select="onUploadImage($event)"
                 customUpload
+                :disabled="
+                  imagesUploading || documentsUploading || mainImageLoading
+                "
               />
               <Button
                 v-if="mainImageLink"
@@ -509,29 +544,64 @@ onBeforeRouteLeave((_, __, next) => {
             </div>
           </div>
 
-          <div>
+          <div class="flex flex-col gap-y-4">
             <label>Documents</label>
+
+            <div v-if="documentsUploading">
+              <ProgressSpinner
+                style="width: 80px; height: 80px"
+                strokeWidth="8"
+                fill="transparent"
+                animationDuration=".5s"
+                aria-label="Custom ProgressSpinner"
+              />
+            </div>
+
+            <div v-if="documentError" class="text-red-500 text-sm">
+              Failed to upload documents
+            </div>
             <FileUpload
               ref="fileUploadRef"
               mode="basic"
               name="documentIds[]"
               accept="application/pdf"
+              :chooseLabel="filesUploaded.length > 0 ? 'Change' : 'Choose'"
               :multiple="true"
               @select="onUploadDocument($event)"
               customUpload
+              :disabled="
+                imagesUploading || documentsUploading || mainImageLoading
+              "
             />
           </div>
 
-          <div>
+          <div class="flex flex-col gap-y-4">
             <label>More images</label>
+            <div v-if="imagesUploading">
+              <ProgressSpinner
+                style="width: 80px; height: 80px"
+                strokeWidth="8"
+                fill="transparent"
+                animationDuration=".5s"
+                aria-label="Custom ProgressSpinner"
+              />
+            </div>
+
+            <div v-if="imagesError" class="text-red-500 text-sm">
+              Failed to upload images
+            </div>
             <FileUpload
               ref="imagesUploadRef"
               mode="basic"
               name="imageIds[]"
               accept="image/jpeg"
+              :chooseLabel="filesUploaded.length > 0 ? 'Change' : 'Choose'"
               :multiple="true"
               @select="onUploadImages($event)"
               customUpload
+              :disabled="
+                imagesUploading || documentsUploading || mainImageLoading
+              "
             />
           </div>
         </div>
