@@ -612,6 +612,7 @@ onBeforeRouteLeave((_, __, next) => {
           label="Create"
           pt:root="!text-2xl"
           class="w-fit py-3 rounded-xl bg-green-500 hover:bg-green-600 active:bg-green-700 text-white font-semibold shadow-md transition-transform duration-300 hover:scale-[1.02] active:scale-95"
+          :disabled="imagesUploading || documentsUploading || mainImageLoading"
         />
 
         <Button
