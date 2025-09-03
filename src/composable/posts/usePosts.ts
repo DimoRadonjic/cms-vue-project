@@ -1,13 +1,13 @@
 import { ref, watch } from "vue";
-import type { PostData, StorageData } from "../../types/types";
+import type { PostData, PostWithContent, StorageData } from "../../types/types";
 import apiPosts from "../../axios/api/posts";
 import { useToastService } from "../toastService/AppToastService";
-import { useSessionStorage } from "../sessionStorage/useSessionStorage";
+import { useStorage } from "../storage";
 
 export const usePosts = () => {
   const { showError, showSuccess } = useToastService();
-  const { getItem, setItem } = useSessionStorage();
-  const storageData = getItem<StorageData>("data");
+  const { getSessionItem, setSessionItem } = useStorage();
+  const storageData = getSessionItem<StorageData>("data");
 
   const posts = ref<PostData[]>(storageData?.data || []);
   const loading = ref<boolean>(false);
@@ -20,7 +20,7 @@ export const usePosts = () => {
 
       if (res) {
         posts.value = res;
-        setItem("data", { dataType: "posts", data: posts.value });
+        setSessionItem("data", { dataType: "posts", data: posts.value });
         loading.value = false;
       }
     } catch (apiError) {
@@ -41,7 +41,7 @@ export const usePosts = () => {
   const reFetchPosts = async () => {
     try {
       posts.value = [];
-      setItem("data", { dataType: "posts", data: posts.value });
+      setSessionItem("data", { dataType: "posts", data: posts.value });
 
       await fetchPosts();
 
@@ -69,7 +69,9 @@ export const usePosts = () => {
     }
   };
 
-  const getPostById = async (id: string): Promise<PostData | undefined> => {
+  const getPostById = async (
+    id: string
+  ): Promise<PostWithContent | undefined> => {
     try {
       const post = await apiPosts.getPost(id);
       return post;

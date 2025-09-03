@@ -1,6 +1,6 @@
-import { TableName } from ".";
-import { supabase } from "..";
-import type { PostData } from "../../types/types";
+import { TableName } from "..";
+import { supabase } from "../..";
+import type { PostData } from "../../../types/types";
 import tableDocuments from "./tableDocuments";
 
 const table = TableName.posts;
@@ -13,10 +13,42 @@ const getAllPosts = async () => {
   return data;
 };
 
-const getPostById = async (id: number) => {
+const getPostById = async (id: string) => {
   const { data, error, status } = await supabase
     .from(table)
-    .select("*")
+    .select(
+      `
+    id,
+    title,
+    authorUsername,
+    description,
+    mainImage:gallery!mainImageId (
+      id,
+      title,
+      url,
+      path,
+      alt
+    ),
+    seo_slug,
+    seo_metaTitle,
+    seo_metaDescription,
+    seo_keywords,
+    seo_canonicalUrl,
+    images:gallery!gallery_post_id_fkey (
+      id,
+      title,
+      url,
+      path,
+      alt
+    ),
+    documents:documents!documents_post_id_fkey (
+      id,
+      title,
+      url,
+      path
+    )
+  `
+    )
     .eq("id", id)
     .single();
   if (error) {
@@ -58,7 +90,7 @@ const updatePostDocuments = async (
   return data;
 };
 
-const deletePostById = async (id: number) => {
+const deletePostById = async (id: string) => {
   const { data, error, status } = await supabase
     .from(table)
     .delete()
@@ -70,7 +102,7 @@ const deletePostById = async (id: number) => {
 };
 
 const createPost = async (post: PostData) => {
-  const { data, error } = await supabase
+  const { data, error, status } = await supabase
     .from(table)
     .insert(post)
     .select()
@@ -78,10 +110,10 @@ const createPost = async (post: PostData) => {
   if (error) {
     throw new Error(error.message);
   }
-  return data;
+  return { data, status };
 };
 
-const updatePost = async (id: number, post: PostData) => {
+const updatePost = async (id: string, post: PostData) => {
   const { data, error } = await supabase
     .from(table)
     .update(post)
@@ -94,10 +126,7 @@ const updatePost = async (id: number, post: PostData) => {
   return data;
 };
 
-const deletePosts = async (ids: number[]) => {
-  if (typeof ids[0] !== "number") {
-    ids.map(Number);
-  }
+const deletePosts = async (ids: string[]) => {
   const { data, error, status } = await supabase
     .from(table)
     .delete()

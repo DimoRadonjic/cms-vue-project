@@ -1,14 +1,16 @@
-import { useSessionStorage } from "../sessionStorage/useSessionStorage";
+import { useStorage } from "../storage";
 import type { LoginProfileData } from "../../types/types";
 import { useToastService } from "../toastService/AppToastService";
 import { useAppRouter } from "../router/useAppRouter";
 import { useAuthStore } from "../../store";
 import { ref } from "vue";
-import { auth } from "../../supabase/api/tableProfiles";
+import { auth } from "../../supabase/api/tables/tableProfiles";
 
-const { getItem, clearStorage, setItem } = useSessionStorage();
+const { getLocalItem, clearStorage, setLocalItem } = useStorage();
 
-const isAuth = ref<boolean>(!!getItem("token"));
+console.log("test", getLocalItem("token"));
+
+const isAuth = ref<boolean>(!!getLocalItem("token"));
 
 export const useAuth = () => {
   const { showError, showSuccess } = useToastService();
@@ -27,11 +29,9 @@ export const useAuth = () => {
     try {
       const res = await auth.loginUser(newUser);
 
-      console.log("res", res);
-
       if (res) {
         const { session, user } = res;
-        setItem("token", session.access_token);
+        setLocalItem("token", session.access_token);
 
         setUser(user);
         isAuth.value = true;

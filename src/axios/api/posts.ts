@@ -1,11 +1,15 @@
-import type { PostData } from "../../types/types";
+import type {
+  DocumentItem,
+  ImageItem,
+  PostData,
+  PostWithContent,
+} from "../../types/types";
 import { errorMessage } from "../utils";
-import { supabase } from "../../supabase";
-import { tablePosts } from "../../supabase/api/tablePosts";
+import { tablePosts } from "../../supabase/api/tables/tablePosts";
 
 const getPosts = async () => {
   try {
-    const { data } = await supabase.from("Posts").select();
+    const data = await tablePosts.getAllPosts();
 
     return data;
   } catch (error: any) {
@@ -13,21 +17,49 @@ const getPosts = async () => {
   }
 };
 
-const getPost = async (id: string): Promise<PostData | undefined> => {
+const getPost = async (id: string): Promise<PostWithContent | undefined> => {
   try {
-    const { data } = await tablePosts.getPostById(Number(id));
+    const { data } = await tablePosts.getPostById(id);
 
-    return data;
+    console.log("data", data);
+
+    const postData: PostWithContent = {
+      id: data.id,
+      title: data.title,
+      description: data.description,
+      authorUsername: data.authorUsername,
+      seo_slug: data.seo_slug,
+      seo_metaTitle: data.seo_metaTitle,
+      seo_metaDescription: data.seo_metaDescription,
+      seo_keywords: data.seo_keywords || [],
+      seo_canonicalUrl: data.seo_canonicalUrl,
+      mainImage: data.mainImage as unknown as ImageItem,
+      images: data.images.map((i: any) => ({
+        id: i.id,
+        title: i.title,
+        url: i.url,
+        path: i.path,
+        alt: i.alt_text,
+      })) as ImageItem[],
+      documents: data.documents.map((d: any) => ({
+        id: d.id,
+        title: d.title,
+        url: d.url,
+        path: d.path,
+      })) as DocumentItem[],
+    };
+
+    return postData;
   } catch (error: any) {
     errorMessage(`Failed to get post with id: ${id}`, error);
   }
 };
 
-const createPost = async (data: PostData) => {
+const createPost = async (postData: PostData) => {
   try {
-    const { status } = await tablePosts.createPost(data);
+    const { status, data } = await tablePosts.createPost(postData);
 
-    return status;
+    return { status, data };
   } catch (error: any) {
     errorMessage("Failed to create posts", error);
   }
@@ -35,7 +67,7 @@ const createPost = async (data: PostData) => {
 
 const deletePost = async (id: string) => {
   try {
-    const { status, data } = await tablePosts.deletePostById(Number(id));
+    const { status, data } = await tablePosts.deletePostById(id);
 
     return { status, data };
   } catch (error: any) {
@@ -43,20 +75,20 @@ const deletePost = async (id: string) => {
   }
 };
 
-const deletePosts = async (id: string[]) => {
+const deletePosts = async (ids: string[]) => {
   try {
-    const { status, data } = await tablePosts.deletePosts(id.map(Number));
+    const { status, data } = await tablePosts.deletePosts(ids);
 
     return { status, data };
   } catch (error: any) {
-    errorMessage(`Failed to delete post with id: ${id}`, error);
+    errorMessage(`Failed to delete post with id: ${ids}`, error);
   }
 };
 
 const updatePost = async (data: PostData) => {
   const { id } = data;
   try {
-    const { status } = await tablePosts.updatePost(Number(id), data);
+    const { status } = await tablePosts.updatePost(id, data);
 
     return status;
   } catch (error: any) {

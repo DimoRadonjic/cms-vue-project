@@ -1,6 +1,6 @@
-import { TableName } from ".";
-import { supabase } from "..";
-import type { LoginProfileData, ProfileData } from "../../types/types";
+import { TableName } from "..";
+import { supabase } from "../..";
+import type { LoginProfileData, ProfileData } from "../../../types/types";
 import type { Session } from "@supabase/supabase-js";
 
 const table = TableName.profiles;

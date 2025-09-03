@@ -103,16 +103,16 @@ watchEffect(() => {
       </div>
     </template>
 
-    <template #empty v-if="!data.length && !loading">
+    <template #empty v-if="!data.length">
       <div
-        class="flex place-content-center place-items-center w-full h-full text-3xl"
+        class="flex place-content-center place-items-center w-full h-[50vh] text-3xl"
       >
         <span>No {{ title }} found</span>
         <span class="text-5xl">😔</span>
       </div>
     </template>
 
-    <template v-if="data.length" class="relative">
+    <template v-if="data.length && !loading" class="relative">
       <div class="w-full h-full absolute bg-black/50 z-10" v-if="loading">
         <ProgressSpinner
           style="width: 80px; height: 80px"

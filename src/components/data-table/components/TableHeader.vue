@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import apiPosts from "../../../axios/api/posts";
 import { useAppRouter } from "../../../composable/router/useAppRouter";
-import type { FilterType, PostData } from "../../../types/types";
+import type { FilterType, PostWithContent } from "../../../types/types";
 
 const props = withDefaults(
   defineProps<{
@@ -37,7 +37,7 @@ const handleDeletion = async () => {
   emit("refetch");
 };
 
-const handleExport = (posts: PostData[]) => {
+const handleExport = (posts: PostWithContent[]) => {
   // Za sad samo da radi
   // mozda maci potpuno opciju ili odraditi na izgledu
 
@@ -51,9 +51,9 @@ const handleExport = (posts: PostData[]) => {
     title: post.title,
     description: post.description,
     author: post.authorUsername,
-    mainImageId: post.mainImageId,
-    imageCount: post.imageIds.length,
-    documentCount: post.documentIds.length,
+    mainImageTitle: post.mainImage.title,
+    imageCount: post.images.length,
+    documentCount: post.documents.length,
     slug: post.seo_slug,
     metaTitle: post.seo_metaTitle,
     keywords: post.seo_keywords.join(", "),

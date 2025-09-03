@@ -1,16 +1,12 @@
-import { BucketsName, TableName } from ".";
-import { supabase } from "../../supabase";
-import type { DocumentItem } from "../../types/types";
-import { sanitizeFileName } from "./utils";
+import { BucketsName, TableName } from "..";
+import { supabase } from "../..";
+import type { DocumentItem } from "../../../types/types";
+import { sanitizeFileName } from "../utils";
 
 const table = TableName.documents;
 const bucket = BucketsName.documents;
 
-type Document = {
-  title: string;
-  url: string;
-  path: string;
-};
+type Document = Omit<DocumentItem, "id">;
 
 const getDocuments = async () => {
   const { data, status, error } = await supabase.from(table).select("*");
@@ -96,7 +92,7 @@ const deleteDocuments = async (ids: string[]) => {
   return { data, status };
 };
 
-const uploadDocumentToStorage = async (file: File) => {
+const uploadDocumentToStorage = async (file: File, postID: string) => {
   const sanitizedFileName = sanitizeFileName(file.name);
   console.log("sanitizedFileName", sanitizedFileName);
 
@@ -119,6 +115,7 @@ const uploadDocumentToStorage = async (file: File) => {
     title: fileTitle,
     url: urlData.signedUrl,
     path: sanitizedFileName,
+    post_id: postID,
   };
 
   const { data: docData } = await addDocument(document);
@@ -130,10 +127,11 @@ const uploadDocumentToStorage = async (file: File) => {
 };
 
 const uploadDocumentsToStorage = async (
-  files: File[]
+  files: File[],
+  postID: string
 ): Promise<DocumentItem[]> => {
   const uploadPromises = files.map(async (file) => {
-    const { data } = await uploadDocumentToStorage(file);
+    const { data } = await uploadDocumentToStorage(file, postID);
     return data[0];
   });
 

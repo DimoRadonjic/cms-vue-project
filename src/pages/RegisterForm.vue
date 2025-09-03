@@ -2,14 +2,14 @@
 import { zodResolver } from "@primevue/forms/resolvers/zod";
 import { z } from "zod";
 import type { FormSubmitEvent, ProfileData } from "../types/types";
-import { useSessionStorage } from "../composable";
+import { useStorage } from "../composable";
 import { useToastService } from "../composable/toastService/AppToastService";
 import { useAppRouter } from "../composable/router/useAppRouter";
-import { auth } from "../supabase/api/tableProfiles";
+import { auth } from "../supabase/api/tables/tableProfiles";
 
 const { showError, showSuccess } = useToastService();
 const { navigateTo } = useAppRouter();
-const { setItem } = useSessionStorage();
+const { setSessionItem } = useStorage();
 
 const initialValues = {
   username: "",
@@ -67,7 +67,7 @@ const onFormSubmit = async (e: FormSubmitEvent) => {
       const { session } = await auth.registerUser(data);
 
       if (session) {
-        setItem("token", session?.access_token);
+        setSessionItem("token", session?.access_token);
       }
 
       showSuccess("Registration successful.", 3000);

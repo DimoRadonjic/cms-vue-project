@@ -1,12 +1,15 @@
-import { BucketsName, TableName } from ".";
-import { supabase } from "..";
-import type { ImageItem } from "../../types/types";
+import { BucketsName, TableName } from "..";
+import { supabase } from "../..";
+import type { ImageItem } from "../../../types/types";
 
 const table = TableName.gallery;
 const bucket = BucketsName.gallery;
 
+type Image = Omit<ImageItem, "id">;
+
 const uploadImage = async (
-  file: File
+  file: File,
+  post_id: string
 ): Promise<{ data: ImageItem; status: number }> => {
   const path = `${Date.now()}-${file.name}`;
   const { error, data } = await supabase.storage
@@ -32,13 +35,14 @@ const uploadImage = async (
 
   const fileTitle = file.name.replace(/\.(jpg|jpeg|png|gif|webp)$/i, "");
 
-  const { id, path: dataPath } = data;
-  const image: ImageItem = {
-    id,
+  const { path: dataPath } = data;
+
+  const image: Image = {
     title: fileTitle,
     alt: fileTitle,
     path: dataPath,
     url: urlData.signedUrl,
+    post_id,
   };
 
   try {
@@ -49,9 +53,9 @@ const uploadImage = async (
   }
 };
 
-const uploadImages = async (files: File[]) => {
+const uploadImages = async (files: File[], post_id: string) => {
   const uploadPromises = files.map(async (file): Promise<ImageItem> => {
-    const { data } = await uploadImage(file);
+    const { data } = await uploadImage(file, post_id);
 
     return data;
   });
@@ -70,7 +74,7 @@ const getGallery = async () => {
 };
 
 const addImageToGallery = async (
-  image: ImageItem
+  image: Image
 ): Promise<{ data: ImageItem; status: number }> => {
   const { data, status, error } = await supabase
     .from(table)

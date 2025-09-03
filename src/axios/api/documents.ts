@@ -1,4 +1,4 @@
-import tableDocuments from "../../supabase/api/tableDocuments";
+import tableDocuments from "../../supabase/api/tables/tableDocuments";
 import type { DocumentItem } from "../../types/types";
 import { errorMessage } from "../utils";
 
@@ -13,9 +13,9 @@ const getDocumentsAPI = async () => {
   }
 };
 
-const getDocumentByIDAPI = async (id: string) => {
+const getDocumentByIDAPI = async (id: number) => {
   try {
-    const { data, status } = await tableDocuments.getDocument(Number(id));
+    const { data, status } = await tableDocuments.getDocument(id);
 
     return { data, status };
   } catch (error: any) {
@@ -24,9 +24,12 @@ const getDocumentByIDAPI = async (id: string) => {
   }
 };
 
-const uploadDocumentsAPI = async (files: File[]) => {
+const uploadDocumentsAPI = async (files: File[], post_id: string) => {
   try {
-    const response = await tableDocuments.uploadDocumentsToStorage(files);
+    const response = await tableDocuments.uploadDocumentsToStorage(
+      files,
+      post_id
+    );
 
     return { data: response, status: 200 };
   } catch (error: any) {
@@ -35,9 +38,12 @@ const uploadDocumentsAPI = async (files: File[]) => {
   }
 };
 
-const uploadDocumentAPI = async (file: File) => {
+const uploadDocumentAPI = async (file: File, post_id: string) => {
   try {
-    const response = await tableDocuments.uploadDocumentToStorage(file);
+    const response = await tableDocuments.uploadDocumentToStorage(
+      file,
+      post_id
+    );
     console.log("response", response);
 
     return { data: response, status: 200 };

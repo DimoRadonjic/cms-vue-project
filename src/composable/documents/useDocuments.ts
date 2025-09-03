@@ -1,14 +1,14 @@
 import { ref, watch } from "vue";
-import { useSessionStorage } from "../sessionStorage/useSessionStorage";
+import { useStorage } from "../storage";
 import { useToastService } from "../toastService/AppToastService";
 import apiDocuments from "../../axios/api/documents";
 import type { DocumentItem, StorageData } from "../../types/types";
 
 export const useDocuments = () => {
   const { showError, showSuccess } = useToastService();
-  const { getItem, setItem } = useSessionStorage();
+  const { getSessionItem, setSessionItem } = useStorage();
 
-  const storageData = getItem<StorageData>("data");
+  const storageData = getSessionItem<StorageData>("data");
 
   const data = ref(storageData?.data || []);
   const loading = ref<boolean>(false);
@@ -23,7 +23,7 @@ export const useDocuments = () => {
       if (data) {
         data.value = resData;
 
-        setItem("data", { dataType: "documents", data: data.value });
+        setSessionItem("data", { dataType: "documents", data: data.value });
       }
 
       loading.value = false;
@@ -83,12 +83,14 @@ export const useDocuments = () => {
     );
   };
 
-  const uploadDocuments = async (documents: File[]) => {
+  const uploadDocuments = async (documents: File[], post_id: string) => {
     loading.value = true;
 
     try {
-      await apiDocuments.uploadDocumentsAPI(documents);
+      const res = await apiDocuments.uploadDocumentsAPI(documents, post_id);
       loading.value = false;
+
+      return res;
     } catch (error: any) {
       const detail = new Error(error.message);
       showError("Failed to upload document. Please try again later.", detail);
@@ -99,8 +101,10 @@ export const useDocuments = () => {
     loading.value = true;
 
     try {
-      await apiDocuments.deleteDocumentsAPI(documents);
+      const res = await apiDocuments.deleteDocumentsAPI(documents);
       loading.value = false;
+
+      return res;
     } catch (error: any) {
       const detail = new Error(error.message);
       showError("Failed to delete document. Please try again later.", detail);

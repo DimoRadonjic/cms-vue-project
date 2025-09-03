@@ -1,27 +1,26 @@
 <script setup lang="ts">
-import type { FormSubmitEvent } from "@primevue/forms";
 import { computed, ref, watchEffect } from "vue";
 import { useToastService } from "../composable/toastService/AppToastService";
-import apiPosts from "../axios/api/posts";
-import type { PostData } from "../types/types";
+import type { ImageItem, PostWithContent } from "../types/types";
 import { useAppRouter } from "../composable/router/useAppRouter";
 import { usePosts } from "../composable";
 
-const { showError, showSuccess } = useToastService();
+const { showError } = useToastService();
 
-const { goBack, getRouteID } = useAppRouter();
+const { getRouteID } = useAppRouter();
 
 const postId = getRouteID();
 
-const { reFetchPosts, getPostById } = usePosts();
+const { getPostById } = usePosts();
 
-const basic = {
+const basic: PostWithContent = {
+  id: "",
   title: "",
-  mainImageId: "",
+  mainImage: {} as ImageItem,
   description: "",
   authorUsername: "",
-  documentIds: [],
-  imageIds: [],
+  documents: [],
+  images: [],
   seo_slug: "",
   seo_metaTitle: "",
   seo_metaDescription: "",
@@ -29,47 +28,46 @@ const basic = {
   seo_canonicalUrl: "",
 };
 
-const postDetail = ref<PostData>();
+const postDetail = ref<PostWithContent>();
 const initialValues = computed(() => postDetail.value ?? basic);
 const editingPost = ref(false);
 
 watchEffect(async () => {
   try {
     const post = await getPostById(postId);
-    postDetail.value = post;
+    postDetail.value = post as PostWithContent;
   } catch (error) {
     showError("Failed to load post data", 3000);
   }
 });
 
-const onFormSubmit = async ({ values }: FormSubmitEvent) => {
-  const valuesToSend: PostData = {
-    ...(values as PostData),
-    id: postId,
-    documentIds: values.documentIds
-      ? values.documentIds.split(",").map((v: any) => Number(v.trim()))
-      : [],
-    seo_keywords: values.seo_keywords
-      ? values.seo_keywords.split(",").map((v: any) => v.trim())
-      : [],
-    imageIds: values.imageIds
-      ? values.imageIds.split(",").map((v: any) => v.trim())
-      : [],
-  };
-  try {
-    await apiPosts.updatePost(valuesToSend);
-    showSuccess("Post edited successfully!");
-    reFetchPosts();
-    goBack();
-
-    values = initialValues;
-    return;
-  } catch (error) {
-    showError("Edit failed.", 3000);
-    return;
-  } finally {
-    editingPost.value = false;
-  }
+const onFormSubmit = async () => {
+  // const valuesToSend: PostWithContent = {
+  //   ...(values as Post),
+  //   id: postId,
+  //   documentIds: values.documentIds
+  //     ? values.documentIds.split(",").map((v: any) => Number(v.trim()))
+  //     : [],
+  //   seo_keywords: values.seo_keywords
+  //     ? values.seo_keywords.split(",").map((v: any) => v.trim())
+  //     : [],
+  //   imageIds: values.imageIds
+  //     ? values.imageIds.split(",").map((v: any) => v.trim())
+  //     : [],
+  // };
+  // try {
+  //   await apiPosts.updatePost(valuesToSend);
+  //   showSuccess("Post edited successfully!");
+  //   reFetchPosts();
+  //   goBack();
+  //   values = initialValues;
+  //   return;
+  // } catch (error) {
+  //   showError("Edit failed.", 3000);
+  //   return;
+  // } finally {
+  //   editingPost.value = false;
+  // }
 };
 </script>
 
@@ -100,32 +98,12 @@ const onFormSubmit = async ({ values }: FormSubmitEvent) => {
               />
 
               <AppInputTextField
-                placeholder="Main Image ID"
-                fieldName="mainImageId"
-                :initalValue="initialValues.mainImageId"
-                type="text"
-              />
-
-              <AppInputTextField
                 placeholder="authorUsername"
                 fieldName="authorUsername"
                 :initalValue="initialValues.authorUsername"
                 type="text"
               />
 
-              <AppInputArrayField
-                placeholder="documentIds"
-                fieldName="documentIds"
-                :initalValue="initialValues.documentIds"
-                type="text"
-              />
-
-              <AppInputArrayField
-                placeholder="imageIds"
-                :initalValue="initialValues.imageIds"
-                fieldName="imageIds"
-                type="text"
-              />
               <AppTextAreaField
                 :initalValue="initialValues.description"
                 placeholder="Description"
@@ -193,7 +171,9 @@ const onFormSubmit = async ({ values }: FormSubmitEvent) => {
           </div>
           <div>
             <p>Main Image ID</p>
-            <h2 class="text-2xl font-bold">{{ initialValues?.mainImageId }}</h2>
+            <h2 class="text-2xl font-bold">
+              {{ initialValues?.mainImage?.title }}
+            </h2>
           </div>
           <div>
             <p>Author Username</p>
@@ -203,12 +183,16 @@ const onFormSubmit = async ({ values }: FormSubmitEvent) => {
           </div>
           <div>
             <p>Document IDs</p>
-            <h2 class="text-2xl font-bold">{{ initialValues?.documentIds }}</h2>
+            <h2 class="text-2xl font-bold">
+              {{ initialValues?.documents[0]?.title }}
+            </h2>
           </div>
 
           <div>
             <p>Image IDs</p>
-            <h2 class="text-2xl font-bold">{{ initialValues?.imageIds }}</h2>
+            <h2 class="text-2xl font-bold">
+              {{ initialValues?.images[0]?.title }}
+            </h2>
           </div>
           <div>
             <p>Description</p>

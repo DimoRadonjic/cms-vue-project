@@ -12,9 +12,7 @@ type PostData = {
   id: string;
   title: string;
   mainImageId: string;
-  imageIds: string[];
   description: string;
-  documentIds: string[];
   authorUsername: string;
   seo_slug: string;
   seo_metaTitle: string;
@@ -23,12 +21,19 @@ type PostData = {
   seo_canonicalUrl: string;
 };
 
+type PostWithContent = Omit<PostData, "mainImageId"> & {
+  documents: DocumentItem[];
+  mainImage: ImageItem;
+  images: ImageItem[];
+};
+
 type ImageItem = {
   id: string;
   title: string;
   url: string;
   path: string;
   alt: string;
+  post_id: string;
 };
 
 type DocumentItem = {
@@ -36,6 +41,7 @@ type DocumentItem = {
   title: string;
   url: string;
   path: string;
+  post_id: string;
 };
 
 type NewPost = {
@@ -85,4 +91,5 @@ export type {
   Gallery,
   ImageItem,
   NewPost,
+  PostWithContent,
 };

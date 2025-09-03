@@ -5,18 +5,14 @@ import { computed, reactive, ref } from "vue";
 import z from "zod";
 import { useToastService } from "../composable/toastService/AppToastService";
 import apiPosts from "../axios/api/posts";
-import type {
-  DocumentItem,
-  ImageItem,
-  NewPost,
-  PostData,
-} from "../types/types";
+import type { NewPost, PostData } from "../types/types";
 import { useAppRouter } from "../composable/router/useAppRouter";
 import { usePosts } from "../composable";
-import apiDocuments from "../axios/api/documents";
 import FileUpload from "primevue/fileupload";
-import apiImages from "../axios/api/images";
 import { onBeforeRouteLeave } from "vue-router";
+import { ImagePlus } from "lucide-vue-next";
+import apiImages from "../axios/api/images";
+import apiDocuments from "../axios/api/documents";
 
 const BASE_URL = "https://www.example.com/";
 
@@ -84,13 +80,15 @@ const schema = z.object({
 
 const resolver = zodResolver(schema);
 const shouldConfirmLeave = ref(false);
-const filesUploaded = ref<DocumentItem[]>([]);
-const fileUploadRef = ref<any>(null);
+const filesUploaded = ref<File[]>([]);
 
-const mainImageUpload = ref<ImageItem | null>(null);
-const mainImageUploadRef = ref<any>(null);
-const imagesUploadRef = ref<any>(null);
-const imagesUpload = ref<ImageItem[]>([]);
+const mainImageUpload = ref<any>();
+
+const imagesUpload = ref<File[]>([]);
+
+const fileUploadRef = ref();
+const mainImageUploadRef = ref();
+const imagesUploadRef = ref();
 
 const imagesUploading = ref<boolean>(false);
 const imagesError = ref(false);
@@ -100,180 +98,13 @@ const documentError = ref(false);
 
 const mainImageLoading = ref<boolean>(false);
 const mainImageError = ref<boolean>(false);
+const uploading = ref<boolean>(false);
 
-const uploadsDone = computed(
-  () =>
-    !mainImageError.value &&
-    !documentError.value &&
-    !imagesUploading.value &&
-    !documentsUploading.value &&
-    !imagesError.value
-);
-
-const mainImageLink = computed(() =>
-  mainImageUpload.value ? mainImageUpload.value.url : ""
-);
-
-const ClearDocumentUpload = () => {
-  if (fileUploadRef.value) {
-    fileUploadRef.value.clear();
-  }
-};
-
-const ClearMainImageUpload = () => {
-  if (mainImageUploadRef.value) {
-    mainImageUploadRef.value.clear();
-    mainImageUpload.value = null;
-  }
-};
-
-const ClearImagesUpload = () => {
-  if (imagesUploadRef.value) {
-    imagesUploadRef.value.clear();
-  }
-};
-
-const resetUploads = () => {
-  filesUploaded.value = [];
-  imagesUpload.value = [];
-  mainImageUpload.value = null;
-};
-
-const clearAllUploads = () => {
-  ClearDocumentUpload();
-  ClearMainImageUpload();
-  ClearImagesUpload();
-  resetUploads();
-};
-
-const onUploadDocument = async (event: any) => {
-  const files: File[] = event.files || event.target?.files || [];
-
-  if (!files.length) {
-    console.error("Nema fajlova u eventu  (document upload) :", event);
-    return;
-  }
-
-  documentsUploading.value = true;
-
-  if (filesUploaded.value.length > 0) {
-    try {
-      await apiDocuments.deleteDocumentsAPI(filesUploaded.value);
-
-      documentsUploading.value = false;
-
-      return;
-    } catch (error) {
-      console.error("Upload failed", error);
-      documentError.value = true;
-      documentsUploading.value = false;
-    }
-  }
-
-  try {
-    const { data: document } = await apiDocuments.uploadDocumentsAPI(files);
-    if (document) {
-      filesUploaded.value = document;
-    }
-
-    documentsUploading.value = false;
-
-    return;
-  } catch (error) {
-    console.error("Upload failed", error);
-    documentError.value = true;
-    documentsUploading.value = false;
-  }
-};
-
-const onUploadImage = async (event: any) => {
-  const files: File[] = event.files || event.target?.files;
-  mainImageLoading.value = true;
-
-  if (!files) {
-    console.error("Nema fajlova u eventu (image upload):", event);
-    return;
-  }
-
-  try {
-    const { data: image } = await apiImages.uploadMainImageAPI(files);
-
-    if (image) {
-      console.log("image uploaded", image);
-      mainImageUpload.value = image;
-      console.log("mainImageUpload after set:", mainImageUpload.value);
-    }
-  } catch (error) {
-    console.error("Upload failed", error);
-    ClearMainImageUpload();
-  }
-
-  mainImageLoading.value = false;
-};
-
-const onUploadImages = async (event: any) => {
-  const files: File[] = event.files || event.target?.files;
-
-  imagesUploading.value = true;
-
-  if (!files) {
-    console.error("Nema fajlova u eventu (image upload):", event);
-    return;
-  }
-
-  try {
-    const { data: images } = await apiImages.uploadImagesAPI(files);
-
-    if (images) {
-      console.log("imagesUpload uploaded", images);
-      imagesUpload.value = images;
-      console.log("imagesUpload after set:", imagesUpload.value);
-    }
-  } catch (error) {
-    console.error("Upload failed", error);
-    ClearMainImageUpload();
-
-    imagesError.value = true;
-  }
-
-  imagesUploading.value = false;
-};
-
-const onFormSubmit = async ({ valid, values }: FormSubmitEvent) => {
-  if (!valid) {
-    showError("Creatiton failed.", new Error("Invalid fields"), 3000);
-    return;
-  }
-
-  const fileIds = filesUploaded.value.map((file) => file.id);
-  const imageIds = imagesUpload.value.map((image) => image.id);
-
-  let valuesToSend: PostData = { ...(values as PostData) };
-  valuesToSend = {
-    ...valuesToSend,
-    documentIds: fileIds,
-    imageIds: imageIds,
-  };
-
-  console.log("Form valuesToSend:", valuesToSend);
-
-  try {
-    await apiPosts.createPost(valuesToSend as PostData);
-    showSuccess("Post created");
-    if (uploadsDone.value) {
-      reFetchPosts();
-      goBack();
-
-      values = initialValues;
-      resetUploads();
-    }
-    return;
-  } catch (error: any) {
-    const detail = new Error(error.message);
-    showError("Creatiton failed.", detail, 3000);
-    return;
-  }
-};
+const mainImageLink = computed(() => {
+  return mainImageUpload.value
+    ? URL.createObjectURL(mainImageUpload.value)
+    : "";
+});
 
 const generateSeoSlug = (title: string) => {
   return title
@@ -334,42 +165,77 @@ const updateSEO = (form: any, value: any) => {
   }
 };
 
-const removeMainImage = async () => {
-  if (mainImageUpload.value) {
-    try {
-      await apiImages.removeMainImageAPI(mainImageUpload.value);
-    } catch (error) {
-      console.error("Upload removal failed", error);
-    }
+const onUploadDocument = async (event: any) => {
+  const files: File[] = event.files || event.target?.files || [];
+
+  if (!files.length) {
+    console.error("Nema fajlova u eventu  (document upload) :", event);
+    return;
   }
+
+  documentsUploading.value = true;
+  filesUploaded.value = files;
+
+  documentsUploading.value = false;
 };
 
-const removeImages = async () => {
-  console.log("imagesUpload", imagesUpload.value);
-  if (imagesUpload.value.length > 0) {
-    try {
-      await apiImages.removeImagesAPI(imagesUpload.value);
-    } catch (error) {
-      console.error("Multiple images removal failed", error);
-    }
+const onUploadImage = async (event: any) => {
+  const files: File[] = event.files || event.target?.files;
+
+  console.log("files", files);
+  mainImageLoading.value = true;
+
+  if (!files) {
+    console.error("Nema fajlova u eventu (image upload):", event);
+    return;
   }
+
+  mainImageUpload.value = files[0];
+
+  mainImageLoading.value = false;
 };
 
-const removeDocuments = async () => {
-  if (filesUploaded.value) {
-    try {
-      await apiDocuments.deleteDocumentsAPI(filesUploaded.value);
-    } catch (error) {
-      console.error("Documents removal failed", error);
-    }
+const onUploadImages = async (event: any) => {
+  const files: File[] = event.files || event.target?.files;
+
+  imagesUploading.value = true;
+
+  if (!files) {
+    console.error("Nema fajlova u eventu (image upload):", event);
+    return;
   }
+
+  imagesUpload.value = files;
+
+  imagesUploading.value = false;
 };
 
-const removeAllUploads = () => {
-  removeMainImage();
-  removeImages();
-  removeDocuments();
-  clearAllUploads();
+const createLink = (file: File) => {
+  return URL.createObjectURL(file);
+};
+
+const ClearDocumentUpload = () => {
+  fileUploadRef.value?.clear();
+  filesUploaded.value = [];
+  documentError.value = false;
+};
+
+const ClearMainImageUpload = () => {
+  mainImageUploadRef.value?.clear();
+  mainImageUpload.value = null;
+  mainImageError.value = false;
+};
+
+const ClearImagesUpload = () => {
+  imagesUploadRef.value?.clear();
+  imagesUpload.value = [];
+  imagesError.value = false;
+};
+
+const resetUploads = () => {
+  ClearDocumentUpload();
+  ClearMainImageUpload();
+  ClearImagesUpload();
 };
 
 const checkNewPostData = () => {
@@ -381,22 +247,172 @@ const checkNewPostData = () => {
       : false;
 };
 
-const cancelNewPost = async () => {
-  checkNewPostData();
+const uploadDocuments = async (files: File[], post_id: string) => {
+  try {
+    const { data: documnets } = await apiDocuments.uploadDocumentsAPI(
+      files,
+      post_id
+    );
 
-  if (shouldConfirmLeave.value) {
-    removeAllUploads();
+    if (documnets) {
+      const fileIds = documnets.map(({ id }) => Number(id));
+
+      return fileIds;
+    }
+  } catch (error: any) {
+    const detail = new Error(error.message);
+    showError("Failed to upload documents", detail);
+    console.error("Failed to upload documents", error);
+    documentError.value = true;
   }
-  goBack();
+};
+
+const uploadImages = async (files: File[], post_id: string) => {
+  try {
+    const { data: images } = await apiImages.uploadImagesAPI(files, post_id);
+
+    if (images) {
+      const imageIds = images.map(({ id }) => id);
+      return imageIds;
+    }
+  } catch (error: any) {
+    const detail = new Error(error.message);
+    showError("Failed to upload images", detail);
+    console.error("Failed to upload images", error);
+    imagesError.value = true;
+  }
+};
+
+const uploadMainImage = async (mainImage: File, post_id: string) => {
+  try {
+    const { data: image } = await apiImages.uploadMainImageAPI(
+      mainImage,
+      post_id
+    );
+
+    return image && image;
+  } catch (error: any) {
+    const detail = new Error(error.message);
+    showError("Failed to upload main image", detail);
+    console.error("Failed to upload main image", error);
+    mainImageError.value = true;
+    mainImageLoading.value = false;
+  }
+};
+
+const uploadAll = async (
+  files: File[],
+  images: File[],
+  mainImage: File | null,
+  post_id: string
+) => {
+  uploading.value = true;
+  const [docsResult, imagesResult, mainImageResult] = await Promise.allSettled([
+    uploadDocuments(files, post_id),
+    uploadImages(images, post_id),
+    mainImage ? uploadMainImage(mainImage, post_id) : Promise.resolve(null),
+  ]);
+
+  const result: {
+    fileIds: number[];
+    imageIds: string[];
+    mainImageID: string | null;
+  } = {
+    fileIds: [],
+    imageIds: [],
+    mainImageID: null,
+  };
+
+  // dokumenti
+  if (docsResult.status === "fulfilled" && docsResult.value) {
+    result.fileIds = docsResult.value;
+  } else {
+    documentError.value = true;
+  }
+
+  // slike
+  if (imagesResult.status === "fulfilled" && imagesResult.value) {
+    result.imageIds = imagesResult.value;
+  } else {
+    imagesError.value = true;
+  }
+
+  // glavna slika
+  if (mainImageResult.status === "fulfilled" && mainImageResult.value) {
+    result.mainImageID = mainImageResult.value.id;
+  } else {
+    mainImageError.value = true;
+  }
+
+  uploading.value = false;
+
+  return result;
+};
+
+const onFormSubmit = async ({ valid, values }: FormSubmitEvent) => {
+  if (!valid) {
+    showError("Creatiton failed.", new Error("Invalid fields"), 3000);
+    return;
+  }
+
+  let valuesToSend: PostData = { ...(values as PostData) };
+
+  try {
+    const res = await apiPosts.createPost(valuesToSend as PostData);
+
+    if (res && res.data) {
+      const { id } = res.data;
+
+      const { fileIds, imageIds, mainImageID } = await uploadAll(
+        filesUploaded.value,
+        imagesUpload.value,
+        mainImageUpload.value,
+        id
+      );
+
+      console.log("fileIds", fileIds);
+      console.log("imageIds", imageIds);
+
+      if (mainImageID) {
+        console.log("mainImageID", mainImageID);
+        console.log("update", {
+          ...res.data,
+
+          mainImageId: mainImageID,
+        });
+
+        await apiPosts.updatePost({
+          ...res.data,
+
+          mainImageId: mainImageID,
+        } as PostData);
+      }
+
+      console.log("valuesToSend", valuesToSend);
+    }
+
+    if (!uploading.value) {
+      showSuccess("Post created");
+      reFetchPosts();
+      goBack();
+      values = initialValues;
+      resetUploads();
+    }
+  } catch (error: any) {
+    const detail = new Error(error.message);
+    showError("Creatiton failed.", detail, 3000);
+  }
 };
 
 onBeforeRouteLeave((_, __, next) => {
+  checkNewPostData();
+
   if (shouldConfirmLeave.value) {
     const answer = window.confirm(
       "Da li si siguran da želiš napustiti stranicu?"
     );
     if (answer) {
-      removeAllUploads();
+      resetUploads();
       next();
     } else next(false);
   } else {
@@ -492,135 +508,180 @@ onBeforeRouteLeave((_, __, next) => {
             />
           </div>
         </div>
-        <div class="flex flex-col gap-y-4">
-          <span>Uploads</span>
+      </div>
+      <div class="flex flex-col gap-y-4 w-full">
+        <span>Uploads</span>
 
+        <div class="flex place-content-between gap-x-12 w-full">
           <div class="flex flex-col gap-y-4">
-            <div class="w-sm">
+            <div>
               <label>Main image</label>
-              <div v-if="mainImageLoading">
-                <ProgressSpinner
-                  style="width: 80px; height: 80px"
-                  strokeWidth="8"
-                  fill="transparent"
-                  animationDuration=".5s"
-                  aria-label="Custom ProgressSpinner"
+
+              <div class="h-[300px] w-fit">
+                <img
+                  v-if="mainImageLink"
+                  :src="mainImageLink"
+                  alt="main-image"
+                  class="w-sm object-cover h-full"
+                  @load="mainImageLoading = false"
+                  @error="
+                    mainImageLoading = false;
+                    mainImageError = true;
+                  "
                 />
+
+                <div
+                  v-if="!mainImageUpload && !mainImageLoading"
+                  class="mt-4 relative w-full h-full"
+                >
+                  <ImagePlus class="w-full h-full z-10" />
+
+                  <FileUpload
+                    ref="mainImageUploadRef"
+                    mode="basic"
+                    :chooseLabel="mainImageLink ? 'Change' : 'Choose'"
+                    class="!absolute top-0 w-full h-full !opacity-0 !z-0"
+                    name="mainImageId"
+                    accept="image/jpeg"
+                    @select="onUploadImage($event)"
+                    :auto="true"
+                    customUpload
+                    :disabled="uploading"
+                  />
+                </div>
               </div>
-              <img
-                v-if="mainImageLink"
-                :src="mainImageLink"
-                alt="main-image"
-                class="w-sm"
-                @load="mainImageLoading = false"
-                @error="
-                  mainImageLoading = false;
-                  mainImageError = true;
-                "
-              />
 
               <div v-if="mainImageError" class="text-red-500 text-sm">
                 Failed to load image
               </div>
             </div>
+
             <div class="flex place-content-between">
-              <FileUpload
-                ref="mainImageUploadRef"
-                mode="basic"
-                :chooseLabel="mainImageLink ? 'Change' : 'Choose'"
-                name="mainImageId"
-                accept="image/jpeg"
-                @select="onUploadImage($event)"
-                customUpload
-                :disabled="
-                  imagesUploading || documentsUploading || mainImageLoading
-                "
-              />
               <Button
                 v-if="mainImageLink"
                 label="Clear"
+                :disabled="uploading"
                 @click="ClearMainImageUpload"
               ></Button>
             </div>
           </div>
 
-          <div class="flex flex-col gap-y-4">
-            <label>Documents</label>
+          <div class="flex gap-x-12">
+            <div class="flex flex-col gap-y-4">
+              <label>Documents</label>
 
-            <div v-if="documentsUploading">
-              <ProgressSpinner
-                style="width: 80px; height: 80px"
-                strokeWidth="8"
-                fill="transparent"
-                animationDuration=".5s"
-                aria-label="Custom ProgressSpinner"
-              />
+              <div v-if="documentError" class="text-red-500 text-sm">
+                Failed to upload documents
+              </div>
+
+              <div
+                v-if="filesUploaded.length > 0"
+                v-for="document in filesUploaded"
+              >
+                <div class="flex gap-x-4 place-items-center">
+                  <i class="pi pi-file-pdf" />
+                  <a :href="createLink(document)" target="_blank">
+                    <h3>{{ document.name }}</h3>
+                  </a>
+                </div>
+              </div>
+
+              <div v-if="filesUploaded.length === 0 && !documentsUploading">
+                <h3>No file chosen</h3>
+              </div>
+
+              <div class="flex gap-x-5">
+                <FileUpload
+                  ref="fileUploadRef"
+                  mode="basic"
+                  name="documentIds[]"
+                  accept="application/pdf"
+                  :chooseLabel="filesUploaded.length > 0 ? 'Change' : 'Choose'"
+                  :multiple="true"
+                  :auto="true"
+                  @select="onUploadDocument($event)"
+                  customUpload
+                  :disabled="uploading"
+                />
+                <Button
+                  v-if="filesUploaded.length > 0"
+                  label="Clear"
+                  :disabled="uploading"
+                  @click="ClearDocumentUpload"
+                ></Button>
+              </div>
             </div>
 
-            <div v-if="documentError" class="text-red-500 text-sm">
-              Failed to upload documents
-            </div>
-            <FileUpload
-              ref="fileUploadRef"
-              mode="basic"
-              name="documentIds[]"
-              accept="application/pdf"
-              :chooseLabel="filesUploaded.length > 0 ? 'Change' : 'Choose'"
-              :multiple="true"
-              @select="onUploadDocument($event)"
-              customUpload
-              :disabled="
-                imagesUploading || documentsUploading || mainImageLoading
-              "
-            />
-          </div>
+            <div class="flex flex-col gap-y-4">
+              <label>More images</label>
 
-          <div class="flex flex-col gap-y-4">
-            <label>More images</label>
-            <div v-if="imagesUploading">
-              <ProgressSpinner
-                style="width: 80px; height: 80px"
-                strokeWidth="8"
-                fill="transparent"
-                animationDuration=".5s"
-                aria-label="Custom ProgressSpinner"
-              />
-            </div>
+              <div v-if="imagesError" class="text-red-500 text-sm">
+                Failed to upload images
+              </div>
 
-            <div v-if="imagesError" class="text-red-500 text-sm">
-              Failed to upload images
+              <div v-if="imagesUpload.length > 0" v-for="image in imagesUpload">
+                <div class="flex gap-x-4 place-items-center">
+                  <i class="pi pi-image" />
+                  <a :href="createLink(image)" target="_blank">
+                    <h3>{{ image.name }}</h3>
+                  </a>
+                </div>
+              </div>
+
+              <div v-if="imagesUpload.length === 0 && !imagesUploading">
+                <h3>No file chosen</h3>
+              </div>
+
+              <div class="flex gap-x-5">
+                <FileUpload
+                  ref="imagesUploadRef"
+                  mode="basic"
+                  name="imageIds[]"
+                  accept="image/jpeg"
+                  :chooseLabel="imagesUpload.length > 0 ? 'Change' : 'Choose'"
+                  :multiple="true"
+                  :auto="true"
+                  @select="onUploadImages($event)"
+                  customUpload
+                  :disabled="uploading"
+                />
+                <Button
+                  v-if="imagesUpload.length > 0"
+                  label="Clear"
+                  :disabled="uploading"
+                  @click="ClearImagesUpload"
+                ></Button>
+              </div>
             </div>
-            <FileUpload
-              ref="imagesUploadRef"
-              mode="basic"
-              name="imageIds[]"
-              accept="image/jpeg"
-              :chooseLabel="filesUploaded.length > 0 ? 'Change' : 'Choose'"
-              :multiple="true"
-              @select="onUploadImages($event)"
-              customUpload
-              :disabled="
-                imagesUploading || documentsUploading || mainImageLoading
-              "
-            />
           </div>
         </div>
       </div>
       <div class="w-full flex place-content-center place-items-center gap-5">
-        <Button
-          type="submit"
-          label="Create"
-          pt:root="!text-2xl"
-          class="w-fit py-3 rounded-xl bg-green-500 hover:bg-green-600 active:bg-green-700 text-white font-semibold shadow-md transition-transform duration-300 hover:scale-[1.02] active:scale-95"
-          :disabled="imagesUploading || documentsUploading || mainImageLoading"
-        />
+        <div v-if="uploading">
+          <ProgressSpinner
+            style="width: 80px; height: 80px"
+            strokeWidth="8"
+            fill="transparent"
+            animationDuration=".5s"
+            aria-label="Custom ProgressSpinner"
+          />
+        </div>
+        <template v-else>
+          <Button
+            type="submit"
+            label="Create"
+            pt:root="!text-2xl"
+            class="w-fit py-3 rounded-xl bg-green-500 hover:bg-green-600 active:bg-green-700 text-white font-semibold shadow-md transition-transform duration-300 hover:scale-[1.02] active:scale-95"
+            :disabled="uploading"
+          />
 
-        <Button
-          @click="cancelNewPost"
-          label="Cancel"
-          pt:root="!text-2xl"
-          class="w-fit py-3 rounded-xl bg-green-500 hover:bg-green-600 active:bg-green-700 text-white font-semibold shadow-md transition-transform duration-300 hover:scale-[1.02] active:scale-95"
-        />
+          <Button
+            @click="goBack"
+            label="Cancel"
+            pt:root="!text-2xl"
+            class="w-fit py-3 rounded-xl bg-green-500 hover:bg-green-600 active:bg-green-700 text-white font-semibold shadow-md transition-transform duration-300 hover:scale-[1.02] active:scale-95"
+          />
+        </template>
       </div>
     </div>
   </Form>

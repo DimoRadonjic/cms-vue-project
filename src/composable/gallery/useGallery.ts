@@ -1,13 +1,13 @@
 import { ref, watch } from "vue";
-import { useSessionStorage } from "../sessionStorage/useSessionStorage";
+import { useStorage } from "../storage";
 import { useToastService } from "../toastService/AppToastService";
 import type { ImageItem, StorageData } from "../../types/types";
 import apiImages from "../../axios/api/images";
 
 export const useGallery = () => {
   const { showError, showSuccess } = useToastService();
-  const { getItem, setItem } = useSessionStorage();
-  const storageData = getItem<StorageData>("data");
+  const { getSessionItem, setSessionItem } = useStorage();
+  const storageData = getSessionItem<StorageData>("data");
 
   const data = ref(storageData?.data || []);
   const loading = ref<boolean>(false);
@@ -19,7 +19,7 @@ export const useGallery = () => {
       const res = await apiImages.getImagesAPI();
 
       data.value = res;
-      setItem("data", { dataType: "gallery", data: data.value });
+      setSessionItem("data", { dataType: "gallery", data: data.value });
 
       loading.value = false;
     } catch (apiError) {
@@ -79,12 +79,28 @@ export const useGallery = () => {
     );
   };
 
-  const uploadImages = async (files: File[]) => {
+  const uploadImages = async (files: File[], post_id: string) => {
     loading.value = true;
 
     try {
-      await apiImages.uploadImagesAPI(files);
+      const res = await apiImages.uploadImagesAPI(files, post_id);
       loading.value = false;
+
+      return res;
+    } catch (error: any) {
+      const detail = new Error(error.message);
+      showError("Failed to upload images. Please try again later.", detail);
+    }
+  };
+
+  const uploadImage = async (files: File, post_id: string) => {
+    loading.value = true;
+
+    try {
+      const res = await apiImages.uploadMainImageAPI(files, post_id);
+      loading.value = false;
+
+      return res;
     } catch (error: any) {
       const detail = new Error(error.message);
       showError("Failed to upload images. Please try again later.", detail);
@@ -111,6 +127,7 @@ export const useGallery = () => {
     onFetched,
     searchPosts,
     uploadImages,
+    uploadImage,
     deleteImages,
   };
 };

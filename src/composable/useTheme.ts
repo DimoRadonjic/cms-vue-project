@@ -1,12 +1,12 @@
 import { ref } from "vue";
-import { useSessionStorage } from "./sessionStorage/useSessionStorage";
+import { useStorage } from "./storage";
 
-const { getItem } = useSessionStorage();
+const { getSessionItem } = useStorage();
 
-const theme = ref<boolean | null>(getItem("theme"));
+const theme = ref<boolean | null>(getSessionItem("theme"));
 
 export const useTheme = () => {
-  const { getItem, setItem } = useSessionStorage();
+  const { getSessionItem, setSessionItem } = useStorage();
 
   function setLigtTheme() {
     document.documentElement.classList.remove("my-app-dark");
@@ -27,12 +27,12 @@ export const useTheme = () => {
   }
 
   function setTheme() {
-    if (getItem("theme") === null) {
+    if (getSessionItem("theme") === null) {
       const prefersDark = window.matchMedia("(prefers-color-scheme: dark)");
 
       theme.value = !prefersDark.matches ? true : false;
 
-      setItem("theme", theme.value);
+      setSessionItem("theme", theme.value);
       change();
     }
     change();
@@ -41,7 +41,7 @@ export const useTheme = () => {
   function switchTheme() {
     theme.value = !theme.value;
 
-    setItem("theme", theme.value);
+    setSessionItem("theme", theme.value);
 
     setTheme();
   }

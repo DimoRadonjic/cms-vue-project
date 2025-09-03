@@ -1,4 +1,4 @@
-import tableGallery from "../../supabase/api/tableGallery";
+import tableGallery from "../../supabase/api/tables/tableGallery";
 import type { ImageItem } from "../../types/types";
 import { errorMessage } from "../utils";
 
@@ -12,20 +12,20 @@ const getImagesAPI = async () => {
   }
 };
 
-const uploadMainImageAPI = async (image: File[]) => {
+const uploadMainImageAPI = async (image: File, post_id: string) => {
   try {
-    const { data, status } = await tableGallery.uploadImage(image[0]);
+    const { data, status } = await tableGallery.uploadImage(image, post_id);
 
     return { data, status, error: null };
   } catch (error: any) {
     errorMessage("Failed to fetch images", error);
-    return { data: null, status: null, error };
+    return { data: null, status: 500 };
   }
 };
 
-const uploadImagesAPI = async (images: File[]) => {
+const uploadImagesAPI = async (images: File[], post_id: string) => {
   try {
-    const response = await tableGallery.uploadImages(images);
+    const response = await tableGallery.uploadImages(images, post_id);
     console.log("response", response);
 
     return { data: response, status: 200 };

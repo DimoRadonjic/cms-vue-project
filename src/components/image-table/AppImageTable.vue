@@ -37,10 +37,10 @@ const addSelectedImage = (image: ImageItem) => {
     />
     <div
       :class="
-        'grid  w-full  gap-7 place-content-center place-items-start ' +
+        'grid  w-full  gap-7 place-content-center  ' +
         (data.length && !loading
-          ? ' grid-cols-1 md:grid-cols-4 px-6 md:px-4'
-          : ' grid-cols-1')
+          ? 'grid-cols-1  md:grid-cols-4 px-6 md:px-4 place-items-start'
+          : 'grid-cols-1 place-items-center')
       "
     >
       <template v-if="loading">
