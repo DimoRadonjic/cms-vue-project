@@ -10,7 +10,7 @@ const documentByAPI = ref<DocumentItem | null>(null);
 
 onMounted(async () => {
   try {
-    const { data } = await apiDocuments.getDocumentByIDAPI(id);
+    const { data } = await apiDocuments.getDocumentByIDAPI(Number(id));
     if (data) {
       documentByAPI.value = data;
     }
