@@ -99,8 +99,6 @@ const mainImageLink = computed(() =>
 const mainImageLoading = ref(false);
 const mainImageError = ref(false);
 
-const imageIds = ref<string[]>([]);
-
 const ClearDocumentUpload = () => {
   if (fileUploadRef.value) {
     fileUploadRef.value.clear();
@@ -197,11 +195,11 @@ const onUploadImages = async (event: any) => {
   }
 
   try {
-    const { data: image } = await apiImages.uploadImagesAPI(files);
+    const { data: images } = await apiImages.uploadImagesAPI(files);
 
-    if (image) {
-      console.log("imagesUpload uploaded", image);
-      imagesUpload.value = image;
+    if (images) {
+      console.log("imagesUpload uploaded", images);
+      imagesUpload.value = images;
       console.log("imagesUpload after set:", imagesUpload.value);
     }
   } catch (error) {
@@ -217,6 +215,7 @@ const onFormSubmit = async ({ valid, values }: FormSubmitEvent) => {
   }
 
   const fileIds = filesUploaded.value.map((file) => file.id);
+  const imageIds = imagesUpload.value.map((image) => image.id);
 
   console.log("Form values:", values);
 
@@ -224,7 +223,7 @@ const onFormSubmit = async ({ valid, values }: FormSubmitEvent) => {
   valuesToSend = {
     ...valuesToSend,
     documentIds: fileIds,
-    imageIds: imageIds.value,
+    imageIds: imageIds,
   };
 
   console.log("Form valuesToSend:", valuesToSend);
