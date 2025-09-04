@@ -103,7 +103,7 @@ watchEffect(() => {
       </div>
     </template>
 
-    <template #empty v-if="!data.length">
+    <template #empty v-if="!data.length && !loading">
       <div
         class="flex place-content-center place-items-center w-full h-[50vh] text-3xl"
       >
