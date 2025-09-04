@@ -4,6 +4,18 @@ import { useToastService } from "../composable/toastService/AppToastService";
 import type { ImageItem, PostWithContent } from "../types/types";
 import { useAppRouter } from "../composable/router/useAppRouter";
 import { usePosts } from "../composable";
+import {
+  Files,
+  FileText,
+  Globe,
+  Images,
+  Link,
+  SquareArrowOutUpRight,
+  Tags,
+  Type,
+  UserPen,
+  Wallpaper,
+} from "lucide-vue-next";
 
 const { showError } = useToastService();
 
@@ -73,7 +85,7 @@ const onFormSubmit = async () => {
 
 <template>
   <div
-    class="flex flex-col gap-8 bg-primary backdrop-blur-md p-8 rounded-2xl shadow-xl border border-primary"
+    class="flex flex-col gap-8 bg-primary backdrop-blur-md p-8 rounded-2xl shadow-xl border border-primary max-w-fit mx-auto"
   >
     <h1
       class="text-4xl pb-2 font-extrabold text-center bg-gradient-to-r from-green-600 to-green-400 bg-clip-text text-transparent"
@@ -162,74 +174,179 @@ const onFormSubmit = async () => {
         </div>
       </div>
     </Form>
+
     <div v-else>
-      <div class="flex gap-8">
-        <div>
-          <div>
-            <p>Title</p>
-            <h2 class="text-2xl font-bold">{{ initialValues?.title }}</h2>
-          </div>
-          <div>
-            <p>Main Image ID</p>
-            <h2 class="text-2xl font-bold">
-              {{ initialValues?.mainImage?.title }}
-            </h2>
-          </div>
-          <div>
-            <p>Author Username</p>
-            <h2 class="text-2xl font-bold">
-              {{ initialValues?.authorUsername }}
-            </h2>
-          </div>
-          <div>
-            <p>Document IDs</p>
-            <h2 class="text-2xl font-bold">
-              {{ initialValues?.documents[0]?.title }}
-            </h2>
+      <div
+        class="flex flex-col place-content-center gap-12 w-full h-full place-items-start"
+      >
+        <div class="flex gap-12">
+          <div
+            class="border border-primary rounded-xl p-4 h-fit flex flex-col gap-5"
+          >
+            <h2 class="text-2xl font-bold">Main info</h2>
+            <div
+              class="flex flex-col place-content-center place-items-start gap-3"
+            >
+              <div class="flex place-content-center place-items-center gap-x-5">
+                <Type class="icon" />
+                <h3 class="text-xl">Title</h3>
+              </div>
+              <p class="text-lg font-bold">
+                {{ initialValues?.title }}
+              </p>
+            </div>
+
+            <div
+              class="flex flex-col place-content-center place-items-start gap-3"
+            >
+              <div class="flex place-content-center place-items-center gap-x-5">
+                <UserPen class="icon" />
+                <h3>Author Username</h3>
+              </div>
+              <p class="text-lg font-bold">
+                {{ initialValues?.authorUsername }}
+              </p>
+            </div>
+
+            <div
+              class="flex flex-col place-content-center place-items-start gap-3"
+            >
+              <div class="flex place-content-start place-items-center gap-x-5">
+                <FileText class="icon" />
+                <h3>Description</h3>
+              </div>
+              <p class="text-lg font-bold">
+                {{ initialValues?.description }}
+              </p>
+            </div>
           </div>
 
-          <div>
-            <p>Image IDs</p>
-            <h2 class="text-2xl font-bold">
-              {{ initialValues?.images[0]?.title }}
-            </h2>
-          </div>
-          <div>
-            <p>Description</p>
-            <h2 class="text-2xl font-bold">{{ initialValues?.description }}</h2>
+          <div class="border border-primary rounded-xl p-4 flex flex-col gap-5">
+            <h2 class="text-2xl font-bold">SEO info</h2>
+
+            <div
+              class="flex flex-col place-content-center place-items-start gap-3"
+            >
+              <div class="flex place-content-center place-items-center gap-x-5">
+                <Link />
+                <p>Slug</p>
+              </div>
+              <h2 class="text-lg font-bold">{{ initialValues?.seo_slug }}</h2>
+            </div>
+            <div
+              class="flex flex-col place-content-center place-items-start gap-3"
+            >
+              <div class="flex place-content-center place-items-center gap-x-5">
+                <Type />
+                <p>Meta Title</p>
+              </div>
+              <h2 class="text-lg font-bold">
+                {{ initialValues?.seo_metaTitle }}
+              </h2>
+            </div>
+            <div
+              class="flex flex-col place-content-center place-items-start gap-3"
+            >
+              <div class="flex place-content-center place-items-center gap-x-5">
+                <FileText />
+
+                <p>Meta Description</p>
+              </div>
+              <h2 class="text-lg font-bold">
+                {{ initialValues?.seo_metaDescription }}
+              </h2>
+            </div>
+            <div
+              class="flex flex-col place-content-center place-items-start gap-3"
+            >
+              <div class="flex place-content-center place-items-center gap-x-5">
+                <Tags />
+                <p>Keywords</p>
+              </div>
+              <h2 class="text-lg font-bold">
+                {{ initialValues?.seo_keywords }}
+              </h2>
+            </div>
+            <div
+              class="flex flex-col place-content-center place-items-start gap-3"
+            >
+              <div class="flex place-content-center place-items-center gap-x-5">
+                <Globe />
+
+                <p>Canonical URL</p>
+              </div>
+              <h2 class="text-lg font-bold">
+                {{ initialValues?.seo_canonicalUrl }}
+              </h2>
+            </div>
           </div>
         </div>
-        <div>
-          <div>
-            <p>SEO Slug</p>
-            <h2 class="text-2xl font-bold">{{ initialValues?.seo_slug }}</h2>
-          </div>
-          <div>
-            <p>SEO Meta Title</p>
-            <h2 class="text-2xl font-bold">
-              {{ initialValues?.seo_metaTitle }}
-            </h2>
-          </div>
-          <div>
-            <p>SEO Meta Description</p>
-            <h2 class="text-2xl font-bold">
-              {{ initialValues?.seo_metaDescription }}
-            </h2>
-          </div>
-          <div>
-            <p>SEO Keywords</p>
-            <h2 class="text-2xl font-bold">
-              {{ initialValues?.seo_keywords }}
-            </h2>
-          </div>
-          <div>
-            <p>SEO Canonical URL</p>
-            <h2 class="text-2xl font-bold">
-              {{ initialValues?.seo_canonicalUrl }}
-            </h2>
+        <div
+          class="border border-primary rounded-xl p-4 flex flex-col gap-5 w-full"
+        >
+          <h2 class="text-lg font-bold">Uploads</h2>
+          <div class="flex w-full place-content-between">
+            <div
+              class="flex flex-col place-content-center place-items-start gap-3"
+            >
+              <div class="flex place-content-center place-items-center gap-x-5">
+                <Wallpaper />
+                <h3>Main Image</h3>
+              </div>
+              <p class="text-lg font-bold">
+                {{ initialValues?.mainImage?.title }}
+              </p>
+            </div>
+
+            <div class="flex gap-12">
+              <div
+                class="flex flex-col place-content-center place-items-start gap-3"
+              >
+                <div
+                  class="flex place-content-center place-items-center gap-x-5"
+                >
+                  <Files />
+                  <h3>Documents</h3>
+                </div>
+                <div v-for="document in postDetail?.documents">
+                  <a
+                    :href="'/document/' + document.id"
+                    target="_blank"
+                    class="text-lg font-bold flex gap-x-2 place-content-center place-items-center hover:text-primary cursor-pointer"
+                  >
+                    <i class="pi pi-file-pdf"></i>
+
+                    <span class="underline-animation">
+                      {{ initialValues?.documents[0]?.title }}
+                    </span>
+                    <SquareArrowOutUpRight class="icon" />
+                  </a>
+                </div>
+              </div>
+
+              <div
+                class="flex flex-col place-content-center place-items-start gap-3"
+              >
+                <div
+                  class="flex place-content-center place-items-center gap-x-5"
+                >
+                  <Images />
+                  <h3>Images</h3>
+                </div>
+                <p
+                  class="text-lg font-bold flex gap-x-2 place-content-center place-items-center hover:text-primary cursor-pointer"
+                >
+                  <span class="underline-animation">
+                    {{ initialValues?.images[0]?.title }}
+                  </span>
+                  <SquareArrowOutUpRight class="icon" />
+                </p>
+              </div>
+            </div>
           </div>
         </div>
       </div>
+
       <div class="flex justify-center mt-4">
         <Button
           label="Edit Post"

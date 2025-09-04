@@ -42,7 +42,7 @@ const handleLogout = () => {
         <div class="w-full">
           <div class="flex place-content-around w-full">
             <router-link to="/profile">
-              <Button type="button" label="ProfileData" class="!text-2xl" />
+              <Button type="button" label="Profile" class="!text-2xl" />
             </router-link>
             <Button
               type="button"
@@ -67,23 +67,4 @@ const handleLogout = () => {
   </div>
 </template>
 
-<style lang="scss" scoped>
-.underline-animation {
-  position: relative;
-
-  &::after {
-    content: "";
-    position: absolute;
-    left: 0;
-    bottom: 0;
-    width: 0;
-    height: 2px;
-    background: #10b981; /* emerald-500 */
-    transition: width 0.3s;
-  }
-
-  &:hover::after {
-    width: 100%;
-  }
-}
-</style>
+<style lang="scss" scoped></style>
