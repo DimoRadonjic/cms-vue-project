@@ -6,27 +6,29 @@ const { isAuth } = useAuth();
 </script>
 
 <template>
-  <div class="flex place-content-between w-full m-2">
-    <AppSidebar v-if="isAuth" />
-    <div class="ml-auto">
-      <button @click="switchTheme" class="relative w-16 h-16">
-        <transition name="icon-fade" mode="out-in">
-          <i
-            v-if="!theme"
-            key="sun"
-            class="pi pi-sun sun-icon"
-            style="font-size: 2rem"
-          ></i>
-          <i
-            v-else
-            key="moon"
-            class="pi pi-moon moon-icon"
-            style="font-size: 2rem"
-          ></i>
-        </transition>
-      </button>
+  <nav class="fixed top-0 w-full z-10">
+    <div class="flex place-content-between w-full my-2 mx-1">
+      <AppSidebar v-if="isAuth" />
+      <div class="ml-auto">
+        <button @click="switchTheme" class="relative w-16 h-16">
+          <transition name="icon-fade" mode="out-in">
+            <i
+              v-if="!theme"
+              key="sun"
+              class="pi pi-sun sun-icon"
+              style="font-size: 2rem"
+            ></i>
+            <i
+              v-else
+              key="moon"
+              class="pi pi-moon moon-icon"
+              style="font-size: 2rem"
+            ></i>
+          </transition>
+        </button>
+      </div>
     </div>
-  </div>
+  </nav>
 </template>
 
 <style scoped>

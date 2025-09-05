@@ -48,9 +48,12 @@ h1 {
 }
 
 .icon {
-  @apply w-5 h-5 p-0 m-0;
+  @apply h-6 w-6  p-0 m-0;
 }
 
+.icon > * {
+  @apply aspect-square;
+}
 .underline-animation {
   position: relative;
 

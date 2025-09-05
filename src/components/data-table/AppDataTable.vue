@@ -35,6 +35,8 @@ const emit = defineEmits(["selectedData"]);
 const selectedData = ref();
 const localData = ref([...props.data]);
 
+console.log("localData", localData.value);
+
 const filterGlobal = reactive<Record<string, FilterType>>({
   global: { value: "", matchMode: "contains" },
 });
@@ -103,7 +105,7 @@ watchEffect(() => {
       </div>
     </template>
 
-    <template #empty v-if="!data.length && !loading">
+    <template #empty>
       <div
         class="flex place-content-center place-items-center w-full h-[50vh] text-3xl"
       >
@@ -112,7 +114,7 @@ watchEffect(() => {
       </div>
     </template>
 
-    <template v-if="data.length && !loading" class="relative">
+    <template v-if="data.length > 0 && !loading" class="relative">
       <div class="w-full h-full absolute bg-black/50 z-10" v-if="loading">
         <ProgressSpinner
           style="width: 80px; height: 80px"

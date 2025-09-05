@@ -148,12 +148,37 @@ const deleteDocumentFromStorage = async (document: DocumentItem) => {
   return { data };
 };
 
+// Mozda ima bolji nacin
 const deleteDocumentsFromStorage = async (documents: DocumentItem[]) => {
   const deletionPromises = documents.map(async (document) => {
     await deleteDocumentFromStorage(document);
   });
 
   return Promise.all(deletionPromises);
+};
+
+const updateDocument = async (document: DocumentItem) => {
+  try {
+    const { error } = await supabase
+      .from(table)
+      .update(document)
+      .eq("id", document.id);
+
+    if (error) {
+      throw new Error(error.message);
+    }
+  } catch (err: any) {
+    console.error("Failed to update document:", err);
+    throw new Error(err.message);
+  }
+};
+
+const updateDocuments = async (documents: DocumentItem[]) => {
+  const updatePromises = documents.map(async (document) => {
+    await updateDocument(document);
+  });
+
+  return Promise.all(updatePromises);
 };
 
 const tableDocuments = {
@@ -166,5 +191,7 @@ const tableDocuments = {
   uploadDocumentsToStorage,
   deleteDocumentFromStorage,
   deleteDocumentsFromStorage,
+  updateDocument,
+  updateDocuments,
 };
 export default tableDocuments;

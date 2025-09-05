@@ -4,8 +4,11 @@ import AppTopbar from "./components/topbar/AppTopbar.vue";
 
 <template>
   <Toast />
-  <div class="flex place-content-start flex-col place-items-center h-full">
-    <AppTopbar />
+  <AppTopbar />
+
+  <div
+    class="relative flex place-content-start flex-col place-items-center h-full"
+  >
     <router-view v-slot="{ Component }">
       <component
         :is="Component"

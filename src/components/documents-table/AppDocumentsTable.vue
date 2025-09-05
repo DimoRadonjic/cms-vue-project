@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref } from "vue";
+import { ref, watch } from "vue";
 import type { DocumentItem } from "../../types/types";
 
 defineProps<{
@@ -11,6 +11,7 @@ defineProps<{
 }>();
 
 const documentsSelected = ref<Array<any>>([]);
+const localModelOpen = ref<boolean>(false);
 
 const addSelectedDocument = (document: any) => {
   if (documentsSelected.value.includes(document)) {
@@ -21,6 +22,13 @@ const addSelectedDocument = (document: any) => {
     documentsSelected.value = [...documentsSelected.value, document];
   }
 };
+
+watch(
+  () => localModelOpen.value,
+  () => {
+    console.log("localModelOpen", localModelOpen.value);
+  }
+);
 </script>
 
 <template>
@@ -33,6 +41,7 @@ const addSelectedDocument = (document: any) => {
       :accept="'application/pdf'"
       :upload
       :delete
+      v-model:openModal="localModelOpen"
       @refetch="onRefetch"
     />
     <div
@@ -91,10 +100,12 @@ const addSelectedDocument = (document: any) => {
             :addSelectedDocument="addSelectedDocument"
             :document="singleDocument"
             :documentsSelected="documentsSelected"
+            @refetch="onRefetch"
           />
         </div>
       </template>
     </div>
+
     <AppTablePagination v-if="data.length && !loading" />
   </div>
 </template>

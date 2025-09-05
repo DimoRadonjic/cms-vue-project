@@ -9,7 +9,7 @@ export const usePosts = () => {
   const { getSessionItem, setSessionItem } = useStorage();
   const storageData = getSessionItem<StorageData>("data");
 
-  const posts = ref<PostData[]>(storageData?.data || []);
+  const posts = ref<PostData[]>(storageData?.data ?? []);
   const loading = ref<boolean>(false);
   const error = ref<Error>();
 
@@ -21,8 +21,8 @@ export const usePosts = () => {
       if (res) {
         posts.value = res;
         setSessionItem("data", { dataType: "posts", data: posts.value });
-        loading.value = false;
       }
+      loading.value = false;
     } catch (apiError) {
       console.error("Failed to fetch posts:", apiError);
       showError("Failed to fetch posts. Please try again later.", apiError);
@@ -32,7 +32,7 @@ export const usePosts = () => {
     }
   };
 
-  if (!posts.value.length || storageData?.dataType !== "posts") {
+  if (posts.value.length === 0 || storageData?.dataType !== "posts") {
     posts.value = [];
 
     fetchPosts();

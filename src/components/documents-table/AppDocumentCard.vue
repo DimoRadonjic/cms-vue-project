@@ -2,8 +2,10 @@
 import { ref } from "vue";
 import { useAppRouter } from "../../composable/router/useAppRouter";
 import type { DocumentItem } from "../../types/types";
+import apiDocuments from "../../axios/api/documents";
+import { useToastService } from "../../composable/toastService/AppToastService";
 
-defineProps<{
+const props = defineProps<{
   document: DocumentItem;
   documentsSelected: Array<any>;
   addSelectedDocument: (document: any) => void;
@@ -11,21 +13,51 @@ defineProps<{
 
 const { navigateTo } = useAppRouter();
 
-const itemHovered = ref(-1);
+const { showError, showSuccess } = useToastService();
+
+const emit = defineEmits(["refetch"]);
+
+const itemHovered = ref<number>(-1);
+const rename = ref<boolean>(false);
+const newTitle = ref<string>(props.document.title);
 
 const onMouseOver = (id: number) => {
+  if (rename) {
+    itemHovered.value = itemHovered.value;
+  }
+
   itemHovered.value = id;
+};
+
+const renameDocument = async () => {
+  if (newTitle.value !== "" && newTitle.value === props.document.title) {
+    return;
+  }
+  try {
+    await apiDocuments.updateDocumentAPI({
+      ...props.document,
+      title: newTitle.value,
+    });
+
+    emit("refetch", true);
+
+    showSuccess("Document updated");
+    rename.value = false;
+  } catch (error: any) {
+    showError("Document update failed", error.message);
+
+    throw new Error(error.message);
+  }
 };
 </script>
 
 <template>
   <div
-    class="flex flex-col h-fit gap-6 rounded-xl overflow-hidden pb-3 text-center bg-primary shadow-md cursor-pointer"
+    class="flex flex-col h-fit max-w-lg gap-6 rounded-xl overflow-hidden pb-3 text-center bg-primary shadow-md cursor-pointer"
     @mouseenter="onMouseOver(Number(document.id))"
     @mouseleave="onMouseOver(-1)"
-    @click.stop="addSelectedDocument(document)"
   >
-    <div class="relative">
+    <div class="relative" @click.stop="addSelectedDocument(document)">
       <iframe
         :src="document.url"
         style="width: 100%; height: 100%"
@@ -42,15 +74,25 @@ const onMouseOver = (id: number) => {
         />
       </div>
     </div>
-    <div class="flex flex-col gap-4 px-4 transition-all duration-300">
-      <h2 class="line-clamp-2">
+    <div class="flex flex-col gap-4 w-full px-4 transition-all duration-300">
+      <AppInputTextField
+        v-if="rename"
+        placeholder="post title"
+        fieldName="title"
+        :initialValue="newTitle"
+        v-model="newTitle"
+        type="text"
+        class="min-w-full max-w-3xl"
+      />
+      <h2 v-else class="line-clamp-2 w-full">
         {{ document.title }}
       </h2>
 
-      <TransitionGroup name="fade-slide">
+      <TransitionGroup name="fade-slide" v-if="!rename">
         <Button
           v-if="itemHovered == Number(document.id)"
           label="Rename"
+          @click.stop="rename = true"
         ></Button>
 
         <Button
@@ -59,6 +101,8 @@ const onMouseOver = (id: number) => {
           @click="navigateTo('document-view', { id: document.id })"
         ></Button>
       </TransitionGroup>
+
+      <Button v-else label="Done" @click.stop="renameDocument"></Button>
     </div>
   </div>
 </template>

@@ -23,6 +23,18 @@ const getPost = async (id: string): Promise<PostWithContent | undefined> => {
 
     console.log("data", data);
 
+    const allImages = data.images.map((i: any) => ({
+      id: i.id,
+      title: i.title,
+      url: i.url,
+      path: i.path,
+      alt: i.alt_text,
+    })) as ImageItem[];
+
+    const dataMainImage = data.mainImage as unknown as ImageItem;
+
+    const dataImages = allImages.filter(({ id }) => id !== dataMainImage.id);
+
     const postData: PostWithContent = {
       id: data.id,
       title: data.title,
@@ -33,14 +45,8 @@ const getPost = async (id: string): Promise<PostWithContent | undefined> => {
       seo_metaDescription: data.seo_metaDescription,
       seo_keywords: data.seo_keywords || [],
       seo_canonicalUrl: data.seo_canonicalUrl,
-      mainImage: data.mainImage as unknown as ImageItem,
-      images: data.images.map((i: any) => ({
-        id: i.id,
-        title: i.title,
-        url: i.url,
-        path: i.path,
-        alt: i.alt_text,
-      })) as ImageItem[],
+      mainImage: dataMainImage,
+      images: dataImages,
       documents: data.documents.map((d: any) => ({
         id: d.id,
         title: d.title,

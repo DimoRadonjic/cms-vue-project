@@ -10,6 +10,7 @@ const { data, loading, reFetch, uploadDocuments, deleteDocuments } =
       <AppDocumentsTable
         :data
         :loading
+        :modalOpen="false"
         :upload="uploadDocuments"
         :delete="deleteDocuments"
         :onRefetch="reFetch"

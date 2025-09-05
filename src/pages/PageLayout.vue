@@ -1,7 +1,7 @@
 <script setup lang="ts"></script>
 
 <template>
-  <div class="w-full h-full pb-11">
+  <div class="w-full h-full py-11">
     <router-view v-slot="{ Component }">
       <Transition name="fade" mode="out-in">
         <component :is="Component" />

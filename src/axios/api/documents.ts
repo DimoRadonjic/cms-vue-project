@@ -73,6 +73,25 @@ const deleteDocumentsAPI = async (documents: DocumentItem[]) => {
   }
 };
 
+const updateDocumentAPI = async (document: DocumentItem) => {
+  try {
+    await tableDocuments.updateDocument(document);
+    return { status: 200 };
+  } catch (error: any) {
+    errorMessage("Failed to delete document", error);
+    return { status: 500 };
+  }
+};
+
+const updateDocumentsAPI = async (documents: DocumentItem[]) => {
+  try {
+    await tableDocuments.updateDocuments(documents);
+    return { status: 200 };
+  } catch (error: any) {
+    errorMessage("Failed to delete document", error);
+    return { status: 500 };
+  }
+};
 const apiDocuments = {
   getDocumentsAPI,
   uploadDocumentsAPI,
@@ -80,6 +99,8 @@ const apiDocuments = {
   removeDocumentAPI,
   deleteDocumentsAPI,
   getDocumentByIDAPI,
+  updateDocumentAPI,
+  updateDocumentsAPI,
 };
 
 export default apiDocuments;

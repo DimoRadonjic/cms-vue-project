@@ -56,12 +56,34 @@ const removeImagesAPI = async (images: ImageItem[]) => {
   }
 };
 
+const updateImageAPI = async (image: ImageItem) => {
+  try {
+    await tableGallery.updateImage(image);
+    return { status: 200 };
+  } catch (error: any) {
+    errorMessage("Failed to delete document", error);
+    return { status: 500 };
+  }
+};
+
+const updateImagesAPI = async (images: ImageItem[]) => {
+  try {
+    await tableGallery.updateImages(images);
+    return { status: 200 };
+  } catch (error: any) {
+    errorMessage("Failed to delete document", error);
+    return { status: 500 };
+  }
+};
+
 const apiImages = {
   getImagesAPI,
   uploadMainImageAPI,
   removeMainImageAPI,
   uploadImagesAPI,
   removeImagesAPI,
+  updateImageAPI,
+  updateImagesAPI,
 };
 
 export default apiImages;

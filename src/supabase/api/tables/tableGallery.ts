@@ -125,6 +125,30 @@ const deleteImagesFromStorage = async (
   return Promise.all(deletionPromises);
 };
 
+const updateImage = async (image: ImageItem) => {
+  try {
+    const { error } = await supabase
+      .from(table)
+      .update(image)
+      .eq("id", image.id);
+
+    if (error) {
+      throw error;
+    }
+  } catch (err: any) {
+    console.error("Failed to update document:", err);
+    throw new Error(err.message);
+  }
+};
+
+const updateImages = async (images: ImageItem[]) => {
+  const updatePromises = images.map(async (image) => {
+    await updateImage(image);
+  });
+
+  return Promise.all(updatePromises);
+};
+
 const tableGallery = {
   getGallery,
   addImageToGallery,
@@ -133,6 +157,8 @@ const tableGallery = {
   deleteImageFromStorage,
   uploadImages,
   deleteImagesFromStorage,
+  updateImage,
+  updateImages,
 };
 
 export default tableGallery;

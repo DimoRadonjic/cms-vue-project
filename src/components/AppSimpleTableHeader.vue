@@ -7,6 +7,7 @@ type BaseProps = {
   selectedItem: DocumentItem[];
   title: string;
   buttonAddLabel?: string;
+  openModal?: boolean;
 };
 
 type UploadProps =
@@ -35,6 +36,7 @@ const emit = defineEmits([
   "update:data",
   "update:selectedItem",
   "uploading",
+  "update:openModal",
 ]);
 
 const { navigateTo } = useAppRouter();
