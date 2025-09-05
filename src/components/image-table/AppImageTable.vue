@@ -87,6 +87,7 @@ const addSelectedImage = (image: ImageItem) => {
             :addSelectedImage="addSelectedImage"
             :image="image"
             :imagesSelected
+            @refetch="onRefetch"
           />
         </div>
       </template>
