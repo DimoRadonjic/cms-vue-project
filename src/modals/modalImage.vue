@@ -25,7 +25,7 @@ const close = () => {
 };
 
 const AddImage = (image: ImageItem) => {
-  // if (contains(image)) return;
+  if (contains(image)) return;
 
   emit("update:existingImages", [...props.existingImages, image]);
 };
