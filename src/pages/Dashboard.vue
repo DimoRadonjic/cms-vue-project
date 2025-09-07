@@ -3,7 +3,15 @@ import { usePosts } from "../composable";
 
 const { posts, loading, reFetchPosts, error } = usePosts();
 
-const columns = ["id", "title", "description", "createdAt"];
+const columns = [
+  "id",
+  "title",
+  "authorUsername",
+  "documents",
+  "images",
+  "description",
+  "created at",
+];
 </script>
 
 <template>

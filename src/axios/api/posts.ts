@@ -11,7 +11,9 @@ const getPosts = async () => {
   try {
     const data = await tablePosts.getAllPosts();
 
-    return data;
+    console.log("all posts", data);
+
+    return data ?? (data as PostWithContent[]);
   } catch (error: any) {
     errorMessage("Failed to fetch posts", error);
   }
@@ -20,8 +22,6 @@ const getPosts = async () => {
 const getPost = async (id: string): Promise<PostWithContent | undefined> => {
   try {
     const { data } = await tablePosts.getPostById(id);
-
-    console.log("data", data);
 
     const allImages = data.images.map((i: any) => ({
       id: i.id,

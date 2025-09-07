@@ -13,6 +13,8 @@ import { onBeforeRouteLeave } from "vue-router";
 import { ImagePlus } from "lucide-vue-next";
 import apiImages from "../axios/api/images";
 import apiDocuments from "../axios/api/documents";
+import DocumentUpload from "../components/file-upload/DocumentUpload.vue";
+import ImageUpload from "../components/image-upload/ImageUpload.vue";
 
 const BASE_URL = "https://www.example.com/";
 
@@ -79,21 +81,18 @@ const schema = z.object({
 });
 
 const resolver = zodResolver(schema);
-const shouldConfirmLeave = ref(false);
+const shouldConfirmLeave = ref<boolean>(false);
+const clearUploads = ref<boolean>(false);
 const filesUploaded = ref<File[]>([]);
 
 const mainImageUpload = ref<any>();
 
 const imagesUpload = ref<File[]>([]);
 
-const fileUploadRef = ref();
 const mainImageUploadRef = ref();
-const imagesUploadRef = ref();
 
-const imagesUploading = ref<boolean>(false);
 const imagesError = ref(false);
 
-const documentsUploading = ref<boolean>(false);
 const documentError = ref(false);
 
 const mainImageLoading = ref<boolean>(false);
@@ -165,20 +164,6 @@ const updateSEO = (form: any, value: any) => {
   }
 };
 
-const onUploadDocument = async (event: any) => {
-  const files: File[] = event.files || event.target?.files || [];
-
-  if (!files.length) {
-    console.error("Nema fajlova u eventu  (document upload) :", event);
-    return;
-  }
-
-  documentsUploading.value = true;
-  filesUploaded.value = files;
-
-  documentsUploading.value = false;
-};
-
 const onUploadImage = async (event: any) => {
   const files: File[] = event.files || event.target?.files;
 
@@ -195,47 +180,15 @@ const onUploadImage = async (event: any) => {
   mainImageLoading.value = false;
 };
 
-const onUploadImages = async (event: any) => {
-  const files: File[] = event.files || event.target?.files;
-
-  imagesUploading.value = true;
-
-  if (!files) {
-    console.error("Nema fajlova u eventu (image upload):", event);
-    return;
-  }
-
-  imagesUpload.value = files;
-
-  imagesUploading.value = false;
-};
-
-const createLink = (file: File) => {
-  return URL.createObjectURL(file);
-};
-
-const ClearDocumentUpload = () => {
-  fileUploadRef.value?.clear();
-  filesUploaded.value = [];
-  documentError.value = false;
-};
-
 const ClearMainImageUpload = () => {
   mainImageUploadRef.value?.clear();
   mainImageUpload.value = null;
   mainImageError.value = false;
 };
 
-const ClearImagesUpload = () => {
-  imagesUploadRef.value?.clear();
-  imagesUpload.value = [];
-  imagesError.value = false;
-};
-
 const resetUploads = () => {
-  ClearDocumentUpload();
+  clearUploads.value = true;
   ClearMainImageUpload();
-  ClearImagesUpload();
 };
 
 const checkNewPostData = () => {
@@ -357,6 +310,11 @@ const onFormSubmit = async ({ valid, values }: FormSubmitEvent) => {
 
   let valuesToSend: PostData = { ...(values as PostData) };
 
+  console.log("valuestosend", valuesToSend);
+
+  console.log("files", filesUploaded.value);
+  console.log("more images", imagesUpload.value);
+
   try {
     const res = await apiPosts.createPost(valuesToSend as PostData);
 
@@ -397,6 +355,7 @@ const onFormSubmit = async ({ valid, values }: FormSubmitEvent) => {
       goBack();
       values = initialValues;
       resetUploads();
+      clearUploads.value = false;
     }
   } catch (error: any) {
     const detail = new Error(error.message);
@@ -570,88 +529,12 @@ onBeforeRouteLeave((_, __, next) => {
             <div class="flex flex-col gap-y-4">
               <label>Documents</label>
 
-              <div v-if="documentError" class="text-red-500 text-sm">
-                Failed to upload documents
-              </div>
-
-              <div
-                v-if="filesUploaded.length > 0"
-                v-for="document in filesUploaded"
-              >
-                <div class="flex gap-x-4 place-items-center">
-                  <i class="pi pi-file-pdf" />
-                  <a :href="createLink(document)" target="_blank">
-                    <h3>{{ document.name }}</h3>
-                  </a>
-                </div>
-              </div>
-
-              <div v-if="filesUploaded.length === 0 && !documentsUploading">
-                <h3>No file chosen</h3>
-              </div>
-
-              <div class="flex gap-x-5">
-                <FileUpload
-                  ref="fileUploadRef"
-                  mode="basic"
-                  name="documentIds[]"
-                  accept="application/pdf"
-                  :chooseLabel="filesUploaded.length > 0 ? 'Change' : 'Choose'"
-                  :multiple="true"
-                  :auto="true"
-                  @select="onUploadDocument($event)"
-                  customUpload
-                  :disabled="uploading"
-                />
-                <Button
-                  v-if="filesUploaded.length > 0"
-                  label="Clear"
-                  :disabled="uploading"
-                  @click="ClearDocumentUpload"
-                ></Button>
-              </div>
+              <DocumentUpload v-model:files="filesUploaded" />
             </div>
 
             <div class="flex flex-col gap-y-4">
               <label>More images</label>
-
-              <div v-if="imagesError" class="text-red-500 text-sm">
-                Failed to upload images
-              </div>
-
-              <div v-if="imagesUpload.length > 0" v-for="image in imagesUpload">
-                <div class="flex gap-x-4 place-items-center">
-                  <i class="pi pi-image" />
-                  <a :href="createLink(image)" target="_blank">
-                    <h3>{{ image.name }}</h3>
-                  </a>
-                </div>
-              </div>
-
-              <div v-if="imagesUpload.length === 0 && !imagesUploading">
-                <h3>No file chosen</h3>
-              </div>
-
-              <div class="flex gap-x-5">
-                <FileUpload
-                  ref="imagesUploadRef"
-                  mode="basic"
-                  name="imageIds[]"
-                  accept="image/jpeg"
-                  :chooseLabel="imagesUpload.length > 0 ? 'Change' : 'Choose'"
-                  :multiple="true"
-                  :auto="true"
-                  @select="onUploadImages($event)"
-                  customUpload
-                  :disabled="uploading"
-                />
-                <Button
-                  v-if="imagesUpload.length > 0"
-                  label="Clear"
-                  :disabled="uploading"
-                  @click="ClearImagesUpload"
-                ></Button>
-              </div>
+              <ImageUpload v-model:files="imagesUpload" />
             </div>
           </div>
         </div>
@@ -676,7 +559,7 @@ onBeforeRouteLeave((_, __, next) => {
           />
 
           <Button
-            @click="goBack"
+            @click="goBack()"
             label="Cancel"
             pt:root="!text-2xl"
             class="w-fit py-3 rounded-xl bg-green-500 hover:bg-green-600 active:bg-green-700 text-white font-semibold shadow-md transition-transform duration-300 hover:scale-[1.02] active:scale-95"

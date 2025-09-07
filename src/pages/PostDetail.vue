@@ -271,6 +271,7 @@ const handleInput = () => {
                     <h3 class="text-2xl font-bold">Documents</h3>
                   </div>
                   <div
+                    v-if="postDetail?.documents.length > 0"
                     v-for="document in postDetail?.documents"
                     class="flex flex-col gap-6"
                   >
@@ -287,6 +288,7 @@ const handleInput = () => {
                       <SquareArrowOutUpRight />
                     </a>
                   </div>
+                  <div v-else>No documents</div>
                 </div>
 
                 <div
@@ -300,6 +302,7 @@ const handleInput = () => {
                   </div>
 
                   <div
+                    v-if="postDetail?.documents.length > 0"
                     v-for="image in postDetail?.images"
                     class="flex flex-col gap-6"
                   >
@@ -312,6 +315,7 @@ const handleInput = () => {
                       <SquareArrowOutUpRight />
                     </p>
                   </div>
+                  <div v-else>No images</div>
                 </div>
               </div>
             </div>

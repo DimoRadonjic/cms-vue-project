@@ -154,12 +154,11 @@ const uploadFunc = async (event: any) => {
         :multiple="true"
         :disabled="uploading"
       />
-      <Button
+
+      <AppButtonDelete
         :label="deleteLabel"
-        icon="pi pi-trash"
-        severity="danger"
         :disabled="!selectedItem || selectedItem.length === 0 || deleting"
-        @click="handleDeletion()"
+        :clickEvent="handleDeletion"
       />
       <Button icon="pi pi-refresh" rounded raised @click="$emit('refetch')" />
     </div>

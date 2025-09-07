@@ -1,12 +1,12 @@
 <script setup lang="ts">
 import { reactive, ref, watch, watchEffect } from "vue";
-import type { FilterType } from "../../types/types";
+import type { FilterType, PostData, PostWithContent } from "../../types/types";
 import { usePosts } from "../../composable";
 import { useAppRouter } from "../../composable/router/useAppRouter";
 
 const props = withDefaults(
   defineProps<{
-    data: Array<Record<string, any>>;
+    data: PostWithContent[];
     title: string;
     loading: boolean;
     error: boolean;
@@ -137,9 +137,9 @@ watchEffect(() => {
         class="relative"
       >
         <template #body="slotProps" :key="slotProps.data.id">
-          <div v-if="col === 'createdAt'" class="relative">
+          <div v-if="col.includes('created')" class="relative">
             <span>
-              {{ dateFormatter(slotProps.data[col]) }}
+              {{ dateFormatter(slotProps.data["created_at"]) }}
             </span>
             <div
               class="flex gap-2 absolute right-0 top-0 hover:cursor-pointer"
@@ -149,6 +149,14 @@ watchEffect(() => {
                 <i class="pi pi-search"></i>
               </button>
             </div>
+          </div>
+
+          <div v-else-if="col.includes('documents')" class="relative">
+            <span>{{ slotProps.data["documents"]?.length ?? 0 }} </span>
+          </div>
+
+          <div v-else-if="col.includes('images')" class="relative">
+            <span>{{ slotProps.data["images"]?.length ?? 0 }} </span>
           </div>
           <span v-else>{{ slotProps.data[col] }}</span>
         </template>

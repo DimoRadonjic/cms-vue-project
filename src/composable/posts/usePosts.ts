@@ -1,5 +1,5 @@
 import { ref, watch } from "vue";
-import type { PostData, PostWithContent, StorageData } from "../../types/types";
+import type { PostWithContent, StorageData } from "../../types/types";
 import apiPosts from "../../axios/api/posts";
 import { useToastService } from "../toastService/AppToastService";
 import { useStorage } from "../storage";
@@ -9,7 +9,7 @@ export const usePosts = () => {
   const { getSessionItem, setSessionItem } = useStorage();
   const storageData = getSessionItem<StorageData>("data");
 
-  const posts = ref<PostData[]>(storageData?.data ?? []);
+  const posts = ref<PostWithContent[]>(storageData?.data ?? []);
   const loading = ref<boolean>(false);
   const error = ref<Error>();
 
@@ -18,8 +18,10 @@ export const usePosts = () => {
     try {
       const res = await apiPosts.getPosts();
 
+      console.log("res posts", res);
+
       if (res) {
-        posts.value = res;
+        posts.value = res as unknown as PostWithContent[];
         setSessionItem("data", { dataType: "posts", data: posts.value });
       }
       loading.value = false;
@@ -81,7 +83,7 @@ export const usePosts = () => {
     }
   };
 
-  const onFetched = (callback: (data: PostData[]) => void) => {
+  const onFetched = (callback: (data: PostWithContent[]) => void) => {
     watch(
       posts,
       (val) => {

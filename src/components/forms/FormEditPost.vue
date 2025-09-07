@@ -662,12 +662,9 @@ const resetForm = () => {
                     <div
                       class="flex gap-x-4 place-items-center hover:text-primary cursor-pointer"
                     >
-                      <Button
-                        icon="pi pi-trash"
-                        severity="danger"
-                        @click="handleDeletionDocument(index)"
-                      />
-
+                      <!-- <AppButtonDelete
+                        :clickEvent="handleDeletionDocument(index)"
+                      /> -->
                       <a
                         :href="
                           document.id
@@ -735,11 +732,9 @@ const resetForm = () => {
                     <div
                       class="flex gap-x-4 place-items-center hover:text-primary cursor-pointer"
                     >
-                      <Button
-                        icon="pi pi-trash"
-                        severity="danger"
-                        @click="handleDeletionImage(index)"
-                      />
+                      <!-- <AppButtonDelete
+                        :clickEvent="handleDeletionImage(index)"
+                      /> -->
 
                       <i class="pi pi-image" />
                       <a

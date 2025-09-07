@@ -2,7 +2,7 @@ import tableGallery from "../../supabase/api/tables/tableGallery";
 import type { ImageItem } from "../../types/types";
 import { errorMessage } from "../utils";
 
-const getImagesAPI = async () => {
+const getImagesAPI = async (): Promise<ImageItem[] | undefined> => {
   try {
     const { data } = await tableGallery.getGallery();
 

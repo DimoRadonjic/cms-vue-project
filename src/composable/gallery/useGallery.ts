@@ -9,7 +9,7 @@ export const useGallery = () => {
   const { getSessionItem, setSessionItem } = useStorage();
   const storageData = getSessionItem<StorageData>("data");
 
-  const data = ref(storageData?.data || []);
+  const data = ref<ImageItem[]>(storageData?.data || []);
   const loading = ref<boolean>(false);
   const error = ref<Error>();
 
@@ -18,8 +18,10 @@ export const useGallery = () => {
     try {
       const res = await apiImages.getImagesAPI();
 
-      data.value = res;
-      setSessionItem("data", { dataType: "gallery", data: data.value });
+      if (res) {
+        data.value = res;
+        setSessionItem("data", { dataType: "gallery", data: data.value });
+      }
 
       loading.value = false;
     } catch (apiError) {

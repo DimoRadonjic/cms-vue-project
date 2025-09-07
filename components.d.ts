@@ -9,6 +9,7 @@ export {}
 declare module 'vue' {
   export interface GlobalComponents {
     AppButton: typeof import('./src/components/ui/AppButton.vue')['default']
+    AppButtonDelete: typeof import('./src/components/ui/AppButtonDelete.vue')['default']
     AppDataTable: typeof import('./src/components/data-table/AppDataTable.vue')['default']
     AppDocumentCard: typeof import('./src/components/documents-table/AppDocumentCard.vue')['default']
     AppDocumentsTable: typeof import('./src/components/documents-table/AppDocumentsTable.vue')['default']
@@ -27,6 +28,7 @@ declare module 'vue' {
     ContextMenu: typeof import('primevue/contextmenu')['default']
     DataTable: typeof import('primevue/datatable')['default']
     DataTableWrapper: typeof import('./src/components/data-table/components/DataTableWrapper.vue')['default']
+    DocumentLink: typeof import('./src/components/DocumentLink.vue')['default']
     DocumentUpload: typeof import('./src/components/file-upload/DocumentUpload.vue')['default']
     EditPost: typeof import('./src/components/forms/EditPost.vue')['default']
     FileUpload: typeof import('primevue/fileupload')['default']
@@ -35,6 +37,8 @@ declare module 'vue' {
     FormField: typeof import('@primevue/forms/formfield')['default']
     FormNewDocument: typeof import('./src/components/forms/FormNewDocument.vue')['default']
     IconField: typeof import('primevue/iconfield')['default']
+    ImageLink: typeof import('./src/components/ImageLink.vue')['default']
+    ImageUpload: typeof import('./src/components/image-upload/ImageUpload.vue')['default']
     InputIcon: typeof import('primevue/inputicon')['default']
     InputText: typeof import('primevue/inputtext')['default']
     Message: typeof import('primevue/message')['default']

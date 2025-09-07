@@ -7,6 +7,8 @@ const bucket = BucketsName.gallery;
 
 type Image = Omit<ImageItem, "id">;
 
+type APIGalleryResponse = Promise<{ data: ImageItem[]; status: number }>;
+
 const uploadImage = async (
   file: File,
   post_id: string
@@ -63,7 +65,7 @@ const uploadImages = async (files: File[], post_id: string) => {
   return Promise.all(uploadPromises);
 };
 
-const getGallery = async () => {
+const getGallery = async (): APIGalleryResponse => {
   const { data, status, error } = await supabase.from(table).select("*");
 
   if (error) {

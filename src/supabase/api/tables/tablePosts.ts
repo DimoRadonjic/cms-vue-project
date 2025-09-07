@@ -6,7 +6,41 @@ import tableDocuments from "./tableDocuments";
 const table = TableName.posts;
 
 const getAllPosts = async () => {
-  const { data, error } = await supabase.from(table).select("*");
+  const { data, error } = await supabase.from(table).select(`
+    id,
+    title,
+    authorUsername,
+    description,
+    mainImage:gallery!mainImageId (
+      id,
+      title,
+      url,
+      path,
+      alt
+    ),
+    seo_slug,
+    seo_metaTitle,
+    seo_metaDescription,
+    seo_keywords,
+    seo_canonicalUrl,
+    images:gallery!gallery_post_id_fkey (
+      id,
+      title,
+      url,
+      path,
+      alt,
+      post_id
+
+    ),
+    documents:documents!documents_post_id_fkey (
+      id,
+      title,
+      url,
+      path,
+      post_id
+
+    )
+  `);
   if (error) {
     throw new Error(error.message);
   }
@@ -39,13 +73,15 @@ const getPostById = async (id: string) => {
       title,
       url,
       path,
-      alt
+      alt,
+      post_id
     ),
     documents:documents!documents_post_id_fkey (
       id,
       title,
       url,
-      path
+      path,
+      post_id
     )
   `
     )

@@ -110,7 +110,7 @@ const handleExport = (posts: PostWithContent[]) => {
                 @click="navigateTo('new-post')"
               />
 
-              <Button
+              <AppButtonDelete
                 :label="
                   selectedItem
                     ? selectedItem.length > 1
@@ -118,10 +118,8 @@ const handleExport = (posts: PostWithContent[]) => {
                       : 'Delete a item '
                     : 'Delete'
                 "
-                icon="pi pi-trash"
-                severity="danger"
                 :disabled="!selectedItem"
-                @click="handleDeletion()"
+                :clickEvent="handleDeletion"
               />
             </div>
           </div>
