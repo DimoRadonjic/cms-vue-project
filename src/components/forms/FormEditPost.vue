@@ -17,7 +17,6 @@ import {
   Files,
   FileText,
   Globe,
-  Image,
   ImagePlus,
   Images,
   Link,
