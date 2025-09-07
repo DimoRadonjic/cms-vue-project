@@ -20,7 +20,6 @@ import {
   ImagePlus,
   Images,
   Link,
-  SquareArrowOutUpRight,
   Tags,
   Type,
   UserPen,
@@ -36,7 +35,6 @@ import {
   generateSeoSlug,
 } from "./seo";
 import isEqual from "lodash/isEqual";
-import { createLink } from "./utils";
 import DocumentLink from "../DocumentLink.vue";
 
 interface Props {
