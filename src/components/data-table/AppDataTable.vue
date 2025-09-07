@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { reactive, ref, watch, watchEffect } from "vue";
-import type { FilterType, PostData, PostWithContent } from "../../types/types";
+import type { FilterType, PostWithContent } from "../../types/types";
 import { usePosts } from "../../composable";
 import { useAppRouter } from "../../composable/router/useAppRouter";
 

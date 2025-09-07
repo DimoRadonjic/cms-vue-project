@@ -37,6 +37,7 @@ import {
 } from "./seo";
 import isEqual from "lodash/isEqual";
 import { createLink } from "./utils";
+import DocumentLink from "../DocumentLink.vue";
 
 interface Props {
   reset?: boolean;
@@ -662,25 +663,10 @@ const resetForm = () => {
                     <div
                       class="flex gap-x-4 place-items-center hover:text-primary cursor-pointer"
                     >
-                      <!-- <AppButtonDelete
-                        :clickEvent="handleDeletionDocument(index)"
-                      /> -->
-                      <a
-                        :href="
-                          document.id
-                            ? '/document/' + document.id
-                            : createLink(document)
-                        "
-                        target="_blank"
-                        class="font-bold flex gap-x-2 place-content-center place-items-center hover:text-primary cursor-pointer"
-                      >
-                        <i class="pi pi-file-pdf"></i>
-
-                        <span class="underline-animation">
-                          {{ document.name ?? document.title }}</span
-                        >
-                        <SquareArrowOutUpRight />
-                      </a>
+                      <AppButtonDelete
+                        :clickEvent="() => handleDeletionDocument(index)"
+                      />
+                      <DocumentLink :document />
                     </div>
                   </div>
                 </div>
@@ -732,21 +718,11 @@ const resetForm = () => {
                     <div
                       class="flex gap-x-4 place-items-center hover:text-primary cursor-pointer"
                     >
-                      <!-- <AppButtonDelete
-                        :clickEvent="handleDeletionImage(index)"
-                      /> -->
+                      <AppButtonDelete
+                        :clickEvent="() => handleDeletionImage(index)"
+                      />
 
-                      <i class="pi pi-image" />
-                      <a
-                        :href="image.url ? image.url : createLink(image)"
-                        target="_blank"
-                        class="font-bold flex gap-x-2 place-content-center place-items-center hover:text-primary cursor-pointer"
-                      >
-                        <span class="underline-animation">
-                          {{ image.name ?? image.title }}</span
-                        >
-                        <SquareArrowOutUpRight />
-                      </a>
+                      <ImageLink :image />
                     </div>
                   </div>
                 </div>
