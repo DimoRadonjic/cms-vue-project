@@ -11,7 +11,6 @@ import {
   Image,
   Images,
   Link,
-  SquareArrowOutUpRight,
   Tags,
   Type,
   UserPen,
