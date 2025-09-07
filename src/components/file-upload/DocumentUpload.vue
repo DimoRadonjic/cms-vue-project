@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, watchEffect } from "vue";
+import { computed, ref, watchEffect } from "vue";
 import type { DocumentItem } from "../../types/types";
 import ModalDocuments from "../../modals/modalDocuments.vue";
 import { useDocuments } from "../../composable/documents/useDocuments";
@@ -9,6 +9,7 @@ interface Props {
   clear?: boolean;
   files: File[];
   existingDocuments: DocumentItem[];
+  postID?: string;
 }
 
 const props = defineProps<Props>();
@@ -16,6 +17,10 @@ const props = defineProps<Props>();
 const emit = defineEmits(["update:files", "update:existingDocuments"]);
 
 const { data } = useDocuments();
+
+const avaiable = computed(() =>
+  data.value.filter((doc: DocumentItem) => doc.post_id !== props.postID)
+);
 
 const filesUploaded = ref<File[]>([]);
 
@@ -144,7 +149,7 @@ watchEffect(() => emit("update:files", filesUploaded.value));
   <ModalDocuments
     v-if="documentModal"
     v-model:modalOpen="documentModal"
-    :documents="data"
+    :documents="avaiable"
     v-model:existingDocuments="existingDocuments"
   />
 </template>

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, watchEffect } from "vue";
+import { computed, ref, watchEffect } from "vue";
 import type { ImageItem } from "../../types/types";
 import ModalImage from "../../modals/modalImage.vue";
 import { useGallery } from "../../composable/gallery/useGallery";
@@ -21,6 +21,10 @@ const { data } = useGallery();
 const imageFiles = ref<File[]>([]);
 
 const existingImages = ref<ImageItem[]>(props.images ? [...props.images] : []);
+
+const avaiable = computed(() =>
+  data.value.filter((img) => img.post_id !== props.postID)
+);
 
 const imagesUploading = ref<boolean>(false);
 const imageModal = ref<boolean>(false);
@@ -142,8 +146,7 @@ watchEffect(() => emit("update:files", imageFiles.value));
   <ModalImage
     v-if="imageModal"
     v-model:modalOpen="imageModal"
-    :images="data"
+    :images="avaiable"
     v-model:existingImages="existingImages"
-    :postID="postID ? postID : ''"
   />
 </template>

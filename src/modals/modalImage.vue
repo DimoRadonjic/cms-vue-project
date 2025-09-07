@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { computed } from "vue";
 import type { ImageItem } from "../types/types";
 import ModalBase from "./modalBase.vue";
 
@@ -7,21 +6,16 @@ interface Props {
   modalOpen: boolean;
   images: ImageItem[];
   existingImages: ImageItem[];
-  postID: string;
 }
 
 const props = defineProps<Props>();
 
 const emit = defineEmits(["update:modalOpen", "update:existingImages"]);
 
-console.log("test", props.postID);
-
-const avaiable = computed(() =>
-  props.images.filter((img) => img.post_id !== props.postID)
-);
-
 const contains = (image: ImageItem) => {
-  const inImages = props.images.find(({ title }) => image.title === title);
+  const inImages = props.existingImages.find(
+    ({ title }) => image.title === title
+  );
   if (inImages) return true;
   return false;
 };
@@ -31,7 +25,7 @@ const close = () => {
 };
 
 const AddImage = (image: ImageItem) => {
-  if (contains(image)) return;
+  // if (contains(image)) return;
 
   emit("update:existingImages", [...props.existingImages, image]);
 };
@@ -43,7 +37,7 @@ const AddImage = (image: ImageItem) => {
       <div class="bg-primary h-fit w-fit rounded-xl p-6 space-y-4">
         <h2 class="text-2xl font-semibold">Choose Images</h2>
         <div
-          v-for="image in avaiable"
+          v-for="image in images"
           class="flex gap-5 place-content-start place-items-center text-xl"
           :key="image.id"
         >

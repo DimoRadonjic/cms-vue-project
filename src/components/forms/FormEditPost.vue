@@ -609,6 +609,7 @@ const resetForm = () => {
                   v-model:files="newDocuments"
                   v-model:existingDocuments="existingDocuments"
                   :documents="documents"
+                  :postID="initialValues.id"
                 />
               </div>
 
@@ -626,6 +627,7 @@ const resetForm = () => {
                   v-model:files="newImages"
                   v-model:existingImages="existingImages"
                   :images="images"
+                  :postID="initialValues.id"
                 />
               </div>
             </div>
