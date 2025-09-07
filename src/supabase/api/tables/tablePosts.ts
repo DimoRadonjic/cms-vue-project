@@ -39,7 +39,9 @@ const getAllPosts = async () => {
       path,
       post_id
 
-    )
+  ),
+  created_at,
+  updated_at
   `);
   if (error) {
     throw new Error(error.message);
