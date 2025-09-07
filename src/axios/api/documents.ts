@@ -92,6 +92,7 @@ const updateDocumentsAPI = async (documents: DocumentItem[]) => {
     return { status: 500 };
   }
 };
+
 const apiDocuments = {
   getDocumentsAPI,
   uploadDocumentsAPI,

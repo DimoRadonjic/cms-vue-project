@@ -3,15 +3,18 @@ import { ref, watchEffect } from "vue";
 import type { ImageItem } from "../../types/types";
 import ModalImage from "../../modals/modalImage.vue";
 import { useGallery } from "../../composable/gallery/useGallery";
+import ImageLink from "../ImageLink.vue";
 
 interface Props {
   images?: ImageItem[];
   clear?: boolean;
-  files?: File[];
+  files: File[];
+  existingImages: ImageItem[];
+  postID?: string;
 }
 
 const props = defineProps<Props>();
-const emit = defineEmits(["update:files"]);
+const emit = defineEmits(["update:files", "update:existingImages"]);
 
 const { data } = useGallery();
 
@@ -46,13 +49,12 @@ const onUploadImages = (event: any) => {
   }
 
   // imagesUploading.value = false;
-
-  emit("update:files", imageFiles.value);
 };
 
 const ClearImagesUpload = () => {
   imagesUploadRef.value?.clear();
   imageFiles.value = [];
+  existingImages.value = [];
   imagesError.value = false;
 };
 
@@ -69,6 +71,8 @@ const handleDeletionFile = (index: number) => {
 };
 
 watchEffect(() => props.clear && ClearImagesUpload());
+watchEffect(() => emit("update:existingImages", existingImages.value));
+watchEffect(() => emit("update:files", imageFiles.value));
 </script>
 
 <template>
@@ -111,19 +115,19 @@ watchEffect(() => props.clear && ClearImagesUpload());
       class="flex flex-col place-items-start gap-3"
       v-if="imageFiles.length > 0 || existingImages.length > 0"
     >
-      <div v-for="(document, index) in imageFiles">
-        <div class="flex gap-x-4 place-items-center">
-          <AppButtonDelete :clickEvent="() => handleDeletionImage(index)" />
-
-          <DocumentLink :document />
-        </div>
-      </div>
-
-      <div v-for="(document, index) in existingImages">
+      <div v-for="(image, index) in imageFiles">
         <div class="flex gap-x-4 place-items-center">
           <AppButtonDelete :clickEvent="() => handleDeletionFile(index)" />
 
-          <DocumentLink :document />
+          <ImageLink :image />
+        </div>
+      </div>
+
+      <div v-for="(image, index) in existingImages">
+        <div class="flex gap-x-4 place-items-center">
+          <AppButtonDelete :clickEvent="() => handleDeletionImage(index)" />
+
+          <ImageLink :image />
         </div>
       </div>
     </div>
@@ -135,5 +139,11 @@ watchEffect(() => props.clear && ClearImagesUpload());
       Failed to upload Images
     </div>
   </div>
-  <ModalImage v-if="imageModal" v-model:modalOpen="imageModal" :images="data" />
+  <ModalImage
+    v-if="imageModal"
+    v-model:modalOpen="imageModal"
+    :images="data"
+    v-model:existingImages="existingImages"
+    :postID="postID ? postID : ''"
+  />
 </template>

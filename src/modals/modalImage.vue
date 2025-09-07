@@ -1,18 +1,39 @@
 <script setup lang="ts">
+import { computed } from "vue";
 import type { ImageItem } from "../types/types";
 import ModalBase from "./modalBase.vue";
 
 interface Props {
   modalOpen: boolean;
   images: ImageItem[];
+  existingImages: ImageItem[];
+  postID: string;
 }
 
-defineProps<Props>();
+const props = defineProps<Props>();
 
-const emit = defineEmits(["update:modalOpen"]);
+const emit = defineEmits(["update:modalOpen", "update:existingImages"]);
+
+console.log("test", props.postID);
+
+const avaiable = computed(() =>
+  props.images.filter((img) => img.post_id !== props.postID)
+);
+
+const contains = (image: ImageItem) => {
+  const inImages = props.images.find(({ title }) => image.title === title);
+  if (inImages) return true;
+  return false;
+};
 
 const close = () => {
   emit("update:modalOpen", false);
+};
+
+const AddImage = (image: ImageItem) => {
+  if (contains(image)) return;
+
+  emit("update:existingImages", [...props.existingImages, image]);
 };
 </script>
 
@@ -22,12 +43,17 @@ const close = () => {
       <div class="bg-primary h-fit w-fit rounded-xl p-6 space-y-4">
         <h2 class="text-2xl font-semibold">Choose Images</h2>
         <div
-          v-for="image in images"
+          v-for="image in avaiable"
           class="flex gap-5 place-content-start place-items-center text-xl"
           :key="image.id"
         >
           <ImageLink :image />
-          <AppButton label="Add" rootClass="!text-lg !p-2"></AppButton>
+          <AppButton
+            type="button"
+            label="Add"
+            rootClass="!text-lg !p-2"
+            :clickEvent="() => AddImage(image)"
+          ></AppButton>
         </div>
 
         <AppButton

@@ -30,7 +30,6 @@ const getAllPosts = async () => {
       path,
       alt,
       post_id
-
     ),
     documents:documents!documents_post_id_fkey (
       id,

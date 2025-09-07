@@ -5,14 +5,28 @@ import ModalBase from "./modalBase.vue";
 interface Props {
   modalOpen: boolean;
   documents: DocumentItem[];
+  existingDocuments: DocumentItem[];
 }
 
-defineProps<Props>();
+const props = defineProps<Props>();
 
-const emit = defineEmits(["update:modalOpen"]);
+const emit = defineEmits(["update:modalOpen", "update:existingDocuments"]);
 
+const contains = (image: DocumentItem) => {
+  const inImages = props.existingDocuments.find(
+    ({ title }) => image.title === title
+  );
+  if (inImages) return true;
+  return false;
+};
 const close = () => {
   emit("update:modalOpen", false);
+};
+
+const AddDocument = (image: DocumentItem) => {
+  if (contains(image)) return;
+
+  emit("update:existingDocuments", [...props.existingDocuments, image]);
 };
 </script>
 
@@ -27,7 +41,12 @@ const close = () => {
           :key="document.id"
         >
           <DocumentLink :document />
-          <AppButton label="Add" rootClass="!text-lg !p-2"></AppButton>
+          <AppButton
+            type="button"
+            label="Add"
+            rootClass="!text-lg !p-2"
+            :clickEvent="() => AddDocument(document)"
+          ></AppButton>
         </div>
 
         <AppButton

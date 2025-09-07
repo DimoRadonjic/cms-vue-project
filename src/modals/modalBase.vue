@@ -10,13 +10,17 @@ defineProps<Props>();
 const emit = defineEmits(["update:modalOpen"]);
 
 const modal = ref<any>(null);
+const body = ref<any>(null);
 
 const close = () => {
   emit("update:modalOpen", false);
 };
 
 const handleClickOutside = (event: MouseEvent) => {
-  if (modal.value && !modal.value.contains(event.target)) {
+  if (
+    (modal.value && !modal.value.contains(event.target)) ||
+    (body.value && !body.value.contains(event.target))
+  ) {
     close();
   }
 };
@@ -32,10 +36,10 @@ onBeforeUnmount(() => {
 
 <template>
   <div
-    class="absolute top-0 left-0 bg-black/25 w-full h-full flex place-content-center place-items-center"
-    @click.stop="close"
+    class="absolute top-0 left-0 z-10 bg-black/25 w-full h-full flex place-content-center place-items-center"
+    @click="close"
     ref="modal"
   >
-    <slot name="body"></slot>
+    <slot name="body" ref="body"></slot>
   </div>
 </template>

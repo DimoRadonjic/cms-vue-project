@@ -5,7 +5,12 @@ import { computed, reactive, ref } from "vue";
 import z from "zod";
 import { useToastService } from "../composable/toastService/AppToastService";
 import apiPosts from "../axios/api/posts";
-import type { NewPost, PostData } from "../types/types";
+import type {
+  DocumentItem,
+  ImageItem,
+  NewPost,
+  PostData,
+} from "../types/types";
 import { useAppRouter } from "../composable/router/useAppRouter";
 import { usePosts } from "../composable";
 import FileUpload from "primevue/fileupload";
@@ -88,6 +93,8 @@ const filesUploaded = ref<File[]>([]);
 const mainImageUpload = ref<any>();
 
 const imagesUpload = ref<File[]>([]);
+const existingImages = ref<ImageItem[]>([]);
+const existingDocuments = ref<DocumentItem[]>([]);
 
 const mainImageUploadRef = ref();
 
@@ -195,6 +202,8 @@ const checkNewPostData = () => {
   shouldConfirmLeave.value =
     filesUploaded.value.length > 0 ||
     imagesUpload.value.length > 0 ||
+    existingDocuments.value.length > 0 ||
+    existingImages.value.length > 0 ||
     mainImageUpload.value
       ? true
       : false;
@@ -310,6 +319,9 @@ const onFormSubmit = async ({ valid, values }: FormSubmitEvent) => {
 
   let valuesToSend: PostData = { ...(values as PostData) };
 
+  console.log("existingImages", existingImages.value);
+  console.log("existingDocuments", existingDocuments.value);
+
   console.log("valuestosend", valuesToSend);
 
   console.log("files", filesUploaded.value);
@@ -331,6 +343,23 @@ const onFormSubmit = async ({ valid, values }: FormSubmitEvent) => {
       console.log("fileIds", fileIds);
       console.log("imageIds", imageIds);
 
+      if (existingDocuments.value.length > 0) {
+        const linked = existingDocuments.value.map((doc) => ({
+          ...doc,
+          post_id: id,
+        }));
+
+        await apiDocuments.updateDocumentsAPI(linked);
+      }
+
+      if (existingImages.value.length > 0) {
+        const linked = existingImages.value.map((doc) => ({
+          ...doc,
+          post_id: id,
+        }));
+
+        await apiImages.updateImagesAPI(linked);
+      }
       if (mainImageID) {
         console.log("mainImageID", mainImageID);
         console.log("update", {
@@ -352,7 +381,7 @@ const onFormSubmit = async ({ valid, values }: FormSubmitEvent) => {
     if (!uploading.value) {
       showSuccess("Post created");
       reFetchPosts();
-      goBack();
+      // goBack();
       values = initialValues;
       resetUploads();
       clearUploads.value = false;
@@ -529,12 +558,18 @@ onBeforeRouteLeave((_, __, next) => {
             <div class="flex flex-col gap-y-4">
               <label>Documents</label>
 
-              <DocumentUpload v-model:files="filesUploaded" />
+              <DocumentUpload
+                v-model:files="filesUploaded"
+                v-model:existingDocuments="existingDocuments"
+              />
             </div>
 
             <div class="flex flex-col gap-y-4">
               <label>More images</label>
-              <ImageUpload v-model:files="imagesUpload" />
+              <ImageUpload
+                v-model:files="imagesUpload"
+                v-model:existingImages="existingImages"
+              />
             </div>
           </div>
         </div>

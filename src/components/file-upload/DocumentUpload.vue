@@ -7,12 +7,13 @@ import { useDocuments } from "../../composable/documents/useDocuments";
 interface Props {
   documents?: DocumentItem[];
   clear?: boolean;
-  files?: File[];
+  files: File[];
+  existingDocuments: DocumentItem[];
 }
 
 const props = defineProps<Props>();
 
-const emit = defineEmits(["update:files"]);
+const emit = defineEmits(["update:files", "update:existingDocuments"]);
 
 const { data } = useDocuments();
 
@@ -49,13 +50,12 @@ const onUploadDocument = (event: any) => {
   }
 
   documentsUploading.value = false;
-
-  emit("update:files", filesUploaded.value);
 };
 
 const ClearDocumentUpload = () => {
   fileUploadRef.value?.clear();
   filesUploaded.value = [];
+  existingDocuments.value = [];
   documentError.value = false;
 };
 
@@ -71,6 +71,9 @@ const toggleDocumentModal = () => {
 };
 
 watchEffect(() => props.clear && ClearDocumentUpload());
+
+watchEffect(() => emit("update:existingDocuments", existingDocuments.value));
+watchEffect(() => emit("update:files", filesUploaded.value));
 </script>
 
 <template>
@@ -115,7 +118,7 @@ watchEffect(() => props.clear && ClearDocumentUpload());
     >
       <div v-for="(document, index) in filesUploaded">
         <div class="flex gap-x-4 place-items-center">
-          <AppButtonDelete :clickEvent="() => handleDeletionDocument(index)" />
+          <AppButtonDelete :clickEvent="() => handleDeletionFile(index)" />
 
           <DocumentLink :document />
         </div>
@@ -123,7 +126,7 @@ watchEffect(() => props.clear && ClearDocumentUpload());
 
       <div v-for="(document, index) in existingDocuments">
         <div class="flex gap-x-4 place-items-center">
-          <AppButtonDelete :clickEvent="() => handleDeletionFile(index)" />
+          <AppButtonDelete :clickEvent="() => handleDeletionDocument(index)" />
 
           <DocumentLink :document />
         </div>
@@ -142,6 +145,7 @@ watchEffect(() => props.clear && ClearDocumentUpload());
     v-if="documentModal"
     v-model:modalOpen="documentModal"
     :documents="data"
+    v-model:existingDocuments="existingDocuments"
   />
 </template>
 

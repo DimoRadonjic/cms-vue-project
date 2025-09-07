@@ -17,6 +17,7 @@ import {
   Files,
   FileText,
   Globe,
+  Image,
   ImagePlus,
   Images,
   Link,
@@ -35,7 +36,8 @@ import {
   generateSeoSlug,
 } from "./seo";
 import isEqual from "lodash/isEqual";
-import DocumentLink from "../DocumentLink.vue";
+import DocumentUpload from "../file-upload/DocumentUpload.vue";
+import ImageUpload from "../image-upload/ImageUpload.vue";
 
 interface Props {
   reset?: boolean;
@@ -59,21 +61,24 @@ const { reFetchPosts } = usePosts();
 
 const resolver = zodResolver(schemaPost);
 
-const filesUploaded = ref<any[]>([...props.data.documents]);
 const mainImageUpload = ref<any>({ ...props.data.mainImage });
-const imagesUpload = ref<any[]>([...props.data.images]);
 
-const removedImages = ref<ImageItem[]>([]);
+const documents = ref<DocumentItem[]>([...props.data.documents]);
+const newDocuments = ref<File[]>([]);
+const existingDocuments = ref<DocumentItem[]>([]);
 const removedDocumnets = ref<DocumentItem[]>([]);
+
+const images = ref<ImageItem[]>([...props.data.images]);
+const newImages = ref<File[]>([]);
+const existingImages = ref<ImageItem[]>([]);
+const removedImages = ref<ImageItem[]>([]);
 
 const fileUploadRef = ref();
 const mainImageUploadRef = ref();
 const imagesUploadRef = ref();
 
-const imagesUploading = ref<boolean>(false);
 const imagesError = ref(false);
 
-const documentsUploading = ref<boolean>(false);
 const documentError = ref(false);
 
 const mainImageLoading = ref<boolean>(false);
@@ -82,10 +87,10 @@ const uploading = ref<boolean>(false);
 
 const mainImageLink = computed(() => {
   return mainImageUpload.value
-    ? mainImageUpload.value.id
-      ? mainImageUpload.value.url
-      : URL.createObjectURL(mainImageUpload.value)
-    : "";
+    ? mainImageUpload.value instanceof File
+      ? URL.createObjectURL(mainImageUpload.value)
+      : mainImageUpload.value.url
+    : null;
 });
 
 const updateSEO = (form: any, value: any) => {
@@ -118,21 +123,6 @@ const updateSEO = (form: any, value: any) => {
   }
 };
 
-const onUploadDocument = async (event: any) => {
-  const files: File[] = event.files || event.target?.files || [];
-
-  if (!files.length) {
-    console.error("Nema fajlova u eventu  (document upload) :", event);
-    return;
-  }
-
-  documentsUploading.value = true;
-
-  filesUploaded.value = [...filesUploaded.value, ...files];
-
-  documentsUploading.value = false;
-};
-
 const onUploadImage = async (event: any) => {
   const files: File[] = event.files || event.target?.files;
 
@@ -151,24 +141,9 @@ const onUploadImage = async (event: any) => {
   mainImageLoading.value = false;
 };
 
-const onUploadImages = async (event: any) => {
-  const files: File[] = event.files || event.target?.files;
-
-  imagesUploading.value = true;
-
-  if (!files) {
-    console.error("Nema fajlova u eventu (image upload):", event);
-    return;
-  }
-
-  imagesUpload.value = [...imagesUpload.value, ...files];
-
-  imagesUploading.value = false;
-};
-
 const ClearDocumentUpload = () => {
   fileUploadRef.value?.clear();
-  filesUploaded.value = [];
+  documents.value = [];
   documentError.value = false;
 };
 
@@ -180,7 +155,7 @@ const ClearMainImageUpload = () => {
 
 const ClearImagesUpload = () => {
   imagesUploadRef.value?.clear();
-  imagesUpload.value = [];
+  images.value = [];
   imagesError.value = false;
 };
 
@@ -243,28 +218,13 @@ const uploadMainImage = async (mainImage: File, post_id: string) => {
   }
 };
 
-const handleDeletionImage = (index: number) => {
-  const removed: ImageItem[] = imagesUpload.value.splice(index, 1);
-
-  const removedNoPostID: ImageItem = { ...removed[0], post_id: null };
-
-  removedImages.value.push(removedNoPostID);
-
-  console.log("removed img", removedImages.value);
-};
-
-const handleDeletionDocument = (index: number) => {
-  const removed: DocumentItem[] = filesUploaded.value.splice(index, 1);
-
-  const removedNoPostID: DocumentItem = { ...removed[0], post_id: null };
-
-  removedDocumnets.value.push(removedNoPostID);
-
-  console.log("removed doc", removedDocumnets.value);
-};
-
 const onFormSubmit = async ({ valid, values }: FormSubmitEvent) => {
-  const { documents, images, mainImage, ...rest } = initialValues;
+  const {
+    documents: initialDocuments,
+    images: initalImages,
+    mainImage,
+    ...rest
+  } = initialValues;
 
   const { id, ...postValues } = rest;
 
@@ -321,22 +281,37 @@ const onFormSubmit = async ({ valid, values }: FormSubmitEvent) => {
     }
   }
 
-  const filesWithoutId = filesUploaded.value.filter((file) => !file.id);
-  const imagesWithoutId = imagesUpload.value.filter((image) => !image.id);
-
-  if (filesWithoutId.length > 0) {
+  if (newDocuments.value.length > 0) {
     emit("uploading-change", uploading.value);
 
-    const fileIds = await uploadDocuments(filesWithoutId, values.id);
+    const fileIds = await uploadDocuments(newDocuments.value, values.id);
 
     console.log("fileIds await", fileIds);
   }
 
-  if (imagesWithoutId.length > 0) {
+  if (newImages.value.length > 0) {
     emit("uploading-change", uploading.value);
 
-    const imageIds = await uploadImages(imagesWithoutId, values.id);
+    const imageIds = await uploadImages(newImages.value, values.id);
     console.log("imageIds await", imageIds);
+  }
+
+  if (existingDocuments.value.length > 0) {
+    const linked = existingDocuments.value.map((doc) => ({
+      ...doc,
+      post_id: id,
+    }));
+
+    await apiDocuments.updateDocumentsAPI(linked);
+  }
+
+  if (existingImages.value.length > 0) {
+    const linked = existingImages.value.map((doc) => ({
+      ...doc,
+      post_id: id,
+    }));
+
+    await apiImages.updateImagesAPI(linked);
   }
 
   console.log("valuesToSend", valuesToSend);
@@ -572,7 +547,9 @@ const resetForm = () => {
                   />
 
                   <div
-                    v-if="!mainImageUpload && !mainImageLoading"
+                    v-if="
+                      (!mainImageUpload && !mainImageLoading) || !mainImageLink
+                    "
                     class="mt-4 relative w-full h-full"
                   >
                     <ImagePlus class="w-full h-full z-10" />
@@ -629,49 +606,11 @@ const resetForm = () => {
                     >Documents</label
                   >
                 </div>
-                <div class="flex gap-x-5">
-                  <FileUpload
-                    ref="fileUploadRef"
-                    mode="basic"
-                    name="documentIds[]"
-                    accept="application/pdf"
-                    :chooseLabel="filesUploaded.length > 0 ? 'Add' : 'Choose'"
-                    :multiple="true"
-                    :auto="true"
-                    @select="onUploadDocument($event)"
-                    customUpload
-                    :disabled="uploading"
-                  />
-                  <Button
-                    v-if="filesUploaded.length > 0"
-                    label="Clear"
-                    :disabled="uploading"
-                    @click="ClearDocumentUpload"
-                  ></Button>
-                </div>
-                <div v-if="documentError" class="text-red-500 text-sm">
-                  Failed to upload documents
-                </div>
-
-                <div class="flex flex-col place-items-end gap-3">
-                  <div
-                    v-if="filesUploaded.length > 0"
-                    v-for="(document, index) in filesUploaded"
-                  >
-                    <div
-                      class="flex gap-x-4 place-items-center hover:text-primary cursor-pointer"
-                    >
-                      <AppButtonDelete
-                        :clickEvent="() => handleDeletionDocument(index)"
-                      />
-                      <DocumentLink :document />
-                    </div>
-                  </div>
-                </div>
-
-                <div v-if="filesUploaded.length === 0 && !documentsUploading">
-                  <h3>No file chosen</h3>
-                </div>
+                <DocumentUpload
+                  v-model:files="newDocuments"
+                  v-model:existingDocuments="existingDocuments"
+                  :documents="documents"
+                />
               </div>
 
               <div class="flex flex-col place-items-center gap-y-4">
@@ -683,51 +622,12 @@ const resetForm = () => {
                     >More images</label
                   >
                 </div>
-                <div class="flex gap-x-5">
-                  <FileUpload
-                    ref="imagesUploadRef"
-                    mode="basic"
-                    name="imageIds[]"
-                    accept="image/jpeg"
-                    :chooseLabel="imagesUpload.length > 0 ? 'Add' : 'Choose'"
-                    :multiple="true"
-                    :auto="true"
-                    @select="onUploadImages($event)"
-                    customUpload
-                    :disabled="uploading"
-                  />
-                  <Button
-                    v-if="imagesUpload.length > 0"
-                    label="Clear"
-                    :disabled="uploading"
-                    @click="ClearImagesUpload"
-                  ></Button>
-                </div>
 
-                <div v-if="imagesError" class="text-red-500 text-sm">
-                  Failed to upload images
-                </div>
-
-                <div class="flex flex-col place-items-end gap-3">
-                  <div
-                    v-if="imagesUpload.length > 0"
-                    v-for="(image, index) in imagesUpload"
-                  >
-                    <div
-                      class="flex gap-x-4 place-items-center hover:text-primary cursor-pointer"
-                    >
-                      <AppButtonDelete
-                        :clickEvent="() => handleDeletionImage(index)"
-                      />
-
-                      <ImageLink :image />
-                    </div>
-                  </div>
-                </div>
-
-                <div v-if="imagesUpload.length === 0 && !imagesUploading">
-                  <h3>No file chosen</h3>
-                </div>
+                <ImageUpload
+                  v-model:files="newImages"
+                  v-model:existingImages="existingImages"
+                  :images="images"
+                />
               </div>
             </div>
           </div>

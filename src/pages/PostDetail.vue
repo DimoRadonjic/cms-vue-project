@@ -8,6 +8,7 @@ import {
   Files,
   FileText,
   Globe,
+  Image,
   Images,
   Link,
   SquareArrowOutUpRight,
@@ -17,6 +18,8 @@ import {
   Wallpaper,
 } from "lucide-vue-next";
 import FormEditPost from "../components/forms/FormEditPost.vue";
+import DocumentLink from "../components/DocumentLink.vue";
+import ImageLink from "../components/ImageLink.vue";
 
 const { showError } = useToastService();
 
@@ -253,10 +256,12 @@ const handleInput = () => {
 
                 <div class="w-full max-w-sm">
                   <img
+                    v-if="initialValues.mainImage"
                     :src="initialValues.mainImage.url"
                     :alt="initialValues.mainImage.alt"
                     class="object-cover w-full h-full"
                   />
+                  <Image v-else class="w-full h-full z-10" />
                 </div>
               </div>
 
@@ -275,18 +280,7 @@ const handleInput = () => {
                     v-for="document in postDetail?.documents"
                     class="flex flex-col gap-6"
                   >
-                    <a
-                      :href="'/document/' + document.id"
-                      target="_blank"
-                      class="text-xl font-bold flex gap-x-2 place-content-center place-items-center hover:text-primary cursor-pointer"
-                    >
-                      <i class="pi pi-file-pdf"></i>
-
-                      <span class="underline-animation">
-                        {{ document.title }}
-                      </span>
-                      <SquareArrowOutUpRight />
-                    </a>
+                    <DocumentLink :document />
                   </div>
                   <div v-else>No documents</div>
                 </div>
@@ -306,14 +300,7 @@ const handleInput = () => {
                     v-for="image in postDetail?.images"
                     class="flex flex-col gap-6"
                   >
-                    <p
-                      class="text-xl font-bold flex gap-x-2 place-content-center place-items-center hover:text-primary cursor-pointer"
-                    >
-                      <span class="underline-animation">
-                        {{ image.title }}
-                      </span>
-                      <SquareArrowOutUpRight />
-                    </p>
+                    <ImageLink :image />
                   </div>
                   <div v-else>No images</div>
                 </div>
