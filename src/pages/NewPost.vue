@@ -346,7 +346,7 @@ const onFormSubmit = async ({ valid, values }: FormSubmitEvent) => {
       if (existingDocuments.value.length > 0) {
         const linked = existingDocuments.value.map(({ id }) => Number(id));
 
-        await apiDocuments.updatePostDocumentsAPI(linked, id);
+        await apiDocuments.addPostDocumentsAPI(linked, id);
       }
 
       if (existingImages.value.length > 0) {

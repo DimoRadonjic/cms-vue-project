@@ -10,16 +10,23 @@ interface Props {
   files: File[];
   existingDocuments: DocumentItem[];
   postID?: string;
+  removedDocuments: DocumentItem[];
 }
 
 const props = defineProps<Props>();
 
-const emit = defineEmits(["update:files", "update:existingDocuments"]);
+const emit = defineEmits([
+  "update:files",
+  "update:existingDocuments",
+  "update:removedDocuments",
+]);
 
 const { data } = useDocuments();
 
 const avaiable = computed(() =>
-  data.value.filter((doc: DocumentItem) => doc.post_id !== props.postID)
+  data.value.filter((doc: DocumentItem) =>
+    doc.post_ids.includes(props.postID ?? "")
+  )
 );
 
 const filesUploaded = ref<File[]>([]);
@@ -27,6 +34,8 @@ const filesUploaded = ref<File[]>([]);
 const existingDocuments = ref<DocumentItem[]>(
   props.documents ? [...props.documents] : []
 );
+
+const removedDocuments = ref<DocumentItem[]>([]);
 
 const documentsUploading = ref<boolean>(false);
 const documentModal = ref<boolean>(false);
@@ -65,7 +74,9 @@ const ClearDocumentUpload = () => {
 };
 
 const handleDeletionDocument = (index: number) => {
-  existingDocuments.value.splice(index, 1);
+  const removed = existingDocuments.value.splice(index, 1);
+  removedDocuments.value.push(removed[0]);
+  console.log("removed in", removedDocuments.value);
 };
 
 const handleDeletionFile = (index: number) => {
@@ -78,6 +89,7 @@ const toggleDocumentModal = () => {
 watchEffect(() => props.clear && ClearDocumentUpload());
 
 watchEffect(() => emit("update:existingDocuments", existingDocuments.value));
+watchEffect(() => emit("update:removedDocuments", removedDocuments.value));
 watchEffect(() => emit("update:files", filesUploaded.value));
 </script>
 

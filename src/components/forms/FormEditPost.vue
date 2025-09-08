@@ -65,7 +65,7 @@ const mainImageUpload = ref<any>({ ...props.data.mainImage });
 const documents = ref<DocumentItem[]>([...props.data.documents]);
 const newDocuments = ref<File[]>([]);
 const existingDocuments = ref<DocumentItem[]>([]);
-const removedDocumnets = ref<DocumentItem[]>([]);
+const removedDocuments = ref<DocumentItem[]>([]);
 
 const images = ref<ImageItem[]>([...props.data.images]);
 const newImages = ref<File[]>([]);
@@ -230,7 +230,10 @@ const onFormSubmit = async ({ valid, values }: FormSubmitEvent) => {
   console.log("rest", postValues);
   console.log("values", values);
 
-  const same = isEqual(postValues, values);
+  console.log("removed", removedDocuments.value);
+
+  const same =
+    isEqual(postValues, values) || isEqual(existingDocuments, initialDocuments);
 
   if (same) {
     showError("Update failed.", new Error("Nothing changed."), 3000);
@@ -246,10 +249,11 @@ const onFormSubmit = async ({ valid, values }: FormSubmitEvent) => {
     return;
   }
 
-  if (removedDocumnets.value.length > 0) {
+  if (removedDocuments.value.length > 0) {
     console.log("removing 1");
+    const docIds = removedDocuments.value.map(({ id }) => Number(id));
     try {
-      await apiDocuments.updateDocumentsAPI(removedDocumnets.value, id);
+      await apiDocuments.removePostDocumentAPI(docIds, id);
     } catch (error) {
       console.error(error);
     }
@@ -295,13 +299,11 @@ const onFormSubmit = async ({ valid, values }: FormSubmitEvent) => {
     console.log("imageIds await", imageIds);
   }
 
-  if (existingDocuments.value.length > 0) {
-    const linked = existingDocuments.value.map((doc) => ({
-      ...doc,
-    }));
+  // if (existingDocuments.value.length > 0) {
+  //   const linked = existingDocuments.value.map(({ id }) => Number(id));
 
-    await apiDocuments.updateDocumentsAPI(linked, id);
-  }
+  //   await apiDocuments.addPostDocumentsAPI(linked, id);
+  // }
 
   if (existingImages.value.length > 0) {
     const linked = existingImages.value.map((doc) => ({
@@ -609,6 +611,7 @@ const resetForm = () => {
                   v-model:existingDocuments="existingDocuments"
                   :documents="documents"
                   :postID="initialValues.id"
+                  v-model:removedDocuments="removedDocuments"
                 />
               </div>
 
