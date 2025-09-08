@@ -111,6 +111,23 @@ export const useDocuments = () => {
     }
   };
 
+  const getAvailableDocuments = async (postID: string) => {
+    loading.value = true;
+
+    try {
+      const res = await apiDocuments.getAvailableDocumentsByPostID(postID);
+      loading.value = false;
+
+      return res;
+    } catch (error: any) {
+      const detail = new Error(error.message);
+      showError(
+        "Failed to get availabl documents. Please try again later.",
+        detail
+      );
+    }
+  };
+
   return {
     data,
     fetch,
@@ -122,5 +139,6 @@ export const useDocuments = () => {
     uploading,
     uploadDocuments,
     deleteDocuments,
+    getAvailableDocuments,
   };
 };

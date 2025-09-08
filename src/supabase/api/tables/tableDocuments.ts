@@ -24,7 +24,19 @@ const getDocuments = async () => {
     throw new Error(error.message);
   }
 
+  console.log("documents data", data);
+
   return { data, status };
+};
+
+const availableDocuments = async (postID: string) => {
+  const { data } = await getDocuments();
+
+  const available = data?.filter(
+    (doc) => !doc.post_ids.some((p) => p.post_id === postID)
+  );
+
+  return available as unknown as DocumentItem[];
 };
 
 const getDocument = async (id: number) => {
@@ -240,5 +252,6 @@ const tableDocuments = {
   addPostDocumentLink,
   deletePostDocumentLink,
   removeDocuments,
+  availableDocuments,
 };
 export default tableDocuments;

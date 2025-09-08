@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref, watchEffect } from "vue";
+import { computed, ref, watch, watchEffect } from "vue";
 import type { DocumentItem } from "../../types/types";
 import ModalDocuments from "../../modals/modalDocuments.vue";
 import { useDocuments } from "../../composable/documents/useDocuments";
@@ -21,13 +21,20 @@ const emit = defineEmits([
   "update:removedDocuments",
 ]);
 
-const { data } = useDocuments();
+const { getAvailableDocuments } = useDocuments();
 
-const avaiable = computed(() =>
-  data.value.filter((doc: DocumentItem) =>
-    doc.post_ids.includes(props.postID ?? "")
-  )
-);
+const available = ref<DocumentItem[]>([]);
+
+watchEffect(async () => {
+  const data = await getAvailableDocuments(props.postID ?? "");
+
+  if (data && data.data) {
+    available.value = data.data;
+  }
+
+  console.log("data", data?.data);
+  console.log("postID", props.postID);
+});
 
 const filesUploaded = ref<File[]>([]);
 
@@ -69,6 +76,8 @@ const onUploadDocument = (event: any) => {
 const ClearDocumentUpload = () => {
   fileUploadRef.value?.clear();
   filesUploaded.value = [];
+  removedDocuments.value = [...existingDocuments.value];
+
   existingDocuments.value = [];
   documentError.value = false;
 };
@@ -76,7 +85,6 @@ const ClearDocumentUpload = () => {
 const handleDeletionDocument = (index: number) => {
   const removed = existingDocuments.value.splice(index, 1);
   removedDocuments.value.push(removed[0]);
-  console.log("removed in", removedDocuments.value);
 };
 
 const handleDeletionFile = (index: number) => {
@@ -97,7 +105,7 @@ watchEffect(() => emit("update:files", filesUploaded.value));
   <div class="flex flex-col place-items-start gap-y-4">
     <div class="flex gap-x-5">
       <Button
-        v-if="data.length > 0"
+        v-if="available.length > 0"
         label="Choose"
         icon="pi pi-plus"
         :disabled="documentsUploading"
@@ -161,7 +169,7 @@ watchEffect(() => emit("update:files", filesUploaded.value));
   <ModalDocuments
     v-if="documentModal"
     v-model:modalOpen="documentModal"
-    :documents="avaiable"
+    :documents="available"
     v-model:existingDocuments="existingDocuments"
   />
 </template>

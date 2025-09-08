@@ -132,6 +132,16 @@ const updateDocumentsAPI = async (documents: DocumentItem[]) => {
   }
 };
 
+const getAvailableDocumentsByPostID = async (postID: string) => {
+  try {
+    const res = await tableDocuments.availableDocuments(postID);
+    return { data: res, status: 200 };
+  } catch (error: any) {
+    errorMessage("Failed to get available documents", error);
+    return { status: 500 };
+  }
+};
+
 const apiDocuments = {
   getDocumentsAPI,
   uploadDocumentsAPI,
@@ -144,6 +154,7 @@ const apiDocuments = {
   updatePostDocumentAPI,
   addPostDocumentsAPI,
   removePostDocumentAPI,
+  getAvailableDocumentsByPostID,
 };
 
 export default apiDocuments;

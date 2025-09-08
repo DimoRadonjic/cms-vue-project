@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { FormSubmitEvent } from "@primevue/forms";
 import { zodResolver } from "@primevue/forms/resolvers/zod";
-import { computed, reactive, ref } from "vue";
+import { computed, reactive, ref, watch } from "vue";
 import { useToastService } from "../../composable/toastService/AppToastService";
 import apiPosts from "../../axios/api/posts";
 import type {
@@ -41,6 +41,7 @@ import ImageUpload from "../image-upload/ImageUpload.vue";
 interface Props {
   reset?: boolean;
   data: PostWithContent;
+  hasChanged: boolean;
 }
 
 const props = defineProps<Props>();
@@ -48,7 +49,11 @@ const props = defineProps<Props>();
 const initialValues = reactive<PostWithContent>({ ...props.data });
 const formRef = ref();
 
-const emit = defineEmits(["uploading-change", "clear-form", "has-changed"]);
+const emit = defineEmits([
+  "uploading-change",
+  "clear-form",
+  "update:hasChanged",
+]);
 
 defineExpose({ formRef });
 
@@ -91,6 +96,25 @@ const mainImageLink = computed(() => {
       : mainImageUpload.value.url
     : null;
 });
+
+const filesLength = computed(
+  () =>
+    !isEqual(existingDocuments.value, initialValues.documents) ||
+    !isEqual(existingImages.value, initialValues.images) ||
+    removedImages.value.length > 0 ||
+    removedDocuments.value.length > 0 ||
+    newImages.value.length > 0 ||
+    newDocuments.value.length > 0
+);
+
+watch(
+  () => filesLength.value,
+  () =>
+    filesLength.value
+      ? emit("update:hasChanged", false)
+      : emit("update:hasChanged", true),
+  { immediate: false }
+);
 
 const updateSEO = (form: any, value: any) => {
   if (
@@ -232,8 +256,17 @@ const onFormSubmit = async ({ valid, values }: FormSubmitEvent) => {
 
   console.log("removed", removedDocuments.value);
 
+  console.log("nizov", isEqual(existingDocuments.value, initialDocuments));
+
   const same =
-    isEqual(postValues, values) || isEqual(existingDocuments, initialDocuments);
+    isEqual(postValues, values) &&
+    isEqual(existingDocuments.value, initialDocuments) &&
+    newDocuments.value.length !== 0 &&
+    newImages.value.length !== 0 &&
+    isEqual(existingDocuments.value, initialDocuments) &&
+    isEqual(existingImages.value, initalImages);
+
+  console.log("same", same);
 
   if (same) {
     showError("Update failed.", new Error("Nothing changed."), 3000);
@@ -299,11 +332,13 @@ const onFormSubmit = async ({ valid, values }: FormSubmitEvent) => {
     console.log("imageIds await", imageIds);
   }
 
-  // if (existingDocuments.value.length > 0) {
-  //   const linked = existingDocuments.value.map(({ id }) => Number(id));
+  if (existingDocuments.value.length > 0) {
+    const linked = existingDocuments.value
+      .filter((doc) => !initialValues.documents.includes(doc))
+      .map(({ id }) => Number(id));
 
-  //   await apiDocuments.addPostDocumentsAPI(linked, id);
-  // }
+    await apiDocuments.addPostDocumentsAPI(linked, id);
+  }
 
   if (existingImages.value.length > 0) {
     const linked = existingImages.value.map((doc) => ({

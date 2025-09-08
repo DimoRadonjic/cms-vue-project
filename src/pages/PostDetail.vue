@@ -88,6 +88,7 @@ const handleInput = () => {
       @uploading-change="uploading = $event"
       v-model:data="postDetail"
       @input="handleInput"
+      v-model:hasChanged="hasChanged"
     >
       <template #header>
         <h1
