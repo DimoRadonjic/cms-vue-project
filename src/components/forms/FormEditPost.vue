@@ -255,6 +255,7 @@ const onFormSubmit = async ({ valid, values }: FormSubmitEvent) => {
   console.log("values", values);
 
   console.log("removed", removedDocuments.value);
+  console.log("removed images", removedImages.value);
 
   console.log("nizov", isEqual(existingDocuments.value, initialDocuments));
 
@@ -294,9 +295,9 @@ const onFormSubmit = async ({ valid, values }: FormSubmitEvent) => {
 
   if (removedImages.value.length > 0) {
     console.log("removing 2");
-
+    const imgIds = removedImages.value.map(({ id }) => id);
     try {
-      await apiImages.updateImagesAPI(removedImages.value);
+      await apiImages.removePostImagesAPI(imgIds, id);
     } catch (error) {
       console.error(error);
     }
@@ -341,12 +342,11 @@ const onFormSubmit = async ({ valid, values }: FormSubmitEvent) => {
   }
 
   if (existingImages.value.length > 0) {
-    const linked = existingImages.value.map((doc) => ({
-      ...doc,
-      post_id: id,
-    }));
+    const linked = existingImages.value
+      .filter((doc) => !initialValues.images.includes(doc))
+      .map(({ id }) => id);
 
-    await apiImages.updateImagesAPI(linked);
+    await apiImages.addPostImagesAPI(linked, id);
   }
 
   console.log("valuesToSend", valuesToSend);
@@ -665,6 +665,7 @@ const resetForm = () => {
                   v-model:existingImages="existingImages"
                   :images="images"
                   :postID="initialValues.id"
+                  v-model:removedImages="removedImages"
                 />
               </div>
             </div>

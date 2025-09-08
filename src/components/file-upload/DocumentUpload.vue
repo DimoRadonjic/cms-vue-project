@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref, watch, watchEffect } from "vue";
+import { ref, watchEffect } from "vue";
 import type { DocumentItem } from "../../types/types";
 import ModalDocuments from "../../modals/modalDocuments.vue";
 import { useDocuments } from "../../composable/documents/useDocuments";
@@ -10,7 +10,6 @@ interface Props {
   files: File[];
   existingDocuments: DocumentItem[];
   postID?: string;
-  removedDocuments: DocumentItem[];
 }
 
 const props = defineProps<Props>();
@@ -82,20 +81,28 @@ const ClearDocumentUpload = () => {
   documentError.value = false;
 };
 
-const handleDeletionDocument = (index: number) => {
-  const removed = existingDocuments.value.splice(index, 1);
-  removedDocuments.value.push(removed[0]);
+const handleDeletionDocument = (document: DocumentItem) => {
+  const removed: DocumentItem | undefined = existingDocuments.value.find(
+    ({ id }) => id === document.id
+  );
+
+  existingDocuments.value = existingDocuments.value.filter(
+    ({ id }) => id !== document.id
+  );
+
+  removed && removedDocuments.value.push(removed);
 };
 
-const handleDeletionFile = (index: number) => {
-  filesUploaded.value.splice(index, 1);
+const handleDeletionFile = (document: File) => {
+  filesUploaded.value = filesUploaded.value.filter(
+    ({ name }) => name !== document.name
+  );
 };
 const toggleDocumentModal = () => {
   documentModal.value = !documentModal.value;
 };
 
 watchEffect(() => props.clear && ClearDocumentUpload());
-
 watchEffect(() => emit("update:existingDocuments", existingDocuments.value));
 watchEffect(() => emit("update:removedDocuments", removedDocuments.value));
 watchEffect(() => emit("update:files", filesUploaded.value));
@@ -141,17 +148,19 @@ watchEffect(() => emit("update:files", filesUploaded.value));
       class="flex flex-col place-items-start gap-3"
       v-if="filesUploaded.length > 0 || existingDocuments.length > 0"
     >
-      <div v-for="(document, index) in filesUploaded">
+      <div v-for="document in filesUploaded">
         <div class="flex gap-x-4 place-items-center">
-          <AppButtonDelete :clickEvent="() => handleDeletionFile(index)" />
+          <AppButtonDelete :clickEvent="() => handleDeletionFile(document)" />
 
           <DocumentLink :document />
         </div>
       </div>
 
-      <div v-for="(document, index) in existingDocuments">
+      <div v-for="document in existingDocuments">
         <div class="flex gap-x-4 place-items-center">
-          <AppButtonDelete :clickEvent="() => handleDeletionDocument(index)" />
+          <AppButtonDelete
+            :clickEvent="() => handleDeletionDocument(document)"
+          />
 
           <DocumentLink :document />
         </div>

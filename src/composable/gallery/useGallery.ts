@@ -120,6 +120,23 @@ export const useGallery = () => {
     }
   };
 
+  const getAvailableImages = async (postID: string) => {
+    loading.value = true;
+
+    try {
+      const res = await apiImages.getAvailableImagesByPostID(postID);
+      loading.value = false;
+
+      return res;
+    } catch (error: any) {
+      const detail = new Error(error.message);
+      showError(
+        "Failed to get available images. Please try again later.",
+        detail
+      );
+    }
+  };
+
   return {
     data,
     fetch,
@@ -131,5 +148,6 @@ export const useGallery = () => {
     uploadImages,
     uploadImage,
     deleteImages,
+    getAvailableImages,
   };
 };

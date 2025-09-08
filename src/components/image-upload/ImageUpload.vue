@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref, watchEffect } from "vue";
+import { ref, watchEffect } from "vue";
 import type { ImageItem } from "../../types/types";
 import ModalImage from "../../modals/modalImage.vue";
 import { useGallery } from "../../composable/gallery/useGallery";
@@ -14,18 +14,31 @@ interface Props {
 }
 
 const props = defineProps<Props>();
-const emit = defineEmits(["update:files", "update:existingImages"]);
+const emit = defineEmits([
+  "update:files",
+  "update:existingImages",
+  "update:removedImages",
+]);
 
-const { data } = useGallery();
+const { getAvailableImages } = useGallery();
 
 const imageFiles = ref<File[]>([]);
 
 const existingImages = ref<ImageItem[]>(props.images ? [...props.images] : []);
+const removedImages = ref<ImageItem[]>([]);
 
-const avaiable = computed(() =>
-  data.value.filter((img) => img.post_id !== props.postID)
-);
+const available = ref<ImageItem[]>([]);
 
+watchEffect(async () => {
+  const data = await getAvailableImages(props.postID ?? "");
+
+  if (data && data.data) {
+    available.value = data.data;
+  }
+
+  console.log("data", data?.data);
+  console.log("postID", props.postID);
+});
 const imagesUploading = ref<boolean>(false);
 const imageModal = ref<boolean>(false);
 const imagesError = ref(false);
@@ -58,6 +71,7 @@ const onUploadImages = (event: any) => {
 const ClearImagesUpload = () => {
   imagesUploadRef.value?.clear();
   imageFiles.value = [];
+  removedImages.value = [...existingImages.value];
   existingImages.value = [];
   imagesError.value = false;
 };
@@ -66,16 +80,25 @@ const toggleImageModal = () => {
   imageModal.value = !imageModal.value;
 };
 
-const handleDeletionImage = (index: number) => {
-  existingImages.value.splice(index, 1);
+const handleDeletionImage = (image: ImageItem) => {
+  const removed: ImageItem | undefined = existingImages.value.find(
+    ({ id }) => id === image.id
+  );
+
+  existingImages.value = existingImages.value.filter(
+    ({ id }) => id !== image.id
+  );
+
+  removed && removedImages.value.push(removed);
 };
 
-const handleDeletionFile = (index: number) => {
-  imageFiles.value.splice(index, 1);
+const handleDeletionFile = (image: File) => {
+  imageFiles.value = imageFiles.value.filter(({ name }) => name !== image.name);
 };
 
 watchEffect(() => props.clear && ClearImagesUpload());
 watchEffect(() => emit("update:existingImages", existingImages.value));
+watchEffect(() => emit("update:removedImages", removedImages.value));
 watchEffect(() => emit("update:files", imageFiles.value));
 </script>
 
@@ -83,7 +106,7 @@ watchEffect(() => emit("update:files", imageFiles.value));
   <div class="flex flex-col place-items-start gap-y-4">
     <div class="flex gap-x-5">
       <Button
-        v-if="data.length > 0"
+        v-if="available.length > 0"
         label="Choose"
         icon="pi pi-plus"
         :disabled="imagesUploading"
@@ -119,17 +142,17 @@ watchEffect(() => emit("update:files", imageFiles.value));
       class="flex flex-col place-items-start gap-3"
       v-if="imageFiles.length > 0 || existingImages.length > 0"
     >
-      <div v-for="(image, index) in imageFiles">
+      <div v-for="image in imageFiles">
         <div class="flex gap-x-4 place-items-center">
-          <AppButtonDelete :clickEvent="() => handleDeletionFile(index)" />
+          <AppButtonDelete :clickEvent="() => handleDeletionFile(image)" />
 
           <ImageLink :image />
         </div>
       </div>
 
-      <div v-for="(image, index) in existingImages">
+      <div v-for="image in existingImages">
         <div class="flex gap-x-4 place-items-center">
-          <AppButtonDelete :clickEvent="() => handleDeletionImage(index)" />
+          <AppButtonDelete :clickEvent="() => handleDeletionImage(image)" />
 
           <ImageLink :image />
         </div>
@@ -146,7 +169,7 @@ watchEffect(() => emit("update:files", imageFiles.value));
   <ModalImage
     v-if="imageModal"
     v-model:modalOpen="imageModal"
-    :images="avaiable"
+    :images="available"
     v-model:existingImages="existingImages"
   />
 </template>

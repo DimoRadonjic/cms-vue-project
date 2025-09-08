@@ -1,4 +1,8 @@
 import tableGallery from "../../supabase/api/tables/tableGallery";
+import {
+  addPostImages,
+  removePostImages,
+} from "../../supabase/api/tables/tablePostGallery";
 import type { ImageItem } from "../../types/types";
 import { errorMessage } from "../utils";
 
@@ -76,6 +80,36 @@ const updateImagesAPI = async (images: ImageItem[]) => {
   }
 };
 
+const addPostImagesAPI = async (image_ids: string[], post_id: string) => {
+  try {
+    await addPostImages(image_ids, post_id);
+    return { status: 200 };
+  } catch (error: any) {
+    errorMessage("Failed to add image link", error);
+    return { status: 500 };
+  }
+};
+
+const removePostImagesAPI = async (image_ids: string[], post_id: string) => {
+  try {
+    await removePostImages(image_ids, post_id);
+    return { status: 200 };
+  } catch (error: any) {
+    errorMessage("Failed to remove image link", error);
+    return { status: 500 };
+  }
+};
+
+const getAvailableImagesByPostID = async (postID: string) => {
+  try {
+    const res = await tableGallery.availableImages(postID);
+    return { data: res, status: 200 };
+  } catch (error: any) {
+    errorMessage("Failed to get available images", error);
+    return { status: 500 };
+  }
+};
+
 const apiImages = {
   getImagesAPI,
   uploadMainImageAPI,
@@ -84,6 +118,9 @@ const apiImages = {
   removeImagesAPI,
   updateImageAPI,
   updateImagesAPI,
+  addPostImagesAPI,
+  removePostImagesAPI,
+  getAvailableImagesByPostID,
 };
 
 export default apiImages;

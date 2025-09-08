@@ -85,7 +85,20 @@ const getGallery = async (): APIGalleryResponse => {
       ...doc,
       post_ids: doc.post_ids.map((pd: { post_id: string }) => pd.post_id),
     })) ?? [];
+
+  console.log("back gallery", imgs);
+
   return { data: imgs, status };
+};
+
+const availableImages = async (postID: string) => {
+  const { data } = await getGallery();
+
+  const available = data?.filter(
+    (img) => !img.post_ids.some((p) => p === postID)
+  );
+
+  return available as unknown as ImageItem[];
 };
 
 const addImageToGallery = async (
@@ -174,6 +187,7 @@ const tableGallery = {
   deleteImagesFromStorage,
   updateImage,
   updateImages,
+  availableImages,
 };
 
 export default tableGallery;
