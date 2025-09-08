@@ -84,9 +84,9 @@ const handleInput = () => {
     class="flex flex-col gap-8 bg-primary backdrop-blur-md p-8 rounded-2xl shadow-xl border border-primary max-w-fit mx-auto"
   >
     <FormEditPost
-      v-if="postDetail && !loading"
+      v-if="postDetail && !loading && initialValues"
       @uploading-change="uploading = $event"
-      v-model:data="postDetail"
+      v-model:data="initialValues"
       @input="handleInput"
       v-model:hasChanged="hasChanged"
     >
@@ -256,9 +256,9 @@ const handleInput = () => {
 
                 <div class="w-full max-w-sm">
                   <img
-                    v-if="initialValues.mainImage"
-                    :src="initialValues.mainImage.url"
-                    :alt="initialValues.mainImage.alt"
+                    v-if="postDetail.mainImage"
+                    :src="postDetail.mainImage.url"
+                    :alt="postDetail.mainImage.alt"
                     class="object-cover w-full h-full"
                   />
                   <Image v-else class="w-full h-full z-10" />

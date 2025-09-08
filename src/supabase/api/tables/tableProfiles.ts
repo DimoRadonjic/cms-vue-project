@@ -147,11 +147,7 @@ const loginUser = async (
 
   if (error) throw new Error(error.message);
 
-  console.log("data.user.id", data.user.id);
-
   const user = await getUserByID(data.user.id);
-
-  console.log("user getUserByID", user);
 
   return { session: data.session, user: user };
 };

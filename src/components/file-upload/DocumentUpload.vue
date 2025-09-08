@@ -7,9 +7,10 @@ import { useDocuments } from "../../composable/documents/useDocuments";
 interface Props {
   documents?: DocumentItem[];
   clear?: boolean;
-  files: File[];
   existingDocuments: DocumentItem[];
   postID?: string;
+  files: File[];
+  removedDocuments?: DocumentItem[];
 }
 
 const props = defineProps<Props>();
@@ -30,9 +31,6 @@ watchEffect(async () => {
   if (data && data.data) {
     available.value = data.data;
   }
-
-  console.log("data", data?.data);
-  console.log("postID", props.postID);
 });
 
 const filesUploaded = ref<File[]>([]);

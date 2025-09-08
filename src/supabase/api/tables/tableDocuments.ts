@@ -24,8 +24,6 @@ const getDocuments = async () => {
     throw new Error(error.message);
   }
 
-  console.log("documents data", data);
-
   return { data, status };
 };
 
@@ -115,7 +113,6 @@ const deleteDocuments = async (ids: string[]) => {
 
 const uploadDocumentToStorage = async (file: File, postId: string) => {
   const sanitizedFileName = sanitizeFileName(file.name);
-  console.log("sanitizedFileName", sanitizedFileName);
 
   const { error: uploadError } = await supabase.storage
     .from(bucket)

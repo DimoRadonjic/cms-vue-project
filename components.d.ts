@@ -41,6 +41,7 @@ declare module 'vue' {
     ImageUpload: typeof import('./src/components/image-upload/ImageUpload.vue')['default']
     InputIcon: typeof import('primevue/inputicon')['default']
     InputText: typeof import('primevue/inputtext')['default']
+    MainImageUpload: typeof import('./src/components/image-upload/mainImageUpload.vue')['default']
     Message: typeof import('primevue/message')['default']
     Paginator: typeof import('primevue/paginator')['default']
     Password: typeof import('primevue/password')['default']

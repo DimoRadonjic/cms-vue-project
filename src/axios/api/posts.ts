@@ -11,8 +11,6 @@ const getPosts = async () => {
   try {
     const data = await tablePosts.getAllPosts();
 
-    console.log("all posts", data);
-
     return data ?? (data as PostWithContent[]);
   } catch (error: any) {
     errorMessage("Failed to fetch posts", error);

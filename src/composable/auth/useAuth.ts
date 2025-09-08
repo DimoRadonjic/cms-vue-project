@@ -8,8 +8,6 @@ import { auth } from "../../supabase/api/tables/tableProfiles";
 
 const { getLocalItem, clearStorage, setLocalItem } = useStorage();
 
-console.log("test", getLocalItem("token"));
-
 const isAuth = ref<boolean>(!!getLocalItem("token"));
 
 export const useAuth = () => {
@@ -35,7 +33,6 @@ export const useAuth = () => {
 
         setUser(user);
         isAuth.value = true;
-        console.log("user", user);
         showSuccess("Logged in successfully");
 
         navigateTo("dashboard");

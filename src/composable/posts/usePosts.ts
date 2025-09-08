@@ -18,8 +18,6 @@ export const usePosts = () => {
     try {
       const res = await apiPosts.getPosts();
 
-      console.log("res posts", res);
-
       if (res) {
         posts.value = res as unknown as PostWithContent[];
         setSessionItem("data", { dataType: "posts", data: posts.value });
@@ -60,7 +58,6 @@ export const usePosts = () => {
     loading.value = true;
     try {
       const res = await apiPosts.searchPosts(query);
-      console.log("Search results:", res);
       loading.value = false;
     } catch (apiError) {
       console.error("Failed to search posts:", apiError);

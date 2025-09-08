@@ -22,13 +22,6 @@ const addSelectedDocument = (document: any) => {
     documentsSelected.value = [...documentsSelected.value, document];
   }
 };
-
-watch(
-  () => localModelOpen.value,
-  () => {
-    console.log("localModelOpen", localModelOpen.value);
-  }
-);
 </script>
 
 <template>

@@ -174,7 +174,6 @@ const updateSEO = (form: any, value: any) => {
 const onUploadImage = async (event: any) => {
   const files: File[] = event.files || event.target?.files;
 
-  console.log("files", files);
   mainImageLoading.value = true;
 
   if (!files) {
@@ -319,14 +318,6 @@ const onFormSubmit = async ({ valid, values }: FormSubmitEvent) => {
 
   let valuesToSend: PostData = { ...(values as PostData) };
 
-  console.log("existingImages", existingImages.value);
-  console.log("existingDocuments", existingDocuments.value);
-
-  console.log("valuestosend", valuesToSend);
-
-  console.log("files", filesUploaded.value);
-  console.log("more images", imagesUpload.value);
-
   try {
     const res = await apiPosts.createPost(valuesToSend as PostData);
 
@@ -340,9 +331,6 @@ const onFormSubmit = async ({ valid, values }: FormSubmitEvent) => {
         id
       );
 
-      console.log("fileIds", fileIds);
-      console.log("imageIds", imageIds);
-
       if (existingDocuments.value.length > 0) {
         const linked = existingDocuments.value.map(({ id }) => Number(id));
 
@@ -355,21 +343,12 @@ const onFormSubmit = async ({ valid, values }: FormSubmitEvent) => {
         await apiImages.addPostImagesAPI(linked, id);
       }
       if (mainImageID) {
-        console.log("mainImageID", mainImageID);
-        console.log("update", {
-          ...res.data,
-
-          mainImageId: mainImageID,
-        });
-
         await apiPosts.updatePost({
           ...res.data,
 
           mainImageId: mainImageID,
         } as PostData);
       }
-
-      console.log("valuesToSend", valuesToSend);
     }
 
     if (!uploading.value) {

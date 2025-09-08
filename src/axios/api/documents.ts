@@ -10,7 +10,6 @@ import { errorMessage } from "../utils";
 const getDocumentsAPI = async () => {
   try {
     const { data, status } = await tableDocuments.getDocuments();
-    console.log("document data", data);
 
     return { data, status };
   } catch (error: any) {
@@ -50,7 +49,6 @@ const uploadDocumentAPI = async (file: File, post_id: string) => {
       file,
       post_id
     );
-    console.log("response", response);
 
     return { data: response, status: 200 };
   } catch (error: any) {

@@ -35,8 +35,6 @@ const emit = defineEmits(["selectedData"]);
 const selectedData = ref();
 const localData = ref([...props.data]);
 
-console.log("localData", localData.value);
-
 const filterGlobal = reactive<Record<string, FilterType>>({
   global: { value: "", matchMode: "contains" },
 });

@@ -30,7 +30,6 @@ const uploadMainImageAPI = async (image: File, post_id: string) => {
 const uploadImagesAPI = async (images: File[], post_id: string) => {
   try {
     const response = await tableGallery.uploadImages(images, post_id);
-    console.log("response", response);
 
     return { data: response, status: 200 };
   } catch (error: any) {
@@ -52,7 +51,6 @@ const removeMainImageAPI = async (image: ImageItem) => {
 const removeImagesAPI = async (images: ImageItem[]) => {
   try {
     const res = await tableGallery.deleteImagesFromStorage(images);
-    console.log("deletion", res);
 
     return res;
   } catch (error: any) {

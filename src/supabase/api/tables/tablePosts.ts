@@ -52,8 +52,6 @@ const getAllPosts = async () => {
     images: d.images.flatMap((post) => post.gallery),
   }));
 
-  console.log("newData", newData);
-
   return newData;
 };
 
@@ -107,8 +105,6 @@ const getPostById = async (id: string) => {
 
   const flatDocs = data.documents.flatMap((post) => post.documents);
   const flatImages = data.images.flatMap((post) => post.gallery);
-
-  console.log("flat images", flatImages);
 
   return { data: { ...data, documents: flatDocs, images: flatImages }, status };
 };

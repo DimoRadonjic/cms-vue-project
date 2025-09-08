@@ -26,8 +26,6 @@ const uploadImage = async (
     throw new Error(error.message);
   }
 
-  console.log("data after upload", data);
-
   const { data: urlData, error: urlError } = await supabase.storage
     .from(bucket)
     .createSignedUrl(path, 60 * 60 * 24 * 7); // 7 days
@@ -89,8 +87,6 @@ const getGallery = async (): APIGalleryResponse => {
       post_ids: doc.post_ids.map((pd: { post_id: string }) => pd.post_id),
     })) ?? [];
 
-  console.log("back gallery", imgs);
-
   return { data: imgs, status };
 };
 
@@ -112,7 +108,6 @@ const addImageToGallery = async (
     .insert([image])
     .select();
 
-  console.log("data added", data);
   if (error) {
     throw new Error(error.message);
   }

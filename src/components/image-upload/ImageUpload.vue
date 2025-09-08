@@ -10,6 +10,7 @@ interface Props {
   clear?: boolean;
   files: File[];
   existingImages: ImageItem[];
+  removedImages?: ImageItem[];
   postID?: string;
 }
 
@@ -35,9 +36,6 @@ watchEffect(async () => {
   if (data && data.data) {
     available.value = data.data;
   }
-
-  console.log("data", data?.data);
-  console.log("postID", props.postID);
 });
 const imagesUploading = ref<boolean>(false);
 const imageModal = ref<boolean>(false);
