@@ -324,7 +324,7 @@ const onFormSubmit = async ({ valid, values }: FormSubmitEvent) => {
     if (res && res.data) {
       const { id } = res.data;
 
-      const { fileIds, imageIds, mainImageID } = await uploadAll(
+      const { mainImageID } = await uploadAll(
         filesUploaded.value,
         imagesUpload.value,
         mainImageUpload.value,
