@@ -10,8 +10,7 @@ type Image = Omit<ImageItem, "id" | "post_ids">;
 type APIGalleryResponse = Promise<{ data: ImageItem[]; status: number }>;
 
 const uploadImage = async (
-  file: File,
-  post_id?: string
+  file: File
 ): Promise<{ data: ImageItem; status: number }> => {
   const path = `${Date.now()}-${file.name}`;
   const { error, data } = await supabase.storage
@@ -56,7 +55,7 @@ const uploadImage = async (
 
 const uploadImages = async (files: File[], post_id: string) => {
   const uploadPromises = files.map(async (file): Promise<ImageItem> => {
-    const { data } = await uploadImage(file, post_id);
+    const { data } = await uploadImage(file);
 
     return data;
   });

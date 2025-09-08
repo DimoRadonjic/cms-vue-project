@@ -18,7 +18,7 @@ const getImagesAPI = async (): Promise<ImageItem[] | undefined> => {
 
 const uploadMainImageAPI = async (image: File, post_id: string) => {
   try {
-    const { data, status } = await tableGallery.uploadImage(image, post_id);
+    const { data, status } = await tableGallery.uploadImage(image);
 
     return { data, status, error: null };
   } catch (error: any) {
