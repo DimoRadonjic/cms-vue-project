@@ -114,7 +114,7 @@ const deleteProduct = (item: PostData) => {
       scrollable
       scrollHeight="100%"
       :class
-      sortField="createdAt"
+      sortField="created at"
       :sortOrder="-1"
     >
       <template #header>

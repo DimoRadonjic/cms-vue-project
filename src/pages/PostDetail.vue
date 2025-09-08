@@ -296,7 +296,7 @@ const handleInput = () => {
                   </div>
 
                   <div
-                    v-if="postDetail?.documents.length > 0"
+                    v-if="postDetail?.images.length > 0"
                     v-for="image in postDetail?.images"
                     class="flex flex-col gap-6"
                   >

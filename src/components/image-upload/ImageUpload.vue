@@ -52,7 +52,7 @@ const onUploadImages = (event: any) => {
     return;
   }
 
-  // imagesUploading.value = true;
+  imagesUploading.value = true;
 
   const existingFileNames = imageFiles.value.map((f) => f.name);
   const existingDocumentName = existingImages.value.map((f) => f.title);
@@ -65,7 +65,7 @@ const onUploadImages = (event: any) => {
     imageFiles.value = [...imageFiles.value, ...newFiles];
   }
 
-  // imagesUploading.value = false;
+  imagesUploading.value = false;
 };
 
 const ClearImagesUpload = () => {

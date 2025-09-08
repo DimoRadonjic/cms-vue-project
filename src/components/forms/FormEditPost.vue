@@ -255,6 +255,7 @@ const onFormSubmit = async ({ valid, values }: FormSubmitEvent) => {
   console.log("values", values);
 
   console.log("removed", removedDocuments.value);
+  console.log("newImages", newImages.value);
   console.log("removed images", removedImages.value);
 
   console.log("nizov", isEqual(existingDocuments.value, initialDocuments));

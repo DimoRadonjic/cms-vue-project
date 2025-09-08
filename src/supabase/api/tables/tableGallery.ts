@@ -1,6 +1,7 @@
 import { BucketsName, TableName } from "..";
 import { supabase } from "../..";
 import type { ImageItem } from "../../../types/types";
+import { addPostImage } from "./tablePostGallery";
 
 const table = TableName.gallery;
 const bucket = BucketsName.gallery;
@@ -10,7 +11,8 @@ type Image = Omit<ImageItem, "id" | "post_ids">;
 type APIGalleryResponse = Promise<{ data: ImageItem[]; status: number }>;
 
 const uploadImage = async (
-  file: File
+  file: File,
+  post_id: string
 ): Promise<{ data: ImageItem; status: number }> => {
   const path = `${Date.now()}-${file.name}`;
   const { error, data } = await supabase.storage
@@ -47,6 +49,8 @@ const uploadImage = async (
 
   try {
     const { data, status } = await addImageToGallery(image);
+    await addPostImage(data.id, post_id);
+
     return { data, status };
   } catch (error: any) {
     throw new Error(error.message);
@@ -55,7 +59,7 @@ const uploadImage = async (
 
 const uploadImages = async (files: File[], post_id: string) => {
   const uploadPromises = files.map(async (file): Promise<ImageItem> => {
-    const { data } = await uploadImage(file);
+    const { data } = await uploadImage(file, post_id);
 
     return data;
   });
