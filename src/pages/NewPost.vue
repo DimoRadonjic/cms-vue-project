@@ -375,7 +375,7 @@ const onFormSubmit = async ({ valid, values }: FormSubmitEvent) => {
     if (!uploading.value) {
       showSuccess("Post created");
       reFetchPosts();
-      // goBack();
+      goBack();
       values = initialValues;
       resetUploads();
       clearUploads.value = false;
