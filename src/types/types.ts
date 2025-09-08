@@ -33,7 +33,7 @@ type ImageItem = {
   url: string;
   path: string;
   alt: string;
-  post_id: string | null;
+  post_ids: string[];
 };
 
 type DocumentItem = {
@@ -41,7 +41,7 @@ type DocumentItem = {
   title: string;
   url: string;
   path: string;
-  post_id: string | null;
+  post_ids: string[];
 };
 
 type NewPost = {

@@ -5,13 +5,13 @@ import type { ImageItem } from "../../../types/types";
 const table = TableName.gallery;
 const bucket = BucketsName.gallery;
 
-type Image = Omit<ImageItem, "id">;
+type Image = Omit<ImageItem, "id" | "post_ids">;
 
 type APIGalleryResponse = Promise<{ data: ImageItem[]; status: number }>;
 
 const uploadImage = async (
   file: File,
-  post_id: string
+  post_id?: string
 ): Promise<{ data: ImageItem; status: number }> => {
   const path = `${Date.now()}-${file.name}`;
   const { error, data } = await supabase.storage
@@ -44,7 +44,6 @@ const uploadImage = async (
     alt: fileTitle,
     path: dataPath,
     url: urlData.signedUrl,
-    post_id,
   };
 
   try {
@@ -66,13 +65,27 @@ const uploadImages = async (files: File[], post_id: string) => {
 };
 
 const getGallery = async (): APIGalleryResponse => {
-  const { data, status, error } = await supabase.from(table).select("*");
+  const { data, status, error } = await supabase.from(table).select(`
+    id,
+    title,
+    alt,
+    url,
+    path,
+    post_ids:posts_gallery (
+      post_id
+    )
+  `);
 
   if (error) {
     throw new Error(error.message);
   }
 
-  return { data, status };
+  const imgs =
+    data?.map((doc) => ({
+      ...doc,
+      post_ids: doc.post_ids.map((pd: { post_id: string }) => pd.post_id),
+    })) ?? [];
+  return { data: imgs, status };
 };
 
 const addImageToGallery = async (

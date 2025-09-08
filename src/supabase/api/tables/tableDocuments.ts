@@ -2,14 +2,23 @@ import { BucketsName, TableName } from "..";
 import { supabase } from "../..";
 import type { DocumentItem } from "../../../types/types";
 import { sanitizeFileName } from "../utils";
+import { addPostDocument, removePostDocument } from "./tablePostDocumets";
 
 const table = TableName.documents;
 const bucket = BucketsName.documents;
 
-type Document = Omit<DocumentItem, "id">;
+export type Document = Omit<DocumentItem, "id" | "post_ids">;
 
 const getDocuments = async () => {
-  const { data, status, error } = await supabase.from(table).select("*");
+  const { data, status, error } = await supabase.from(table).select(`
+    id,
+    title,
+    url,
+    path,
+    post_ids:posts_documents (
+      post_id
+    )
+  `);
 
   if (error) {
     throw new Error(error.message);
@@ -92,7 +101,7 @@ const deleteDocuments = async (ids: string[]) => {
   return { data, status };
 };
 
-const uploadDocumentToStorage = async (file: File, postID: string) => {
+const uploadDocumentToStorage = async (file: File, postId: string) => {
   const sanitizedFileName = sanitizeFileName(file.name);
   console.log("sanitizedFileName", sanitizedFileName);
 
@@ -115,7 +124,6 @@ const uploadDocumentToStorage = async (file: File, postID: string) => {
     title: fileTitle,
     url: urlData.signedUrl,
     path: sanitizedFileName,
-    post_id: postID,
   };
 
   const { data: docData } = await addDocument(document);
@@ -123,6 +131,9 @@ const uploadDocumentToStorage = async (file: File, postID: string) => {
   if (!docData || docData.length === 0) {
     throw new Error("Failed to add document or missing document id");
   }
+
+  await addPostDocument(Number(docData[0].id), postId);
+
   return { data: docData, status: 201 };
 };
 
@@ -157,16 +168,49 @@ const deleteDocumentsFromStorage = async (documents: DocumentItem[]) => {
   return Promise.all(deletionPromises);
 };
 
-const updateDocument = async (document: DocumentItem) => {
+const addPostDocumentLink = async (document_id: number, postId: string) => {
   try {
-    const { error } = await supabase
-      .from(table)
-      .update(document)
-      .eq("id", document.id);
+    await addPostDocument(document_id, postId);
+  } catch (err: any) {
+    console.error("Failed to link document:", err);
+    throw new Error(err.message);
+  }
+};
 
-    if (error) {
-      throw new Error(error.message);
-    }
+const deletePostDocumentLink = async (document_id: number, postId: string) => {
+  try {
+    await removePostDocument(document_id, postId);
+  } catch (err: any) {
+    console.error("Failed to un-link document:", err);
+    throw new Error(err.message);
+  }
+};
+
+const removeDocument = async (document: DocumentItem, postId: string) => {
+  const { id, post_ids, ...doc } = document;
+
+  try {
+    await deletePostDocumentLink(Number(id), postId);
+    await supabase.from(table).update(doc).eq("id", id);
+  } catch (err: any) {
+    console.error("Failed to update document:", err);
+    throw new Error(err.message);
+  }
+};
+
+const removeDocuments = async (documents: DocumentItem[], postId: string) => {
+  const updatePromises = documents.map(async (document) => {
+    await removeDocument(document, postId);
+  });
+
+  return Promise.all(updatePromises);
+};
+
+const updateDocument = async (document: DocumentItem) => {
+  const { id, post_ids, ...doc } = document;
+
+  try {
+    await supabase.from(table).update(doc).eq("id", id);
   } catch (err: any) {
     console.error("Failed to update document:", err);
     throw new Error(err.message);
@@ -193,5 +237,8 @@ const tableDocuments = {
   deleteDocumentsFromStorage,
   updateDocument,
   updateDocuments,
+  addPostDocumentLink,
+  deletePostDocumentLink,
+  removeDocuments,
 };
 export default tableDocuments;

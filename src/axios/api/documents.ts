@@ -1,10 +1,15 @@
 import tableDocuments from "../../supabase/api/tables/tableDocuments";
+import {
+  addPostDocument,
+  addPostDocuments,
+} from "../../supabase/api/tables/tablePostDocumets";
 import type { DocumentItem } from "../../types/types";
 import { errorMessage } from "../utils";
 
 const getDocumentsAPI = async () => {
   try {
     const { data, status } = await tableDocuments.getDocuments();
+    console.log("document data", data);
 
     return { data, status };
   } catch (error: any) {
@@ -73,6 +78,29 @@ const deleteDocumentsAPI = async (documents: DocumentItem[]) => {
   }
 };
 
+const updatePostDocumentAPI = async (document_id: number, post_id: string) => {
+  try {
+    await addPostDocument(document_id, post_id);
+    return { status: 200 };
+  } catch (error: any) {
+    errorMessage("Failed to delete document", error);
+    return { status: 500 };
+  }
+};
+
+const updatePostDocumentsAPI = async (
+  document_ids: number[],
+  post_id: string
+) => {
+  try {
+    await addPostDocuments(document_ids, post_id);
+    return { status: 200 };
+  } catch (error: any) {
+    errorMessage("Failed to delete document", error);
+    return { status: 500 };
+  }
+};
+
 const updateDocumentAPI = async (document: DocumentItem) => {
   try {
     await tableDocuments.updateDocument(document);
@@ -102,6 +130,8 @@ const apiDocuments = {
   getDocumentByIDAPI,
   updateDocumentAPI,
   updateDocumentsAPI,
+  updatePostDocumentAPI,
+  updatePostDocumentsAPI,
 };
 
 export default apiDocuments;

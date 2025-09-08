@@ -249,7 +249,7 @@ const onFormSubmit = async ({ valid, values }: FormSubmitEvent) => {
   if (removedDocumnets.value.length > 0) {
     console.log("removing 1");
     try {
-      await apiDocuments.updateDocumentsAPI(removedDocumnets.value);
+      await apiDocuments.updateDocumentsAPI(removedDocumnets.value, id);
     } catch (error) {
       console.error(error);
     }
@@ -283,7 +283,7 @@ const onFormSubmit = async ({ valid, values }: FormSubmitEvent) => {
   if (newDocuments.value.length > 0) {
     emit("uploading-change", uploading.value);
 
-    const fileIds = await uploadDocuments(newDocuments.value, values.id);
+    const fileIds = await uploadDocuments(newDocuments.value, id);
 
     console.log("fileIds await", fileIds);
   }
@@ -291,17 +291,16 @@ const onFormSubmit = async ({ valid, values }: FormSubmitEvent) => {
   if (newImages.value.length > 0) {
     emit("uploading-change", uploading.value);
 
-    const imageIds = await uploadImages(newImages.value, values.id);
+    const imageIds = await uploadImages(newImages.value, id);
     console.log("imageIds await", imageIds);
   }
 
   if (existingDocuments.value.length > 0) {
     const linked = existingDocuments.value.map((doc) => ({
       ...doc,
-      post_id: id,
     }));
 
-    await apiDocuments.updateDocumentsAPI(linked);
+    await apiDocuments.updateDocumentsAPI(linked, id);
   }
 
   if (existingImages.value.length > 0) {

@@ -1,7 +1,6 @@
 import { TableName } from "..";
 import { supabase } from "../..";
 import type { PostData } from "../../../types/types";
-import tableDocuments from "./tableDocuments";
 
 const table = TableName.posts;
 
@@ -23,29 +22,39 @@ const getAllPosts = async () => {
     seo_metaDescription,
     seo_keywords,
     seo_canonicalUrl,
-    images:gallery!gallery_post_id_fkey (
-      id,
-      title,
-      url,
-      path,
-      alt,
-      post_id
+     images:posts_gallery (
+      gallery (
+        id,
+        title,
+        url,
+        path,
+        alt
+      )
     ),
-    documents:documents!documents_post_id_fkey (
-      id,
-      title,
-      url,
-      path,
-      post_id
-
-  ),
+    documents:posts_documents (
+      documents (
+        id,
+        title,
+        url,
+        path
+      )
+    ),
   created_at,
   updated_at
   `);
   if (error) {
     throw new Error(error.message);
   }
-  return data;
+
+  const newData = data.map((d) => ({
+    ...d,
+    documents: d.documents.flatMap((post) => post.documents),
+    images: d.images.flatMap((post) => post.gallery),
+  }));
+
+  console.log("newData", newData);
+
+  return newData;
 };
 
 const getPostById = async (id: string) => {
@@ -69,21 +78,25 @@ const getPostById = async (id: string) => {
     seo_metaDescription,
     seo_keywords,
     seo_canonicalUrl,
-    images:gallery!gallery_post_id_fkey (
-      id,
-      title,
-      url,
-      path,
-      alt,
-      post_id
+     images:posts_gallery (
+      gallery (
+        id,
+        title,
+        url,
+        path,
+        alt
+      )
     ),
-    documents:documents!documents_post_id_fkey (
-      id,
-      title,
-      url,
-      path,
-      post_id
-    )
+    documents:posts_documents (
+      documents (
+        id,
+        title,
+        url,
+        path
+      )
+    ),
+  created_at,
+  updated_at
   `
     )
     .eq("id", id)
@@ -92,39 +105,10 @@ const getPostById = async (id: string) => {
     throw new Error(error.message);
   }
 
-  return { data, status };
-};
+  const flatDocs = data.documents.flatMap((post) => post.documents);
+  const flatImages = data.images.flatMap((post) => post.gallery);
 
-const updatePostDocuments = async (
-  postId: number,
-  documentId: number,
-  action: "add" | "remove" = "add"
-) => {
-  const { data: post } = await tableDocuments.getDocument(postId);
-
-  const currentDocuments: number[] = post?.documents || [];
-  let updatedDocuments: number[];
-
-  if (action === "add") {
-    updatedDocuments = currentDocuments.includes(documentId)
-      ? currentDocuments
-      : [...currentDocuments, documentId];
-  } else {
-    updatedDocuments = currentDocuments.filter((id) => id !== documentId);
-  }
-
-  const { data, error } = await supabase
-    .from(table)
-    .update({ documents: updatedDocuments })
-    .eq("id", postId)
-    .select()
-    .single();
-
-  if (error) {
-    throw new Error(error.message);
-  }
-
-  return data;
+  return { data: { ...data, documents: flatDocs, images: flatImages }, status };
 };
 
 const deletePostById = async (id: string) => {
@@ -196,5 +180,4 @@ export const tablePosts = {
   updatePost,
   deletePosts,
   searchPosts,
-  updatePostDocuments,
 };
