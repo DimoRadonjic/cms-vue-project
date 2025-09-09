@@ -1,12 +1,13 @@
 import { useStorage } from "../storage";
-import type { LoginProfileData } from "../../types/types";
+import type { LoginProfileData, ProfileData } from "../../types/types";
 import { useToastService } from "../toastService/AppToastService";
 import { useAppRouter } from "../router/useAppRouter";
 import { useAuthStore } from "../../store";
 import { ref } from "vue";
 import { auth } from "../../supabase/api/tables/tableProfiles";
 
-const { getLocalItem, clearStorage, setLocalItem } = useStorage();
+const { getLocalItem, clearStorage, setLocalItem, setSessionItem } =
+  useStorage();
 
 const isAuth = ref<boolean>(!!getLocalItem("token"));
 
@@ -45,10 +46,29 @@ export const useAuth = () => {
     }
   };
 
+  const register = async (values: ProfileData) => {
+    try {
+      const { session } = await auth.registerUser(values);
+
+      if (session) {
+        setSessionItem("token", session?.access_token);
+      }
+
+      showSuccess("Registration successful.", 3000);
+      navigateTo("posts");
+    } catch (error: any) {
+      const detail = new Error(error.message);
+      showError("Registration failed.", detail, 3000);
+
+      return;
+    }
+  };
+
   return {
     logout,
     login,
     getUser,
     isAuth,
+    register,
   };
 };

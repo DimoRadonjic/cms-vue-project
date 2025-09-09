@@ -2,9 +2,9 @@
 import type { FormSubmitEvent } from "@primevue/forms";
 import { zodResolver } from "@primevue/forms/resolvers/zod";
 import { reactive } from "vue";
-import z from "zod";
 import { useAuth } from "../../composable";
 import { useToastService } from "../../composable/toastService/AppToastService";
+import { schemaLogin } from "./schemas";
 
 const initialValues = reactive({
   username: "",
@@ -14,16 +14,7 @@ const initialValues = reactive({
 const { login } = useAuth();
 const { showError } = useToastService();
 
-const schema = z.object({
-  username: z.string().min(1, {
-    message: "Username is required.",
-  }),
-  password: z.string().min(1, {
-    message: "Password is required.",
-  }),
-});
-
-const resolver = zodResolver(schema);
+const resolver = zodResolver(schemaLogin);
 
 const onFormSubmit = async ({ valid, values }: FormSubmitEvent) => {
   if (!valid) {

@@ -43,3 +43,46 @@ export const schemaPost = z.object({
   }),
   seo_canonicalUrl: canonicalUrlSchema,
 });
+
+export const schemaRegister = z
+  .object({
+    username: z.string().min(1, {
+      message: "Username is required.",
+    }),
+    email: z.string().min(1, {
+      message: "Email is required.",
+    }),
+    password: z
+      .string()
+      .min(1, {
+        message: "Password is required.",
+      })
+      .min(8, {
+        message: "Minimum password length is 8 characters.",
+      })
+      .regex(/[A-Z]/, {
+        message: "Password must contain at least one uppercase letter.",
+      })
+      .regex(/[0-9]/, {
+        message: "Password must contain at least one number.",
+      })
+      .regex(/[^A-Za-z0-9]/, {
+        message: "Password must contain at least one special character.",
+      }),
+    retypepassword: z
+      .string()
+      .min(1, { message: "Please retype your password." }),
+  })
+  .refine((data) => data.password === data.retypepassword, {
+    path: ["retypepassword"],
+    message: "Passwords do not match.",
+  });
+
+export const schemaLogin = z.object({
+  username: z.string().min(1, {
+    message: "Username is required.",
+  }),
+  password: z.string().min(1, {
+    message: "Password is required.",
+  }),
+});

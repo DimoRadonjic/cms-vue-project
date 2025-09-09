@@ -1,15 +1,12 @@
 <script setup lang="ts">
 import { zodResolver } from "@primevue/forms/resolvers/zod";
-import { z } from "zod";
 import type { FormSubmitEvent, ProfileData } from "../../types/types";
-import { useStorage } from "../../composable";
 import { useToastService } from "../../composable/toastService/AppToastService";
-import { useAppRouter } from "../../composable/router/useAppRouter";
-import { auth } from "../../supabase/api/tables/tableProfiles";
+import { schemaRegister } from "./schemas";
+import { useAuth } from "../../composable";
 
-const { showError, showSuccess } = useToastService();
-const { navigateTo } = useAppRouter();
-const { setSessionItem } = useStorage();
+const { showError } = useToastService();
+const { register } = useAuth();
 
 const initialValues = {
   username: "",
@@ -18,69 +15,19 @@ const initialValues = {
   retypepassword: "",
 };
 
-const schema = z
-  .object({
-    username: z.string().min(1, {
-      message: "Username is required.",
-    }),
-    email: z.string().min(1, {
-      message: "Email is required.",
-    }),
-    password: z
-      .string()
-      .min(1, {
-        message: "Password is required.",
-      })
-      .min(8, {
-        message: "Minimum password length is 8 characters.",
-      })
-      .regex(/[A-Z]/, {
-        message: "Password must contain at least one uppercase letter.",
-      })
-      .regex(/[0-9]/, {
-        message: "Password must contain at least one number.",
-      })
-      .regex(/[^A-Za-z0-9]/, {
-        message: "Password must contain at least one special character.",
-      }),
-    retypepassword: z
-      .string()
-      .min(1, { message: "Please retype your password." }),
-  })
-  .refine((data) => data.password === data.retypepassword, {
-    path: ["retypepassword"],
-    message: "Passwords do not match.",
-  });
+const resolver = zodResolver(schemaRegister);
 
-const resolver = zodResolver(schema);
-
-const onFormSubmit = async (e: FormSubmitEvent) => {
-  const { valid, values } = e;
-
-  if (valid) {
-    try {
-      const data: ProfileData = {
-        username: values.username,
-        email: values.email,
-        password: values.password,
-      };
-      const { session } = await auth.registerUser(data);
-
-      if (session) {
-        setSessionItem("token", session?.access_token);
-      }
-
-      showSuccess("Registration successful.", 3000);
-      navigateTo("posts");
-    } catch (error: any) {
-      const detail = new Error(error.message);
-      showError("Registration failed.", detail, 3000);
-
-      return;
-    }
-  } else {
+const onFormSubmit = async ({ values, valid }: FormSubmitEvent) => {
+  if (!valid) {
     showError("Registration is invalid.", 3000);
+    return;
   }
+  const data: ProfileData = {
+    username: values.username,
+    email: values.email,
+    password: values.password,
+  };
+  await register(data);
 };
 </script>
 
