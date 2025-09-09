@@ -27,13 +27,15 @@ const onMouseOver = (id: string) => {
   itemHovered.value = id;
 };
 
-const renameDocument = async () => {
+const renameImage = async () => {
   if (newTitle.value !== "" && newTitle.value === props.image.title) {
     return;
   }
+
+  const { post_ids, ...rest } = props.image;
   try {
     await apiImages.updateImageAPI({
-      ...props.image,
+      ...rest,
       title: newTitle.value,
     });
 
@@ -98,7 +100,7 @@ const renameDocument = async () => {
         />
       </TransitionGroup>
 
-      <Button v-else label="Done" @click.stop="renameDocument"></Button>
+      <Button v-else label="Done" @click.stop="renameImage"></Button>
     </div>
   </div>
 </template>

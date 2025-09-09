@@ -6,6 +6,8 @@ import {
 import type { ImageItem } from "../../types/types";
 import { errorMessage } from "../utils";
 
+export type ImageData = Omit<ImageItem, "post_ids">;
+
 const getImagesAPI = async (): Promise<ImageItem[] | undefined> => {
   try {
     const { data } = await tableGallery.getGallery();
@@ -58,7 +60,7 @@ const removeImagesAPI = async (images: ImageItem[]) => {
   }
 };
 
-const updateImageAPI = async (image: ImageItem) => {
+const updateImageAPI = async (image: ImageData) => {
   try {
     await tableGallery.updateImage(image);
     return { status: 200 };

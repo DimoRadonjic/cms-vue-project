@@ -8,6 +8,8 @@ const bucket = BucketsName.gallery;
 
 type Image = Omit<ImageItem, "id" | "post_ids">;
 
+type ImageData = Omit<ImageItem, "post_ids">;
+
 type APIGalleryResponse = Promise<{ data: ImageItem[]; status: number }>;
 
 const uploadImage = async (
@@ -28,7 +30,7 @@ const uploadImage = async (
 
   const { data: urlData, error: urlError } = await supabase.storage
     .from(bucket)
-    .createSignedUrl(path, 60 * 60 * 24 * 7); // 7 days
+    .createSignedUrl(path, 60 * 60 * 24 * 7);
 
   if (urlError || !urlData) {
     throw new Error(urlError?.message || "Failed to create signed URL");
@@ -151,7 +153,7 @@ const deleteImagesFromStorage = async (
   return Promise.all(deletionPromises);
 };
 
-const updateImage = async (image: ImageItem) => {
+const updateImage = async (image: ImageData) => {
   try {
     const { error } = await supabase
       .from(table)
