@@ -9,6 +9,7 @@ const props = withDefaults(
     filterGlobal?: Record<string, FilterType>;
     selectedItem: any[] | null;
     data: any[];
+    loading: boolean;
   }>(),
   {
     title: "",
@@ -16,6 +17,7 @@ const props = withDefaults(
       global: { value: "", matchMode: "contains" },
     }),
     selectedItem: null,
+    loading: false,
   }
 );
 
@@ -83,6 +85,7 @@ const handleDeletion = async () => {
               icon="pi pi-refresh"
               rounded
               raised
+              :loading
               @click="$emit('refetch')"
             />
           </div>

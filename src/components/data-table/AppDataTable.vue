@@ -83,6 +83,7 @@ watchEffect(() => {
       <TableHeader
         :title
         :filterGlobal
+        :loading
         v-model:selectedItem="selectedData"
         v-model:data="localData"
         @refetch="onRefetch"
