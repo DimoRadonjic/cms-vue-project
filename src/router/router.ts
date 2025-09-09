@@ -3,23 +3,17 @@ import {
   createRouter,
   type RouteRecordRaw,
 } from "vue-router";
-import { LoginForm, RegisterForm, Page404, PageLayout } from "../pages";
+import { Login, Register, Page404, PageLayout } from "../pages";
 import { useAuth } from "../composable";
 
 const protectedRoutes: RouteRecordRaw[] = [
   {
     path: "/",
     name: "home",
-    redirect: { name: "dashboard" },
+    redirect: { name: "posts" },
     component: PageLayout,
     meta: { requiresAuth: true },
     children: [
-      {
-        path: "dashboard",
-        name: "dashboard",
-        component: () => import("../pages/Dashboard.vue"),
-      },
-
       {
         path: "posts",
         name: "posts",
@@ -87,11 +81,11 @@ const routes: RouteRecordRaw[] = [
     children: [
       { path: "/", redirect: "login" },
 
-      { path: "/login", name: "login", component: LoginForm },
+      { path: "/login", name: "login", component: Login },
       {
         path: "/register",
         name: "register",
-        component: RegisterForm,
+        component: Register,
       },
 
       { path: "/:catchAll(.*)", name: "not-found", component: Page404 },
@@ -118,7 +112,7 @@ router.beforeEach((to, _, next) => {
   }
 
   if (isAuth.value && (to.name === "login" || to.name === "register")) {
-    return next({ name: "dashboard" });
+    return next({ name: "posts" });
   }
 
   next();

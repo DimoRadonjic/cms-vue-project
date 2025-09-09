@@ -35,7 +35,7 @@ export const useAuth = () => {
         isAuth.value = true;
         showSuccess("Logged in successfully");
 
-        navigateTo("dashboard");
+        navigateTo("posts");
         return;
       }
     } catch (error: any) {

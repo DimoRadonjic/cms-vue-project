@@ -22,7 +22,8 @@ const baseClass =
     :pt:root="!rootClass ? '!text-2xl' : rootClass + ' ' + '!text-2xl'"
     :class="!buttonClass ? baseClass : baseClass + ' ' + buttonClass"
     :disabled
-  />
+  >
+  </Button>
 </template>
 
 <style scoped></style>

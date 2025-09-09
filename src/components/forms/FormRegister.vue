@@ -1,11 +1,11 @@
 <script setup lang="ts">
 import { zodResolver } from "@primevue/forms/resolvers/zod";
 import { z } from "zod";
-import type { FormSubmitEvent, ProfileData } from "../types/types";
-import { useStorage } from "../composable";
-import { useToastService } from "../composable/toastService/AppToastService";
-import { useAppRouter } from "../composable/router/useAppRouter";
-import { auth } from "../supabase/api/tables/tableProfiles";
+import type { FormSubmitEvent, ProfileData } from "../../types/types";
+import { useStorage } from "../../composable";
+import { useToastService } from "../../composable/toastService/AppToastService";
+import { useAppRouter } from "../../composable/router/useAppRouter";
+import { auth } from "../../supabase/api/tables/tableProfiles";
 
 const { showError, showSuccess } = useToastService();
 const { navigateTo } = useAppRouter();
@@ -71,7 +71,7 @@ const onFormSubmit = async (e: FormSubmitEvent) => {
       }
 
       showSuccess("Registration successful.", 3000);
-      navigateTo("dashboard");
+      navigateTo("posts");
     } catch (error: any) {
       const detail = new Error(error.message);
       showError("Registration failed.", detail, 3000);
@@ -85,21 +85,21 @@ const onFormSubmit = async (e: FormSubmitEvent) => {
 </script>
 
 <template>
-  <div class="w-full h-screen flex items-center justify-center">
-    <Form
-      :initialValues
-      :resolver
-      @submit="onFormSubmit"
-      :validateOnValueUpdate="true"
-      :validateOnBlur="true"
-      class="flex flex-col gap-8 w-full max-w-md bg-primary backdrop-blur-md p-8 rounded-2xl shadow-xl border border-primary"
+  <Form
+    :initialValues
+    :resolver
+    @submit="onFormSubmit"
+    :validateOnValueUpdate="true"
+    :validateOnBlur="true"
+    class="flex flex-col gap-8 w-full max-w-md bg-primary backdrop-blur-md p-8 rounded-2xl shadow-xl border border-primary"
+  >
+    <h1
+      class="text-4xl pb-2 font-extrabold text-center bg-gradient-to-r from-green-600 to-green-400 bg-clip-text text-transparent"
     >
-      <h1
-        class="text-4xl pb-2 font-extrabold text-center bg-gradient-to-r from-green-600 to-green-400 bg-clip-text text-transparent"
-      >
-        Register
-      </h1>
+      Register
+    </h1>
 
+    <div class="flex flex-col gap-y-8">
       <AppInputTextField
         placeholder="Username"
         fieldName="username"
@@ -125,26 +125,26 @@ const onFormSubmit = async (e: FormSubmitEvent) => {
         fieldName="retypepassword"
         initialValue=""
       />
+    </div>
 
-      <div class="flex flex-col content-start items-center gap-2">
+    <div class="flex flex-col content-start items-center gap-8">
+      <Button
+        type="submit"
+        label="Register"
+        pt:root="!text-2xl"
+        class="w-fit py-3 rounded-xl bg-gray-200 hover:bg-gray-300 active:bg-gray-400 text-gray-800 font-semibold shadow-md transition-transform duration-300 hover:scale-[1.02] active:scale-95"
+      />
+
+      <p class="font-medium text-2xl">Already have an account ?</p>
+
+      <router-link to="/login">
         <Button
-          type="submit"
-          label="Register"
+          type="button"
+          label="Login"
           pt:root="!text-2xl"
-          class="w-fit py-3 rounded-xl bg-gray-200 hover:bg-gray-300 active:bg-gray-400 text-gray-800 font-semibold shadow-md transition-transform duration-300 hover:scale-[1.02] active:scale-95"
+          class="w-fit py-3 rounded-xl bg-green-500 hover:bg-green-600 active:bg-green-700 text-white font-semibold shadow-md transition-transform duration-300 hover:scale-[1.02] active:scale-95"
         />
-
-        <p class="font-medium text-2xl">Already have an account ?</p>
-
-        <router-link to="/login">
-          <Button
-            type="button"
-            label="Login"
-            pt:root="!text-2xl"
-            class="w-fit py-3 rounded-xl bg-green-500 hover:bg-green-600 active:bg-green-700 text-white font-semibold shadow-md transition-transform duration-300 hover:scale-[1.02] active:scale-95"
-          />
-        </router-link>
-      </div>
-    </Form>
-  </div>
+      </router-link>
+    </div>
+  </Form>
 </template>

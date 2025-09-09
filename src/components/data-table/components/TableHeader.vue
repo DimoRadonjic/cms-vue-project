@@ -36,53 +36,6 @@ const handleDeletion = async () => {
   emit("update:selectedItem", null);
   emit("refetch");
 };
-
-const handleExport = (posts: PostWithContent[]) => {
-  // Za sad samo da radi
-  // mozda maci potpuno opciju ili odraditi na izgledu
-
-  if (!posts || posts.length === 0) {
-    alert("Nema podataka za eksport");
-    return;
-  }
-
-  const csvData = posts.map((post) => ({
-    id: post.id,
-    title: post.title,
-    description: post.description,
-    author: post.authorUsername,
-    mainImageTitle: post.mainImage.title,
-    imageCount: post.images.length,
-    documentCount: post.documents.length,
-    slug: post.seo_slug,
-    metaTitle: post.seo_metaTitle,
-    keywords: post.seo_keywords.join(", "),
-  }));
-
-  const headers = Object.keys(csvData[0]);
-  const csvContent = [
-    headers.join(","),
-    ...csvData.map((row) =>
-      headers
-        .map((header) => {
-          const value = row[header as keyof typeof row];
-          return `"${String(value).replace(/"/g, '""')}"`;
-        })
-        .join(",")
-    ),
-  ].join("\n");
-
-  const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
-  const link = document.createElement("a");
-  const url = URL.createObjectURL(blob);
-  link.setAttribute("href", url);
-  link.setAttribute(
-    "download",
-    `posts_${new Date().toISOString().split("T")[0]}.csv`
-  );
-  link.click();
-  URL.revokeObjectURL(url);
-};
 </script>
 
 <template>
@@ -126,12 +79,6 @@ const handleExport = (posts: PostWithContent[]) => {
         </template>
         <template #center>
           <div class="flex flex-wrap w-full gap-x-4">
-            <Button
-              label="Export"
-              icon="pi pi-upload"
-              severity="secondary"
-              @click="handleExport(data)"
-            />
             <Button
               icon="pi pi-refresh"
               rounded

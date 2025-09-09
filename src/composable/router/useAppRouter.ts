@@ -2,7 +2,6 @@ import { useRouter } from "vue-router";
 
 const protectedRoutes = {
   home: "home",
-  dashboard: "dashboard",
   posts: "posts",
   newPost: "new-post",
   postView: "post-view",

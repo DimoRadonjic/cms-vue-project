@@ -5,10 +5,6 @@ interface Link {
 
 export const navLinks: Link[] = [
   {
-    label: "Dashboard",
-    routeName: "dashboard",
-  },
-  {
     label: "Posts",
     routeName: "posts",
   },
