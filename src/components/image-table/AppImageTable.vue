@@ -34,6 +34,7 @@ const addSelectedImage = (image: ImageItem) => {
       :upload
       :delete
       @refetch="onRefetch"
+      :fetching="loading"
     />
     <div
       :class="

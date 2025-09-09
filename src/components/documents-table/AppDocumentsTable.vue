@@ -36,6 +36,7 @@ const addSelectedDocument = (document: any) => {
       :delete
       v-model:openModal="localModelOpen"
       @refetch="onRefetch"
+      :fetching="loading"
     />
     <div
       :class="

@@ -8,6 +8,7 @@ type BaseProps = {
   title: string;
   buttonAddLabel?: string;
   openModal?: boolean;
+  fetching: boolean;
 };
 
 type UploadProps =
@@ -160,7 +161,18 @@ const uploadFunc = async (event: any) => {
         :disabled="!selectedItem || selectedItem.length === 0 || deleting"
         :clickEvent="handleDeletion"
       />
-      <Button icon="pi pi-refresh" rounded raised @click="$emit('refetch')" />
+      <Button
+        icon="pi pi-refresh"
+        :loading="fetching"
+        rounded
+        raised
+        @click="
+          () => {
+            $emit('refetch');
+            fetching = true;
+          }
+        "
+      />
     </div>
   </div>
 </template>
