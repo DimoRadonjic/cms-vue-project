@@ -77,6 +77,7 @@ const mainImageUpload = ref<File>();
 const mainImage = ref<ImageItem | null>(
   props.data.mainImage ? { ...props.data.mainImage } : null
 );
+
 const mainImageLoading = ref<boolean>(false);
 const mainImageError = ref<boolean>(false);
 const removedMainImage = computed(() => !mainImage.value);
@@ -195,6 +196,52 @@ const uploadMainImage = async (mainImage: File, post_id: string) => {
   }
 };
 
+const handleRemovalDocuments = async (id: string) => {
+  const docIds = removedDocuments.value.map(({ id }) => Number(id));
+  try {
+    await apiDocuments.removePostDocumentAPI(docIds, id);
+  } catch (error: any) {
+    console.error(error);
+    const detail = new Error(error.message);
+    showError("Update failed : remove documents.", detail, 3000);
+  }
+};
+
+const handleRemovalImages = async (id: string) => {
+  const imgIds = removedImages.value.map(({ id }) => id);
+  try {
+    await apiImages.removePostImagesAPI(imgIds, id);
+  } catch (error: any) {
+    console.error(error);
+    const detail = new Error(error.message);
+    showError("Update failed : remove images.", detail, 3000);
+  }
+};
+
+const handleRemovalMainImage = async (
+  mainImageID: string,
+  id: string,
+  valuesToSend: PostData
+) => {
+  try {
+    await apiImages.removePostImagesAPI([mainImageID], id);
+    valuesToSend.mainImageId = "";
+  } catch (error: any) {
+    console.error(error);
+    const detail = new Error(error.message);
+    showError("Update failed : main image remove link.", detail, 3000);
+  }
+};
+
+const handleMainImageUpload = async (mainImage: File, id: string) => {
+  const mainImageRes: ImageItem | null | undefined = await uploadMainImage(
+    mainImage,
+    id
+  );
+
+  return mainImageRes;
+};
+
 const onFormSubmit = async ({ valid, values }: FormSubmitEvent) => {
   const {
     documents: initialDocuments,
@@ -227,21 +274,11 @@ const onFormSubmit = async ({ valid, values }: FormSubmitEvent) => {
   }
 
   if (removedDocuments.value.length > 0) {
-    const docIds = removedDocuments.value.map(({ id }) => Number(id));
-    try {
-      await apiDocuments.removePostDocumentAPI(docIds, id);
-    } catch (error) {
-      console.error(error);
-    }
+    await handleRemovalDocuments(id);
   }
 
   if (removedImages.value.length > 0) {
-    const imgIds = removedImages.value.map(({ id }) => id);
-    try {
-      await apiImages.removePostImagesAPI(imgIds, id);
-    } catch (error) {
-      console.error(error);
-    }
+    await handleRemovalImages(id);
   }
 
   let valuesToSend: PostData = { ...(values as PostData) };
@@ -249,17 +286,9 @@ const onFormSubmit = async ({ valid, values }: FormSubmitEvent) => {
   if (mainImageUpload.value) {
     emit("uploading-change", uploading.value);
 
-    try {
-      await apiImages.removePostImagesAPI([initalMainImage.id], id);
-      valuesToSend.mainImageId = "";
-    } catch (error) {
-      console.error(error);
-    }
+    await handleRemovalMainImage(initalMainImage.id, id, valuesToSend);
 
-    const mainImageRes: ImageItem | null | undefined = await uploadMainImage(
-      mainImageUpload.value,
-      values.id
-    );
+    const mainImageRes = await handleMainImageUpload(mainImageUpload.value, id);
 
     if (mainImageRes) {
       valuesToSend.mainImageId = mainImageRes.id;
@@ -267,27 +296,23 @@ const onFormSubmit = async ({ valid, values }: FormSubmitEvent) => {
   }
 
   if (removedMainImage.value) {
-    try {
-      await apiImages.removePostImagesAPI([initalMainImage.id], id);
-      valuesToSend.mainImageId = "";
-    } catch (error) {
-      console.error(error);
-    }
+    emit("uploading-change", uploading.value);
+
+    await handleRemovalMainImage(initalMainImage.id, id, valuesToSend);
   }
 
   if (changedMain.value && mainImage.value) {
-    try {
-      await apiImages.removePostImagesAPI([initalMainImage.id], id);
-      valuesToSend.mainImageId = "";
-    } catch (error) {
-      console.error(error);
-    }
+    emit("uploading-change", uploading.value);
+
+    await handleRemovalMainImage(initalMainImage.id, id, valuesToSend);
 
     try {
       await apiImages.addPostImagesAPI([mainImage.value.id], id);
       valuesToSend.mainImageId = mainImage.value.id;
-    } catch (error) {
+    } catch (error: any) {
       console.error(error);
+      const detail = new Error(error.message);
+      showError("Update failed : change main image add link ", detail, 3000);
     }
   }
 
