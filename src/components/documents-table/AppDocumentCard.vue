@@ -64,11 +64,10 @@ const renameDocument = async () => {
         frameborder="0"
       ></iframe>
 
-      <div class="absolute top-0 right-4 scale-150">
+      <div class="absolute top-3 right-3">
         <input
           type="checkbox"
-          name=""
-          id=""
+          class="w-5 h-5 accent-primary rounded-md cursor-pointer"
           :checked="documentsSelected.includes(document)"
           @click.stop="addSelectedDocument(document)"
         />

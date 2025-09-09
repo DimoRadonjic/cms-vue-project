@@ -92,6 +92,5 @@ const addSelectedImage = (image: ImageItem) => {
         </div>
       </template>
     </div>
-    <AppTablePagination v-if="data.length && !loading" />
   </div>
 </template>

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { SquareArrowOutUpRight } from "lucide-vue-next";
 import type { ImageItem } from "../types/types";
-import { createLink } from "./forms/utils";
+import { createLink } from "./utils";
 
 interface Props {
   image: File | ImageItem;

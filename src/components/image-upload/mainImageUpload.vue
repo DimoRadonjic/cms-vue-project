@@ -4,6 +4,7 @@ import type { ImageItem } from "../../types/types";
 import { useGallery } from "../../composable/gallery/useGallery";
 import { ImagePlus, Wallpaper } from "lucide-vue-next";
 import ModalMainImage from "../../modals/modalMainImage.vue";
+import { createLink } from "../utils";
 
 interface Props {
   mainImage: ImageItem | null;
@@ -77,9 +78,7 @@ const toggleImageModal = () => {
 };
 
 const mainImageLink = computed<string>(() => {
-  return mainImageUpload.value
-    ? URL.createObjectURL(mainImageUpload.value)
-    : "";
+  return mainImageUpload.value ? createLink(mainImageUpload.value) : "";
 });
 
 watchEffect(() => props.clear && ClearImageUpload());
