@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import apiPosts from "../../../axios/api/posts";
 import { useAppRouter } from "../../../composable/router/useAppRouter";
-import type { FilterType, PostWithContent } from "../../../types/types";
+import type { FilterType } from "../../../types/types";
 
 const props = withDefaults(
   defineProps<{
