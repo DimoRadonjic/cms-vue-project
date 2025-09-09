@@ -1,11 +1,11 @@
 <script setup lang="ts">
 import { ref, computed } from "vue";
 import { useAppRouter } from "../composable/router/useAppRouter";
-import type { DocumentItem } from "../types/types";
+import type { Data, DocumentItem } from "../types/types";
 import { useToastService } from "../composable/toastService/AppToastService";
 
 type BaseProps = {
-  selectedItem: DocumentItem[];
+  selectedItem: Data;
   title: string;
   buttonAddLabel?: string;
   openModal?: boolean;

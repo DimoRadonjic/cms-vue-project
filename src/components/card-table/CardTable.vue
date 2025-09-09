@@ -1,11 +1,7 @@
 <script setup lang="ts">
 import { ref } from "vue";
-import type { DocumentItem, ImageItem } from "../../types/types";
+import type { Data, DocumentItem, ImageItem, Item } from "../../types/types";
 import AppSimpleTableHeader from "../AppSimpleTableHeader.vue";
-
-export type Item = ImageItem & DocumentItem;
-
-export type Data = Item[];
 
 type CardTableProps =
   | {

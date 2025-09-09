@@ -36,27 +36,3 @@ export const createDummyJWT = ({ username, password }: LoginProfileData) => {
 
   return `${encodedHeader}.${encodedPayload}.${signature}`;
 };
-
-export const throttle = function (this: any, func: Function, limit: number) {
-  let lastFunc: ReturnType<typeof setTimeout>;
-  let lastRan: number;
-
-  return function (this: any, ...args: any[]) {
-    if (!lastRan) {
-      func.apply(this, args);
-      lastRan = Date.now();
-    } else {
-      clearTimeout(lastFunc);
-      lastFunc = setTimeout(() => {
-        if (Date.now() - lastRan >= limit) {
-          func.apply(this, args);
-          lastRan = Date.now();
-        }
-      }, limit - (Date.now() - lastRan));
-    }
-  };
-};
-
-export const searchAPI = (func: Function, limit: number) => {
-  return throttle(func, limit);
-};

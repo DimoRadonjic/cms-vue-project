@@ -27,6 +27,10 @@ type PostWithContent = Omit<PostData, "mainImageId"> & {
   images: ImageItem[];
 };
 
+export type Item = ImageItem & DocumentItem;
+
+export type Data = Item[];
+
 type ImageItem = {
   id: string;
   title: string;
