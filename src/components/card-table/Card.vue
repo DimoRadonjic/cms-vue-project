@@ -1,11 +1,10 @@
 <script setup lang="ts">
 import { computed, ref } from "vue";
 import { useAppRouter } from "../../composable/router/useAppRouter";
-import type { DocumentItem, ImageItem } from "../../types/types";
+import type { DocumentItem, ImageItem, Item } from "../../types/types";
 import apiImages from "../../axios/api/images";
 import { useToastService } from "../../composable/toastService/AppToastService";
 import apiDocuments from "../../axios/api/documents";
-import type { Item } from "./CardTable.vue";
 
 type CardProps = {
   type: "image" | "document";
