@@ -101,10 +101,8 @@ export const useDocuments = () => {
     loading.value = true;
 
     try {
-      const res = await apiDocuments.deleteDocumentsAPI(documents);
+      await apiDocuments.deleteDocumentsAPI(documents);
       loading.value = false;
-
-      return res;
     } catch (error: any) {
       const detail = new Error(error.message);
       showError("Failed to delete document. Please try again later.", detail);

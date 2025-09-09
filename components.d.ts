@@ -24,6 +24,8 @@ declare module 'vue' {
     AppTextAreaField: typeof import('./src/components/inputs/AppTextAreaField.vue')['default']
     AppTopbar: typeof import('./src/components/topbar/AppTopbar.vue')['default']
     Button: typeof import('primevue/button')['default']
+    Card: typeof import('./src/components/card-table/Card.vue')['default']
+    CardTable: typeof import('./src/components/card-table/CardTable.vue')['default']
     Column: typeof import('primevue/column')['default']
     ContextMenu: typeof import('primevue/contextmenu')['default']
     DataTable: typeof import('primevue/datatable')['default']

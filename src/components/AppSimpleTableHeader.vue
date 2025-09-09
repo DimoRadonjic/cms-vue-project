@@ -2,6 +2,7 @@
 import { ref, computed } from "vue";
 import { useAppRouter } from "../composable/router/useAppRouter";
 import type { DocumentItem } from "../types/types";
+import { useToastService } from "../composable/toastService/AppToastService";
 
 type BaseProps = {
   selectedItem: DocumentItem[];
@@ -40,6 +41,8 @@ const emit = defineEmits([
   "update:openModal",
 ]);
 
+const { showSuccess } = useToastService();
+
 const { navigateTo } = useAppRouter();
 
 const fileUploadRef = ref<any>();
@@ -67,6 +70,8 @@ const handleDeletion = async () => {
     if (props.delete) {
       await props.delete(selectedItem);
     }
+
+    showSuccess("Item deleted");
   } catch (error: any) {
     throw new Error(error.message);
   }

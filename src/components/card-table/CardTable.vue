@@ -1,40 +1,73 @@
 <script setup lang="ts">
 import { ref } from "vue";
-import type { DocumentItem } from "../../types/types";
+import type { DocumentItem, ImageItem } from "../../types/types";
+import AppSimpleTableHeader from "../AppSimpleTableHeader.vue";
 
-defineProps<{
-  data: DocumentItem[];
-  loading: Boolean;
-  onRefetch?: () => Promise<void>;
-  upload: () => Promise<void>;
-  delete: () => Promise<void>;
-}>();
+export type Item = ImageItem & DocumentItem;
 
-const documentsSelected = ref<Array<any>>([]);
-const localModelOpen = ref<boolean>(false);
+export type Data = Item[];
 
-const addSelectedDocument = (document: any) => {
-  if (documentsSelected.value.includes(document)) {
-    documentsSelected.value = documentsSelected.value.filter(
-      (doc) => doc.id !== document.id
+type CardTableProps =
+  | {
+      type: "image";
+      data: ImageItem[];
+      accept?: string;
+      loading: boolean;
+      title: string;
+      onRefetch?: () => void;
+      upload: (
+        files: File[],
+        post_id: string
+      ) => Promise<
+        | { data: ImageItem[]; status: number }
+        | { data: null; status: number }
+        | undefined
+      >;
+      delete: (data: ImageItem[]) => Promise<void>;
+    }
+  | {
+      type: "document";
+      data: DocumentItem[];
+      accept?: string;
+      loading: boolean;
+      title: string;
+      onRefetch?: () => void;
+      upload: (
+        documents: File[],
+        post_id: string
+      ) => Promise<
+        | { data: DocumentItem[]; status: number }
+        | { data: null; status: number }
+        | undefined
+      >;
+      delete: (data: DocumentItem[]) => Promise<void>;
+    };
+
+defineProps<CardTableProps>();
+
+const itemsSelected = ref<Data>([]);
+
+const addSelectedItem = (item: Item) => {
+  if (itemsSelected.value.includes(item)) {
+    itemsSelected.value = itemsSelected.value.filter(
+      (doc) => doc.id !== item.id
     );
   } else {
-    documentsSelected.value = [...documentsSelected.value, document];
+    itemsSelected.value = [...itemsSelected.value, item];
   }
 };
 </script>
 
 <template>
-  <div class="w-full space-y-10">
+  <div class="w-full h-full space-y-10">
     <AppSimpleTableHeader
-      v-model:selectedItem="documentsSelected"
-      title="Documents"
+      v-model:selectedItem="itemsSelected"
+      :title
       buttonAddLabel="Upload"
       :fileUpload="true"
-      :accept="'application/pdf'"
+      :accept
       :upload
       :delete
-      v-model:openModal="localModelOpen"
       @refetch="onRefetch"
       :fetching="loading"
     />
@@ -77,7 +110,7 @@ const addSelectedDocument = (document: any) => {
               d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6h.1a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"
             />
           </svg>
-          <p class="text-lg font-medium">No documents uploaded</p>
+          <p class="text-lg font-medium">No images uploaded</p>
           <p class="text-sm text-secondary">
             Upload your first file to get started
           </p>
@@ -85,15 +118,12 @@ const addSelectedDocument = (document: any) => {
       </template>
 
       <template v-if="data.length && !loading">
-        <div
-          class="w-full"
-          v-for="singleDocument in data"
-          :key="singleDocument.id"
-        >
-          <AppDocumentCard
-            :addSelectedDocument="addSelectedDocument"
-            :document="singleDocument"
-            :documentsSelected="documentsSelected"
+        <div class="w-full h-full" v-for="image in data" :key="image.id">
+          <Card
+            :type
+            :addSelectedItem="addSelectedItem"
+            :item="image"
+            :itemsSelected
             @refetch="onRefetch"
           />
         </div>
