@@ -1,7 +1,7 @@
 import { BucketsName, TableName } from "..";
 import { supabase } from "../..";
 import type { DocumentItem } from "../../../types/types";
-import { sanitizeFileName } from "../utils";
+import { getPdfPreview, sanitizeFileName } from "../utils";
 import { addPostDocument, removePostDocument } from "./tablePostDocumets";
 
 const table = TableName.documents;
@@ -15,6 +15,7 @@ const getDocuments = async () => {
     title,
     url,
     path,
+    preview_img,
     post_ids:posts_documents (
       post_id
     )
@@ -129,10 +130,13 @@ const uploadDocumentToStorage = async (file: File, postId: string) => {
 
   const fileTitle = file.name.replace(/\.[^/.]+$/, "");
 
+  const previewDoc = await getPdfPreview(file);
+
   const document: Document = {
     title: fileTitle,
     url: urlData.signedUrl,
     path: sanitizedFileName,
+    preview_img: previewDoc,
   };
 
   const { data: docData } = await addDocument(document);

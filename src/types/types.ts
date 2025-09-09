@@ -42,6 +42,7 @@ type DocumentItem = {
   url: string;
   path: string;
   post_ids: string[];
+  preview_img: string;
 };
 
 type NewPost = {

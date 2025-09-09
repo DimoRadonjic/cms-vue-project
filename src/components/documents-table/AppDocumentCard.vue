@@ -4,6 +4,7 @@ import { useAppRouter } from "../../composable/router/useAppRouter";
 import type { DocumentItem } from "../../types/types";
 import apiDocuments from "../../axios/api/documents";
 import { useToastService } from "../../composable/toastService/AppToastService";
+import { FileText } from "lucide-vue-next";
 
 const props = defineProps<{
   document: DocumentItem;
@@ -27,6 +28,8 @@ const onMouseOver = (id: number) => {
   }
 
   itemHovered.value = id;
+
+  console.log("preview", props.document.preview_img);
 };
 
 const renameDocument = async () => {
@@ -58,11 +61,16 @@ const renameDocument = async () => {
     @mouseleave="onMouseOver(-1)"
   >
     <div class="relative" @click.stop="addSelectedDocument(document)">
-      <iframe
-        :src="document.url"
-        style="width: 100%; height: 100%"
-        frameborder="0"
-      ></iframe>
+      <div class="w-full h-52 flex place-content-center place-items-center">
+        <img
+          v-if="document.preview_img"
+          :src="document.preview_img"
+          alt="preview doc"
+          class="w-full h-full object-cover object-top transition-transform duration-300 group-hover:scale-105"
+        />
+
+        <FileText v-else class="w-full h-1/2" />
+      </div>
 
       <div class="absolute top-3 right-3">
         <input
