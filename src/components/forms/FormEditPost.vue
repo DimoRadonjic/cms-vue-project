@@ -35,8 +35,6 @@ import isEqual from "lodash/isEqual";
 import DocumentUpload from "../file-upload/DocumentUpload.vue";
 import ImageUpload from "../image-upload/ImageUpload.vue";
 import MainImageUpload from "../image-upload/mainImageUpload.vue";
-import { useForm } from "@primevue/forms/useform";
-import { values } from "lodash";
 
 interface Props {
   reset?: boolean;
@@ -103,18 +101,6 @@ const uploading = ref<boolean>(false);
 const clearFiles = ref<boolean>(false);
 const availableDocuments = ref<DocumentItem[]>([]);
 const availableImages = ref<ImageItem[]>([]);
-
-const change = computed(
-  () =>
-    !isEqual(existingDocuments.value, initialValues.documents) ||
-    !isEqual(existingImages.value, initialValues.images) ||
-    removedImages.value.length > 0 ||
-    removedDocuments.value.length > 0 ||
-    newImages.value.length > 0 ||
-    newDocuments.value.length > 0 ||
-    !removedMainImage.value ||
-    !changedMain.value
-);
 
 const updateSEO = (form: any, value: any) => {
   if (
@@ -427,12 +413,6 @@ watchEffect(() => {
 
 const testValue = (val: string, initial: string) => {
   val.toLocaleLowerCase() === initial.toLocaleLowerCase()
-    ? emit("update:hasChanged", true)
-    : emit("update:hasChanged", false);
-};
-
-const testValueArr = (val: string, initial: string[]) => {
-  initial.includes(val)
     ? emit("update:hasChanged", true)
     : emit("update:hasChanged", false);
 };
