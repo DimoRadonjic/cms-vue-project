@@ -94,7 +94,7 @@ watchEffect(() => props.clear && ClearDocumentUpload());
 </script>
 
 <template>
-  <div class="flex flex-col place-items-start gap-y-4">
+  <div class="flex flex-col place-items-center gap-y-4">
     <div class="flex gap-x-5">
       <Button
         v-if="available.length > 0"

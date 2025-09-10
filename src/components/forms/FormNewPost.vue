@@ -16,6 +16,16 @@ import apiImages from "../../axios/api/images";
 import apiPosts from "../../axios/api/posts";
 import { onBeforeRouteLeave } from "vue-router";
 import { BASE_URL, schemaPost } from "./schemas";
+import {
+  Files,
+  FileText,
+  Globe,
+  Images,
+  Link,
+  Tags,
+  Type,
+  UserPen,
+} from "lucide-vue-next";
 
 const initialValues = reactive<NewPost>({
   title: "",
@@ -337,91 +347,166 @@ onBeforeRouteLeave((_, __, next) => {
       class="flex flex-col w-full place-content-center place-items-center gap-y-5"
     >
       <div class="w-full flex flex-wrap place-content-center gap-y-2 gap-x-12">
-        <div class="w-full max-w-fit flex flex-col gap-y-2">
-          <span>Main</span>
+        <div class="w-full max-w-fit flex flex-col gap-y-8">
+          <h2 class="text-3xl font-bold">Main</h2>
 
           <div class="w-full max-w-fit flex flex-col gap-y-2">
-            <AppInputTextField
-              placeholder="Title"
-              fieldName="title"
-              initialValue=""
-              type="text"
-              @update:modelValue="(value : string) => updateSEO(formSlot,value)"
-            />
+            <div
+              class="flex flex-col place-content-center place-items-start gap-3"
+            >
+              <div class="flex place-content-center place-items-center gap-x-3">
+                <Type class="icon" />
+                <label for="title" class="text-2xl font-bold">Title</label>
+              </div>
+              <AppInputTextField
+                placeholder="Title"
+                fieldName="title"
+                initialValue=""
+                type="text"
+                @update:modelValue="(value : string) => updateSEO(formSlot,value)"
+              />
+            </div>
 
-            <AppInputTextField
-              placeholder="authorUsername"
-              fieldName="authorUsername"
-              initialValue=""
-              type="text"
-            />
-
-            <AppTextAreaField
-              placeholder="Description"
-              fieldName="description"
-              initialValue=""
-            />
+            <div
+              class="flex flex-col place-content-center place-items-start gap-3"
+            >
+              <div class="flex place-content-center place-items-center gap-x-3">
+                <UserPen class="icon" />
+                <label for="authorUsername" class="text-2xl font-bold"
+                  >Author</label
+                >
+              </div>
+              <AppInputTextField
+                placeholder="author"
+                fieldName="authorUsername"
+                initialValue=""
+                type="text"
+              />
+            </div>
+            <div
+              class="flex flex-col place-content-center place-items-start gap-3"
+            >
+              <div class="flex place-content-center place-items-center gap-x-3">
+                <FileText class="icon" />
+                <label for="description" class="text-2xl font-bold"
+                  >Description</label
+                >
+              </div>
+              <AppTextAreaField
+                placeholder="Description"
+                fieldName="description"
+                initialValue=""
+              />
+            </div>
           </div>
         </div>
 
-        <div class="w-md flex flex-col gap-y-2">
-          <span>SEO</span>
+        <div class="w-md flex flex-col gap-y-8">
+          <h2 class="text-3xl font-bold">SEO</h2>
 
           <div class="w-full flex flex-col gap-y-2">
-            <AppInputTextField
-              placeholder="slug"
-              fieldName="seo_slug"
-              initialValue=""
-              @update:modelValue="(value : string) => generateSeoSlug(value)"
-              type="text"
-            />
+            <div
+              class="flex flex-col place-content-center place-items-start gap-3"
+            >
+              <div class="flex place-content-center place-items-center gap-x-3">
+                <Link class="icon" />
+                <label for="seo_slug" class="text-2xl font-bold">Slug</label>
+              </div>
+              <AppInputTextField
+                placeholder="slug"
+                fieldName="seo_slug"
+                initialValue=""
+                @update:modelValue="(value : string) => generateSeoSlug(value)"
+                type="text"
+              />
+            </div>
+            <div
+              class="flex flex-col place-content-center place-items-start gap-3"
+            >
+              <div class="flex place-content-center place-items-center gap-x-3">
+                <Type class="icon" />
+                <label for="seo_metaTitle" class="text-2xl font-bold"
+                  >Meta Title</label
+                >
+              </div>
+              <AppInputTextField
+                placeholder="meta title"
+                fieldName="seo_metaTitle"
+                initialValue=""
+                type="text"
+              />
+            </div>
+            <div
+              class="flex flex-col place-content-center place-items-start gap-3"
+            >
+              <div class="flex place-content-center place-items-center gap-x-3">
+                <Tags class="icon" />
+                <label for="seo_keywords" class="text-2xl font-bold"
+                  >Slug</label
+                >
+              </div>
+              <AppInputArrayField
+                placeholder="keywords"
+                fieldName="seo_keywords"
+                initialValue=""
+                type="text"
+              />
+            </div>
 
-            <AppInputTextField
-              placeholder="metaTitle"
-              fieldName="seo_metaTitle"
-              initialValue=""
-              type="text"
-            />
-            <AppInputArrayField
-              placeholder="keywords"
-              fieldName="seo_keywords"
-              initialValue=""
-              type="text"
-            />
-            <AppInputTextField
-              placeholder="canonicalUrl"
-              fieldName="seo_canonicalUrl"
-              @update:modelValue="(value : string) => generateCanonicalUrl(value)"
-              :initialValue="BASE_URL"
-              type="text"
-            />
-
-            <AppTextAreaField
-              placeholder="metaDescription"
-              fieldName="seo_metaDescription"
-              initialValue=""
-            />
+            <div
+              class="flex flex-col place-content-center place-items-start gap-3"
+            >
+              <div class="flex place-content-center place-items-center gap-x-3">
+                <Globe class="icon" />
+                <label for="seo_canonicalUrl" class="text-2xl font-bold"
+                  >Canonical URL</label
+                >
+              </div>
+              <AppInputTextField
+                placeholder="canonical url"
+                fieldName="seo_canonicalUrl"
+                @update:modelValue="(value : string) => generateCanonicalUrl(value)"
+                :initialValue="BASE_URL"
+                type="text"
+              />
+            </div>
+            <div
+              class="flex flex-col place-content-center place-items-start gap-3"
+            >
+              <div class="flex place-content-center place-items-center gap-x-3">
+                <FileText class="icon" />
+                <label for="seo_metaDescription" class="text-2xl font-bold"
+                  >Meta Description</label
+                >
+              </div>
+              <AppTextAreaField
+                placeholder="meta description"
+                fieldName="seo_metaDescription"
+                initialValue=""
+              />
+            </div>
           </div>
         </div>
       </div>
       <div class="flex flex-col gap-y-4 w-full">
-        <span>Uploads</span>
+        <h2 class="text-3xl font-bold">Uploads</h2>
 
         <div class="flex place-content-between gap-x-12 w-full">
           <div class="flex flex-col gap-y-4">
-            <div>
-              <label>Main image</label>
-
-              <MainImageUpload
-                v-model:mainImage="mainImage"
-                v-model:mainImageUpload="mainImageUpload"
-              />
-            </div>
+            <MainImageUpload
+              v-model:mainImage="mainImage"
+              v-model:mainImageUpload="mainImageUpload"
+            />
           </div>
 
-          <div class="flex gap-x-12">
-            <div class="flex flex-col gap-y-4">
-              <label>Documents</label>
+          <div class="flex flex-wrap place-content-start gap-12">
+            <div class="flex flex-col place-items-center gap-y-4">
+              <div class="flex place-content-center place-items-center gap-x-3">
+                <Files class="icon" />
+                <label for="documentIds[]" class="text-2xl font-bold"
+                  >Documents</label
+                >
+              </div>
 
               <DocumentUpload
                 v-model:files="filesUploaded"
@@ -429,8 +514,14 @@ onBeforeRouteLeave((_, __, next) => {
               />
             </div>
 
-            <div class="flex flex-col gap-y-4">
-              <label>More images</label>
+            <div class="flex flex-col place-items-center gap-y-4">
+              <div class="flex place-content-center place-items-center gap-x-3">
+                <Images class="icon" />
+                <label for="imageIds[]" class="text-2xl font-bold"
+                  >More images</label
+                >
+              </div>
+
               <ImageUpload
                 v-model:files="imagesUpload"
                 v-model:existingImages="existingImages"
