@@ -35,9 +35,6 @@ import isEqual from "lodash/isEqual";
 import DocumentUpload from "../file-upload/DocumentUpload.vue";
 import ImageUpload from "../image-upload/ImageUpload.vue";
 import MainImageUpload from "../image-upload/mainImageUpload.vue";
-import ModalDocuments from "../../modals/modalDocuments.vue";
-import ModalMainImage from "../../modals/modalMainImage.vue";
-import ModalImage from "../../modals/modalImage.vue";
 
 interface Props {
   reset?: boolean;
