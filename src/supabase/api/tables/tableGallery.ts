@@ -177,6 +177,21 @@ const updateImages = async (images: ImageItem[]) => {
   return Promise.all(updatePromises);
 };
 
+const searchImages = async (search: string) => {
+  try {
+    const { data, error } = await supabase
+      .from(table)
+      .select("*")
+      .ilike("title", `%${search}%`);
+
+    if (error) throw error;
+    return data;
+  } catch (err) {
+    console.error("Error searching images:", err);
+    return [];
+  }
+};
+
 const tableGallery = {
   getGallery,
   addImageToGallery,
@@ -188,6 +203,7 @@ const tableGallery = {
   updateImage,
   updateImages,
   availableImages,
+  searchImages,
 };
 
 export default tableGallery;

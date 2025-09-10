@@ -238,6 +238,21 @@ const updateDocuments = async (documents: DocumentItem[]) => {
   return Promise.all(updatePromises);
 };
 
+const searchDocuments = async (search: string) => {
+  try {
+    const { data, error } = await supabase
+      .from(table)
+      .select("*")
+      .ilike("title", `%${search}%`);
+
+    if (error) throw error;
+    return data;
+  } catch (err) {
+    console.error("Error searching documents:", err);
+    return [];
+  }
+};
+
 const tableDocuments = {
   getDocuments,
   getDocument,
@@ -254,5 +269,6 @@ const tableDocuments = {
   deletePostDocumentLink,
   removeDocuments,
   availableDocuments,
+  searchDocuments,
 };
 export default tableDocuments;
