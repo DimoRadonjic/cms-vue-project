@@ -40,12 +40,17 @@ type InputTypes = "text" | "number";
 
 const inputValue = ref("");
 
+const emit = defineEmits<{
+  (e: "update:modelValue", value: string): void;
+}>();
+
 const handleChange = (value: string) => {
   let newValue = value;
   if (newValue.endsWith(" ")) {
     newValue = newValue.trimEnd() + ", ";
   }
   inputValue.value = newValue;
+  emit("update:modelValue", newValue);
 };
 
 defineProps<{

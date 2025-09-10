@@ -6,6 +6,8 @@
     class="flex flex-col gap-2 w-full"
   >
     <Textarea
+      v-model="inputValue"
+      @update:modelValue="(val) => update(val)"
       rows="5"
       cols="30"
       :placeholder
@@ -30,14 +32,31 @@
 </template>
 
 <script setup lang="ts">
-defineProps<{
+import { ref } from "vue";
+
+const props = defineProps<{
   placeholder: string;
   fieldName: string;
   class?: string;
   inputRoot?: string;
   initalValue?: string | number;
+  handleChange?: (e: any) => string;
+
   readonly?: boolean;
 }>();
+
+const emit = defineEmits<{
+  (e: "update:modelValue", value: string): void;
+}>();
+
+const inputValue = ref();
+
+const update = (value: string | undefined) => {
+  if (!value) return;
+  const newValue = props.handleChange ? props.handleChange(value) : value;
+  inputValue.value = newValue;
+  emit("update:modelValue", newValue);
+};
 </script>
 
 <style scoped></style>

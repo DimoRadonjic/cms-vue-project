@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { FormSubmitEvent } from "@primevue/forms";
 import { zodResolver } from "@primevue/forms/resolvers/zod";
-import { computed, reactive, ref, watch } from "vue";
+import { computed, reactive, ref, watch, watchEffect } from "vue";
 import { useToastService } from "../../composable/toastService/AppToastService";
 import apiPosts from "../../axios/api/posts";
 import type {
@@ -35,6 +35,8 @@ import isEqual from "lodash/isEqual";
 import DocumentUpload from "../file-upload/DocumentUpload.vue";
 import ImageUpload from "../image-upload/ImageUpload.vue";
 import MainImageUpload from "../image-upload/mainImageUpload.vue";
+import { useForm } from "@primevue/forms/useform";
+import { values } from "lodash";
 
 interface Props {
   reset?: boolean;
@@ -81,11 +83,19 @@ const mainImage = ref<ImageItem | null>(
 const mainImageLoading = ref<boolean>(false);
 const mainImageError = ref<boolean>(false);
 const removedMainImage = computed(() => !mainImage.value);
-const changedMain = computed(() =>
-  mainImage.value && mainImage.value.id === initialValues.mainImage.id
-    ? false
-    : true
-);
+const changedMain = computed(() => {
+  if (initialValues.mainImage) {
+    if (mainImage.value && mainImage.value.id !== initialValues.mainImage.id) {
+      return true;
+    }
+  } else {
+    if (mainImage.value) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+});
 
 const imagesError = ref(false);
 const documentError = ref(false);
@@ -102,17 +112,8 @@ const change = computed(
     removedDocuments.value.length > 0 ||
     newImages.value.length > 0 ||
     newDocuments.value.length > 0 ||
-    removedMainImage.value ||
-    changedMain.value
-);
-
-watch(
-  () => change.value,
-  () =>
-    change.value
-      ? emit("update:hasChanged", false)
-      : emit("update:hasChanged", true),
-  { immediate: false }
+    !removedMainImage.value ||
+    !changedMain.value
 );
 
 const updateSEO = (form: any, value: any) => {
@@ -261,7 +262,8 @@ const onFormSubmit = async ({ valid, values }: FormSubmitEvent) => {
     newImages.value.length !== 0 &&
     isEqual(existingDocuments.value, initialDocuments) &&
     isEqual(existingImages.value, initalImages) &&
-    !changedMain;
+    changedMain &&
+    removedMainImage.value;
 
   if (same) {
     showError("Update failed.", new Error("Nothing changed."), 3000);
@@ -366,6 +368,74 @@ const resetForm = () => {
     formRef.value.reset();
   }
 };
+
+watchEffect(() => {
+  if (initialValues.documents.length > 0) {
+    if (
+      removedDocuments.value.length > 0 ||
+      !isEqual(existingDocuments.value, initialValues.documents) ||
+      newDocuments.value.length > 0
+    ) {
+      emit("update:hasChanged", false);
+    } else {
+      emit("update:hasChanged", true);
+    }
+  } else {
+    if (
+      !isEqual(existingDocuments.value, initialValues.documents) ||
+      newDocuments.value.length > 0
+    ) {
+      emit("update:hasChanged", false);
+    } else {
+      emit("update:hasChanged", true);
+    }
+  }
+
+  if (initialValues.images.length > 0) {
+    if (
+      removedImages.value.length > 0 ||
+      !isEqual(existingImages.value, initialValues.images) ||
+      newImages.value.length > 0
+    ) {
+      emit("update:hasChanged", false);
+    } else {
+      emit("update:hasChanged", true);
+    }
+  } else {
+    if (
+      !isEqual(existingImages.value, initialValues.images) ||
+      newImages.value.length > 0
+    ) {
+      emit("update:hasChanged", false);
+    } else {
+      emit("update:hasChanged", true);
+    }
+  }
+
+  if (initialValues.mainImage) {
+    if (mainImage.value && mainImage.value.id !== initialValues.mainImage.id) {
+      emit("update:hasChanged", false);
+    }
+  } else {
+    if (mainImage.value) {
+      emit("update:hasChanged", false);
+    } else {
+      emit("update:hasChanged", true);
+    }
+  }
+});
+
+const testValue = (val: string, initial: string) => {
+  val.toLocaleLowerCase() === initial.toLocaleLowerCase()
+    ? emit("update:hasChanged", true)
+    : emit("update:hasChanged", false);
+};
+
+const testValueArr = (val: string, initial: string[]) => {
+  initial.includes(val)
+    ? emit("update:hasChanged", true)
+    : emit("update:hasChanged", false);
+};
 </script>
 
 <template>
@@ -407,7 +477,7 @@ const resetForm = () => {
                   fieldName="title"
                   :initialValue="initialValues.title"
                   type="text"
-                  @update:modelValue="(value : string) => updateSEO(formSlot,value)"
+                  @update:modelValue="(value : string) => {updateSEO(formSlot,value) , testValue(value, initialValues.title)} "
                 />
               </div>
 
@@ -427,6 +497,7 @@ const resetForm = () => {
                   fieldName="authorUsername"
                   type="text"
                   :initialValue="initialValues.authorUsername"
+                  @update:modelValue="(value : string) => { testValue(value, initialValues.authorUsername)} "
                 />
               </div>
 
@@ -445,6 +516,7 @@ const resetForm = () => {
                   placeholder="Description"
                   fieldName="description"
                   :initialValue="initialValues.description"
+                  @update:modelValue="(value : string) => { testValue(value, initialValues.description)} "
                 />
               </div>
             </div>
@@ -467,7 +539,7 @@ const resetForm = () => {
                   placeholder="slug"
                   fieldName="seo_slug"
                   :initialValue="initialValues.seo_slug"
-                  @update:modelValue="(value : string) => generateSeoSlug(value)"
+                  @update:modelValue="(value : string) => {generateSeoSlug(value) , testValue(value, initialValues.seo_slug)}"
                   type="text"
                 />
               </div>
@@ -486,6 +558,7 @@ const resetForm = () => {
                   placeholder="metaTitle"
                   fieldName="seo_metaTitle"
                   :initialValue="initialValues.seo_metaTitle"
+                  @update:modelValue="(value : string) => { testValue(value, initialValues.seo_metaTitle)} "
                   type="text"
                 />
               </div>
@@ -504,6 +577,7 @@ const resetForm = () => {
                 placeholder="keywords"
                 fieldName="seo_keywords"
                 :initialValue="initialValues.seo_keywords"
+                @update:modelValue="(value : string) => { testValue(value, initialValues.seo_keywords.join(', '))} "
                 type="text"
               />
             </div>
@@ -520,7 +594,7 @@ const resetForm = () => {
               <AppInputTextField
                 placeholder="canonicalUrl"
                 fieldName="seo_canonicalUrl"
-                @update:modelValue="(value : string) => generateCanonicalUrl(value)"
+                @update:modelValue="(value : string) => {generateCanonicalUrl(value), testValue(value, initialValues.seo_canonicalUrl)}"
                 :initialValue="initialValues.seo_canonicalUrl"
                 type="text"
               />
@@ -539,6 +613,7 @@ const resetForm = () => {
                 placeholder="metaDescription"
                 fieldName="seo_metaDescription"
                 :initialValue="initialValues.seo_metaDescription"
+                @update:modelValue="(value : string) => { testValue(value, initialValues.seo_metaDescription)}"
               />
             </div>
           </div>

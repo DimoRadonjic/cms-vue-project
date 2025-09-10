@@ -73,10 +73,6 @@ const editPost = () => {
 const updatePost = () => {
   editingPost.value = true;
 };
-
-const handleInput = () => {
-  hasChanged.value = true;
-};
 </script>
 
 <template>
@@ -88,7 +84,6 @@ const handleInput = () => {
       @uploading-change="uploading = $event"
       v-model:data="initialValues"
       v-model:hasChanged="hasChanged"
-      @input="handleInput"
     >
       <template #header>
         <h1
