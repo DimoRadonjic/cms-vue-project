@@ -11,6 +11,7 @@ type CardProps = {
   item: Item;
   itemsSelected: Item[];
   addSelectedItem: (item: Item) => void;
+  openedID: string | number | null;
 };
 
 const props = defineProps<CardProps>();
@@ -19,17 +20,33 @@ const { navigateTo } = useAppRouter();
 const { showError, showSuccess } = useToastService();
 
 const emit = defineEmits(["refetch"]);
+const openedID = defineModel<string | number | null>("openedID", {
+  default: null,
+});
 
-const itemHovered = ref();
+const imageToView = defineModel<ImageItem | undefined>("imageToView", {
+  default: undefined,
+});
+
+const openModal = defineModel<boolean>("openModal");
+
+const documentToView = ref<DocumentItem | undefined>(undefined);
+
 const rename = ref<boolean>(false);
 const newTitle = ref<string>(props.item.title);
 
-const onMouseOver = (id: string) => {
-  if (rename) {
-    itemHovered.value = itemHovered.value;
+const isOpen = computed(() => {
+  if (!openedID.value) return false;
+
+  if (props.type === "image") {
+    const openedIdStr = String(openedID.value).toLowerCase();
+    const itemIdStr = String(props.item.id).toLowerCase();
+
+    return openedIdStr === itemIdStr;
+  } else {
+    return openedID.value === props.item.id;
   }
-  itemHovered.value = id;
-};
+});
 
 const renameImage = async (image: ImageItem) => {
   const { post_ids, ...rest } = image;
@@ -79,21 +96,34 @@ const renameItem = async () => {
   }
 };
 
+const openMore = (item: Item) => {
+  if (props.type === "image") {
+    if (!imageToView.value) imageToView.value = item;
+
+    openedID.value = openedID.value === item.id ? null : item.id;
+  } else {
+    if (!documentToView.value) documentToView.value = item;
+
+    openedID.value = openedID.value === item.id ? null : item.id;
+  }
+};
+
 const imageUrl = computed(() =>
   props.type === "document" ? props.item.preview_img : props.item.url
 );
 
-const handleNavigation = () =>
-  props.type === "document"
-    ? navigateTo("document-view", { id: props.item.id })
-    : "";
+const handleView = () => {
+  if (props.type === "document") {
+    navigateTo("document-view", { id: props.item.id });
+  } else {
+    openModal.value = true;
+  }
+};
 </script>
 
 <template>
   <div
     class="flex flex-col h-fit gap-6 rounded-xl overflow-hidden pb-4 text-center bg-primary shadow-md cursor-pointer"
-    @mouseenter="onMouseOver(item.id)"
-    @mouseleave="onMouseOver('')"
   >
     <div class="relative" @click.stop="addSelectedItem(item)">
       <img
@@ -120,26 +150,38 @@ const handleNavigation = () =>
         type="text"
         class="min-w-full max-w-3xl"
       />
-      <h2 class="line-clamp-2" v-else>
-        {{ item.title }}
-      </h2>
+      <div v-else class="flex place-content-between place-items-center">
+        <h2 class="line-clamp-2">
+          {{ item.title }}
+        </h2>
+
+        <Button
+          :label="!isOpen ? 'More' : 'Close'"
+          @click.stop="openMore(item)"
+        />
+      </div>
       <TransitionGroup name="fade-slide" v-if="!rename">
         <Button
-          v-if="itemHovered == item.id"
+          v-if="isOpen"
           label="Rename"
           class="transition-all duration-300"
           @click.stop="rename = true"
+          key="rename"
         />
 
         <Button
-          v-if="itemHovered == item.id"
+          v-if="isOpen"
           label="View"
-          @click="handleNavigation"
+          @click="handleView"
           class="transition-all duration-300"
+          key="view"
         />
       </TransitionGroup>
 
-      <Button v-else label="Done" @click.stop="renameItem"></Button>
+      <div v-else class="flex flex-col gap-y-4">
+        <Button label="Done" @click.stop="renameItem"></Button>
+        <Button label="Cancel" @click.stop="rename = false"></Button>
+      </div>
     </div>
   </div>
 </template>

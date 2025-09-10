@@ -75,7 +75,7 @@ const updatePost = () => {
 };
 
 const handleInput = () => {
-  hasChanged.value = false;
+  hasChanged.value = true;
 };
 </script>
 
@@ -87,8 +87,8 @@ const handleInput = () => {
       v-if="postDetail && !loading && initialValues"
       @uploading-change="uploading = $event"
       v-model:data="initialValues"
-      @input="handleInput"
       v-model:hasChanged="hasChanged"
+      @input="handleInput"
     >
       <template #header>
         <h1

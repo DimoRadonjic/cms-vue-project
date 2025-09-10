@@ -3,35 +3,38 @@ import type { DocumentItem } from "../types/types";
 import ModalBase from "./modalBase.vue";
 
 interface Props {
-  modalOpen: boolean;
   documents: DocumentItem[];
-  existingDocuments: DocumentItem[];
 }
 
-const props = defineProps<Props>();
+defineProps<Props>();
+
+const documentModal = defineModel("documentModal", { default: false });
+const existingDocuments = defineModel<DocumentItem[]>("existingDocuments", {
+  default: [],
+});
 
 const emit = defineEmits(["update:modalOpen", "update:existingDocuments"]);
 
 const contains = (image: DocumentItem) => {
-  const inImages = props.existingDocuments.find(
+  const inImages = existingDocuments.value.find(
     ({ title }) => image.title === title
   );
   if (inImages) return true;
   return false;
 };
 const close = () => {
-  emit("update:modalOpen", false);
+  documentModal.value = false;
 };
 
 const AddDocument = (image: DocumentItem) => {
   if (contains(image)) return;
 
-  emit("update:existingDocuments", [...props.existingDocuments, image]);
+  existingDocuments.value = [...existingDocuments.value, image];
 };
 </script>
 
 <template>
-  <ModalBase :modalOpen>
+  <ModalBase v-model:modalOpen="documentModal">
     <template #body>
       <div class="bg-primary h-fit w-fit rounded-xl p-6 space-y-4">
         <h2 class="text-2xl font-semibold">Choose Documents</h2>

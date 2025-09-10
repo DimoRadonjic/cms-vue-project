@@ -2,6 +2,7 @@
 import { ref, watch } from "vue";
 import type { Data, DocumentItem, ImageItem, Item } from "../../types/types";
 import AppSimpleTableHeader from "../AppSimpleTableHeader.vue";
+import ModalViewImage from "../../modals/modalViewImage.vue";
 
 type CardTableProps =
   | {
@@ -43,9 +44,14 @@ const props = defineProps<CardTableProps>();
 
 const itemsSelected = ref<Data>([]);
 
+const imageToView = ref<ImageItem | undefined>(undefined);
+
 const searching = ref<boolean>(false);
+const openImageModal = ref<boolean>(false);
 
 const localData = ref<(ImageItem | DocumentItem)[]>([]);
+
+const openedID = ref<string | null>(null);
 
 const addSelectedItem = (item: Item) => {
   if (itemsSelected.value.includes(item)) {
@@ -61,6 +67,14 @@ watch(
   () => props.data,
   (newVal) => {
     localData.value = [...newVal];
+  },
+  { immediate: true }
+);
+
+watch(
+  () => openImageModal.value,
+  (newVal) => {
+    console.log("imageModal parent", openImageModal.value);
   },
   { immediate: true }
 );
@@ -129,16 +143,25 @@ watch(
       </template>
 
       <template v-if="localData.length > 0 && !loading && !searching">
-        <div class="w-full h-full" v-for="image in localData" :key="image.id">
+        <div class="w-full h-full" v-for="item in localData" :key="item.id">
           <Card
             :type
             :addSelectedItem="addSelectedItem"
-            :item="image"
+            :item="item"
             :itemsSelected
+            v-model:openedID="openedID"
             @refetch="onRefetch"
+            v-model:imageToView="imageToView"
+            v-model:openModal="openImageModal"
           />
         </div>
       </template>
     </div>
   </div>
+
+  <ModalViewImage
+    v-if="openImageModal"
+    v-model:imageModal="openImageModal"
+    :image="imageToView"
+  />
 </template>

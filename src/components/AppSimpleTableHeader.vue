@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed, watch, watchEffect } from "vue";
+import { ref, computed, watch } from "vue";
 import { useAppRouter } from "../composable/router/useAppRouter";
 import type { Data, DocumentItem } from "../types/types";
 import { useToastService } from "../composable/toastService/AppToastService";

@@ -7,23 +7,22 @@ import { useDocuments } from "../../composable/documents/useDocuments";
 interface Props {
   documents?: DocumentItem[];
   clear?: boolean;
-  existingDocuments: DocumentItem[];
   postID?: string;
-  files: File[];
-  removedDocuments?: DocumentItem[];
 }
 
 const props = defineProps<Props>();
 
-const emit = defineEmits([
-  "update:files",
-  "update:existingDocuments",
-  "update:removedDocuments",
-]);
+const available = defineModel<DocumentItem[]>("available", { default: [] });
+const filesUploaded = defineModel<File[]>("files", { default: [] });
+const removedDocuments = defineModel<DocumentItem[]>("removedDocuments", {
+  default: [],
+});
+const documentModal = defineModel<boolean>("documentModal", { default: false });
+const existingDocuments = defineModel<DocumentItem[]>("existingDocuments", {
+  default: [],
+});
 
 const { getAvailableDocuments } = useDocuments();
-
-const available = ref<DocumentItem[]>([]);
 
 watchEffect(async () => {
   const data = await getAvailableDocuments(props.postID ?? "");
@@ -33,16 +32,7 @@ watchEffect(async () => {
   }
 });
 
-const filesUploaded = ref<File[]>([]);
-
-const existingDocuments = ref<DocumentItem[]>(
-  props.documents ? [...props.documents] : []
-);
-
-const removedDocuments = ref<DocumentItem[]>([]);
-
 const documentsUploading = ref<boolean>(false);
-const documentModal = ref<boolean>(false);
 const fileUploadRef = ref();
 const documentError = ref(false);
 
@@ -101,9 +91,6 @@ const toggleDocumentModal = () => {
 };
 
 watchEffect(() => props.clear && ClearDocumentUpload());
-watchEffect(() => emit("update:existingDocuments", existingDocuments.value));
-watchEffect(() => emit("update:removedDocuments", removedDocuments.value));
-watchEffect(() => emit("update:files", filesUploaded.value));
 </script>
 
 <template>
@@ -175,7 +162,7 @@ watchEffect(() => emit("update:files", filesUploaded.value));
 
   <ModalDocuments
     v-if="documentModal"
-    v-model:modalOpen="documentModal"
+    v-model:documentModal="documentModal"
     :documents="available"
     v-model:existingDocuments="existingDocuments"
   />

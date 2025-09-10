@@ -35,6 +35,7 @@ import isEqual from "lodash/isEqual";
 import DocumentUpload from "../file-upload/DocumentUpload.vue";
 import ImageUpload from "../image-upload/ImageUpload.vue";
 import MainImageUpload from "../image-upload/mainImageUpload.vue";
+import ModalDocuments from "../../modals/modalDocuments.vue";
 
 interface Props {
   reset?: boolean;
@@ -91,6 +92,11 @@ const imagesError = ref(false);
 const documentError = ref(false);
 const uploading = ref<boolean>(false);
 const clearFiles = ref<boolean>(false);
+const documentModal = ref<boolean>(false);
+const availableDocuments = ref<DocumentItem[]>([]);
+const availableImages = ref<ImageItem[]>([]);
+const imagesModal = ref<boolean>(false);
+const mainImageModal = ref<boolean>(false);
 
 const change = computed(
   () =>
@@ -566,6 +572,7 @@ const resetForm = () => {
                 <DocumentUpload
                   v-model:files="newDocuments"
                   v-model:existingDocuments="existingDocuments"
+                  v-model:available="availableDocuments"
                   v-model:removedDocuments="removedDocuments"
                   :documents="documents"
                   :postID="initialValues.id"
@@ -613,4 +620,11 @@ const resetForm = () => {
       </div>
     </slot>
   </Form>
+
+  <ModalDocuments
+    v-if="documentModal"
+    v-model:documentModal="documentModal"
+    :documents="availableDocuments"
+    v-model:existingDocuments="existingDocuments"
+  />
 </template>
