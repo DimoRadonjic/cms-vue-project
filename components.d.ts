@@ -39,6 +39,7 @@ declare module 'vue' {
     FormField: typeof import('@primevue/forms/formfield')['default']
     FormLogin: typeof import('./src/components/forms/FormLogin.vue')['default']
     FormNewDocument: typeof import('./src/components/forms/FormNewDocument.vue')['default']
+    FormNewPost: typeof import('./src/components/forms/FormNewPost.vue')['default']
     FormRegister: typeof import('./src/components/forms/FormRegister.vue')['default']
     IconField: typeof import('primevue/iconfield')['default']
     ImageLink: typeof import('./src/components/ImageLink.vue')['default']
