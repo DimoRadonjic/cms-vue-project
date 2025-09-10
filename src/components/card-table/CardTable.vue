@@ -70,14 +70,6 @@ watch(
   },
   { immediate: true }
 );
-
-watch(
-  () => openImageModal.value,
-  () => {
-    console.log("imageModal parent", openImageModal.value);
-  },
-  { immediate: true }
-);
 </script>
 
 <template>

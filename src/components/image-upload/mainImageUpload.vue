@@ -64,7 +64,6 @@ const ClearImageUpload = () => {
 };
 
 const toggleImageModal = () => {
-  console.log("here", !mainImageModal.value);
   mainImageModal.value = !mainImageModal.value;
 };
 

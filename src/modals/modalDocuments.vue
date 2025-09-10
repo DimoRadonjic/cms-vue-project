@@ -14,8 +14,6 @@ const existingDocuments = defineModel<DocumentItem[]>("existingDocuments", {
   default: [],
 });
 
-console.log("available", existingDocuments.value);
-
 const contains = (image: DocumentItem) => {
   const inImages = existingDocuments.value.find(
     ({ title }) => image.title === title

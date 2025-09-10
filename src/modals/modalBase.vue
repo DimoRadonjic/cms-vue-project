@@ -11,10 +11,7 @@ const close = () => {
 };
 
 const handleClickOutside = (event: MouseEvent) => {
-  console.log("body out", body.value);
   if (body.value && !body.value.contains(event.target)) {
-    console.log("body in", body.value);
-
     close();
   }
 };

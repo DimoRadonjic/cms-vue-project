@@ -78,11 +78,6 @@ const handleDeletionImage = (image: ImageItem) => {
     ({ id }) => id === image.id
   );
 
-  console.log(
-    "test",
-    existingImages.value.filter(({ id }) => id !== image.id)
-  );
-
   const newArr = existingImages.value.filter(({ id }) => id !== image.id);
 
   existingImages.value = newArr;
@@ -95,7 +90,6 @@ const handleDeletionFile = (image: File) => {
 };
 
 watchEffect(() => props.clear && ClearImagesUpload());
-watchEffect(() => console.log("imageModal", imageModal.value));
 </script>
 
 <template>
