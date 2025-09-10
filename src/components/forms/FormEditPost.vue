@@ -607,6 +607,7 @@ const testValue = (val: string, initial: string) => {
             <MainImageUpload
               v-model:mainImage="mainImage"
               v-model:mainImageUpload="mainImageUpload"
+              v-model:available="availableImages"
               :postID="initialValues.id"
               :clear="clearFiles"
             />
@@ -623,10 +624,9 @@ const testValue = (val: string, initial: string) => {
                 </div>
                 <DocumentUpload
                   v-model:files="newDocuments"
-                  v-model:existingDocuments="existingDocuments"
+                  v-model:existingDocuments="documents"
                   v-model:available="availableDocuments"
                   v-model:removedDocuments="removedDocuments"
-                  :documents="documents"
                   :postID="initialValues.id"
                   :clear="clearFiles"
                 />
@@ -644,10 +644,9 @@ const testValue = (val: string, initial: string) => {
 
                 <ImageUpload
                   v-model:files="newImages"
-                  v-model:existingImages="existingImages"
+                  v-model:existingImages="images"
                   v-model:available="availableImages"
                   v-model:removedImages="removedImages"
-                  :images="images"
                   :postID="initialValues.id"
                   :clear="clearFiles"
                 />

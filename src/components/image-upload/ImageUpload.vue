@@ -6,7 +6,6 @@ import ImageLink from "../ImageLink.vue";
 import ModalImage from "../../modals/modalImage.vue";
 
 interface Props {
-  images?: ImageItem[];
   clear?: boolean;
   postID?: string;
 }
@@ -64,6 +63,8 @@ const ClearImagesUpload = () => {
   imagesUploadRef.value?.clear();
   imageFiles.value = [];
   removedImages.value = [...existingImages.value];
+  available.value = [...available.value, ...existingImages.value];
+
   existingImages.value = [];
   imagesError.value = false;
 };
@@ -77,11 +78,16 @@ const handleDeletionImage = (image: ImageItem) => {
     ({ id }) => id === image.id
   );
 
-  existingImages.value = existingImages.value.filter(
-    ({ id }) => id !== image.id
+  console.log(
+    "test",
+    existingImages.value.filter(({ id }) => id !== image.id)
   );
 
-  removed && removedImages.value.push(removed);
+  const newArr = existingImages.value.filter(({ id }) => id !== image.id);
+
+  existingImages.value = newArr;
+
+  removed && removedImages.value.push(removed) && available.value.push(removed);
 };
 
 const handleDeletionFile = (image: File) => {
@@ -89,6 +95,7 @@ const handleDeletionFile = (image: File) => {
 };
 
 watchEffect(() => props.clear && ClearImagesUpload());
+watchEffect(() => console.log("imageModal", imageModal.value));
 </script>
 
 <template>
@@ -132,7 +139,7 @@ watchEffect(() => props.clear && ClearImagesUpload());
       v-if="imageFiles.length > 0 || existingImages.length > 0"
     >
       <div v-for="image in imageFiles">
-        <div class="flex gap-x-4 place-items-center">
+        <div class="flex gap-x-4 place-items-center" :key="image.name">
           <AppButtonDelete :clickEvent="() => handleDeletionFile(image)" />
 
           <ImageLink :image />
@@ -140,7 +147,7 @@ watchEffect(() => props.clear && ClearImagesUpload());
       </div>
 
       <div v-for="image in existingImages">
-        <div class="flex gap-x-4 place-items-center">
+        <div class="flex gap-x-4 place-items-center" :key="image.id">
           <AppButtonDelete :clickEvent="() => handleDeletionImage(image)" />
 
           <ImageLink :image />
@@ -158,8 +165,9 @@ watchEffect(() => props.clear && ClearImagesUpload());
 
   <ModalImage
     v-if="imageModal"
-    v-model:imageModal="imageModal"
-    :images="available"
+    v-model:imagesModal="imageModal"
+    v-model:availableImages="available"
     v-model:existingImages="existingImages"
+    v-model:removedImages="removedImages"
   />
 </template>

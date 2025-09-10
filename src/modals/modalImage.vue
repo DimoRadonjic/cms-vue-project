@@ -1,15 +1,17 @@
 <script setup lang="ts">
+import { nextTick } from "vue";
 import type { ImageItem } from "../types/types";
 import ModalBase from "./modalBase.vue";
 
-interface Props {
-  images: ImageItem[];
-}
-
-defineProps<Props>();
-
-const imageModal = defineModel<boolean>("imageModal", { default: false });
+const imagesModal = defineModel<boolean>("imagesModal", { default: false });
 const existingImages = defineModel<ImageItem[]>("existingImages", {
+  default: [],
+});
+const removedImages = defineModel<ImageItem[]>("removedImages", {
+  default: [],
+});
+
+const availableImages = defineModel<ImageItem[]>("availableImages", {
   default: [],
 });
 
@@ -22,23 +24,39 @@ const contains = (image: ImageItem) => {
 };
 
 const close = () => {
-  imageModal.value = false;
+  imagesModal.value = false;
 };
 
-const AddImage = (image: ImageItem) => {
+const AddImage = async (image: ImageItem) => {
   if (contains(image)) return;
 
+  if (removedImages.value.includes(image)) {
+    removedImages.value = removedImages.value.filter(
+      ({ id }) => id !== image.id
+    );
+  }
+
+  const newAvaiableImages = availableImages.value.filter(
+    ({ id }) => id !== image.id
+  );
+
+  availableImages.value = newAvaiableImages;
+
   existingImages.value = [...existingImages.value, image];
+
+  await nextTick();
+
+  if (newAvaiableImages.length === 0) imagesModal.value = false;
 };
 </script>
 
 <template>
-  <ModalBase v-model:modalOpen="imageModal">
+  <ModalBase v-model:modalOpen="imagesModal">
     <template #body>
       <div class="bg-primary h-fit w-fit rounded-xl p-6 space-y-4">
         <h2 class="text-2xl font-semibold">Choose Images</h2>
         <div
-          v-for="image in images"
+          v-for="image in availableImages"
           class="flex gap-5 place-content-start place-items-center text-xl"
           :key="image.id"
         >

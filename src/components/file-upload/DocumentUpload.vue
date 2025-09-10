@@ -5,7 +5,6 @@ import ModalDocuments from "../../modals/modalDocuments.vue";
 import { useDocuments } from "../../composable/documents/useDocuments";
 
 interface Props {
-  documents?: DocumentItem[];
   clear?: boolean;
   postID?: string;
 }
@@ -64,21 +63,19 @@ const ClearDocumentUpload = () => {
   fileUploadRef.value?.clear();
   filesUploaded.value = [];
   removedDocuments.value = [...existingDocuments.value];
+  available.value = [...available.value, ...existingDocuments.value];
 
   existingDocuments.value = [];
   documentError.value = false;
 };
 
 const handleDeletionDocument = (document: DocumentItem) => {
-  const removed: DocumentItem | undefined = existingDocuments.value.find(
-    ({ id }) => id === document.id
-  );
-
   existingDocuments.value = existingDocuments.value.filter(
     ({ id }) => id !== document.id
   );
 
-  removed && removedDocuments.value.push(removed);
+  available.value.push(document);
+  removedDocuments.value.push(document);
 };
 
 const handleDeletionFile = (document: File) => {
@@ -163,7 +160,8 @@ watchEffect(() => props.clear && ClearDocumentUpload());
   <ModalDocuments
     v-if="documentModal"
     v-model:documentModal="documentModal"
-    :documents="available"
+    v-model:availableDocuments="available"
+    v-model:removedDocuments="removedDocuments"
     v-model:existingDocuments="existingDocuments"
   />
 </template>

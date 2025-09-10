@@ -21,7 +21,7 @@ const mainImageModal = defineModel<boolean>("mainImageModal", {
 });
 const mainImageUpload = defineModel<File | undefined>("mainImageUpload");
 const available = defineModel<ImageItem[]>("available", { default: [] });
-const mainImage = defineModel<ImageItem | null>("mainImage");
+const mainImage = defineModel<ImageItem | null>("mainImage", { default: null });
 
 const removed = ref<ImageItem>();
 
@@ -55,7 +55,10 @@ const ClearImageUpload = () => {
   mainImageUploadRef.value?.clear();
   mainImageUpload.value = undefined;
   mainImageError.value = false;
-  if (mainImage.value) removed.value = mainImage.value;
+  if (mainImage.value) {
+    removed.value = mainImage.value;
+    available.value.push(mainImage.value);
+  }
 
   mainImage.value = null;
 };
@@ -171,7 +174,7 @@ watchEffect(() => props.clear && ClearImageUpload());
   <ModalMainImage
     v-if="mainImageModal"
     v-model:mainImageModal="mainImageModal"
-    :images="available"
+    v-model:availableImages="available"
     v-model:mainImage="mainImage"
   />
 </template>

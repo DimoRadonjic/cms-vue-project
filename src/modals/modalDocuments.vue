@@ -1,19 +1,20 @@
 <script setup lang="ts">
+import { nextTick } from "vue";
 import type { DocumentItem } from "../types/types";
 import ModalBase from "./modalBase.vue";
 
-interface Props {
-  documents: DocumentItem[];
-}
-
-defineProps<Props>();
-
 const documentModal = defineModel("documentModal", { default: false });
+const availableDocuments = defineModel<DocumentItem[]>("availableDocuments", {
+  default: [],
+});
+const removedDocuments = defineModel<DocumentItem[]>("removedDocuments", {
+  default: [],
+});
 const existingDocuments = defineModel<DocumentItem[]>("existingDocuments", {
   default: [],
 });
 
-const emit = defineEmits(["update:modalOpen", "update:existingDocuments"]);
+console.log("available", existingDocuments.value);
 
 const contains = (image: DocumentItem) => {
   const inImages = existingDocuments.value.find(
@@ -26,10 +27,24 @@ const close = () => {
   documentModal.value = false;
 };
 
-const AddDocument = (image: DocumentItem) => {
-  if (contains(image)) return;
+const AddDocument = async (document: DocumentItem) => {
+  if (contains(document)) return;
 
-  existingDocuments.value = [...existingDocuments.value, image];
+  if (removedDocuments.value.includes(document)) {
+    removedDocuments.value = removedDocuments.value.filter(
+      ({ id }) => id !== document.id
+    );
+  }
+
+  availableDocuments.value = availableDocuments.value.filter(
+    ({ id }) => id !== document.id
+  );
+
+  existingDocuments.value = [...existingDocuments.value, document];
+
+  await nextTick();
+
+  if (availableDocuments.value.length === 0) documentModal.value = false;
 };
 </script>
 
@@ -39,7 +54,7 @@ const AddDocument = (image: DocumentItem) => {
       <div class="bg-primary h-fit w-fit rounded-xl p-6 space-y-4">
         <h2 class="text-2xl font-semibold">Choose Documents</h2>
         <div
-          v-for="document in documents"
+          v-for="document in availableDocuments"
           class="flex gap-5 place-content-start place-items-center text-xl"
           :key="document.id"
         >
