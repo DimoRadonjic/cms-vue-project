@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { nextTick } from "vue";
 import type { ImageItem } from "../types/types";
 import ModalBase from "./modalBase.vue";
 
