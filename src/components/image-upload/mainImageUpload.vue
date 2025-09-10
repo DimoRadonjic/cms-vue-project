@@ -3,39 +3,27 @@ import { computed, ref, watchEffect } from "vue";
 import type { ImageItem } from "../../types/types";
 import { useGallery } from "../../composable/gallery/useGallery";
 import { ImagePlus, Wallpaper } from "lucide-vue-next";
-import ModalMainImage from "../../modals/modalMainImage.vue";
 import { createLink } from "../utils";
+import ModalMainImage from "../../modals/modalMainImage.vue";
 
 interface Props {
-  mainImage: ImageItem | null;
-  mainImageUpload: File | undefined;
   images?: ImageItem[];
   clear?: boolean;
-  existingImages: ImageItem[];
   postID?: string;
 }
 
 const props = defineProps<Props>();
-const emit = defineEmits([
-  "update:mainImageUpload",
-  "update:mainImage",
-  "update:removedImages",
-]);
 
 const { getAvailableImages } = useGallery();
 
-const mainImage = ref<ImageItem | null>(
-  props.mainImage ? { ...props.mainImage } : null
-);
-
-const existingImages = computed<ImageItem[]>(() =>
-  mainImage.value ? [mainImage.value] : []
-);
-const mainImageUpload = ref<File | undefined>();
+const mainImageModal = defineModel<boolean>("mainImageModal", {
+  default: false,
+});
+const mainImageUpload = defineModel<File | undefined>("mainImageUpload");
+const available = defineModel<ImageItem[]>("available", { default: [] });
+const mainImage = defineModel<ImageItem | null>("mainImage");
 
 const removed = ref<ImageItem>();
-
-const available = ref<ImageItem[]>([]);
 
 watchEffect(async () => {
   const data = await getAvailableImages(props.postID ?? "");
@@ -45,7 +33,6 @@ watchEffect(async () => {
   }
 });
 const mainImageLoading = ref<boolean>(false);
-const imageModal = ref<boolean>(false);
 const mainImageError = ref(false);
 const mainImageUploadRef = ref();
 
@@ -74,7 +61,8 @@ const ClearImageUpload = () => {
 };
 
 const toggleImageModal = () => {
-  imageModal.value = !imageModal.value;
+  console.log("here", !mainImageModal.value);
+  mainImageModal.value = !mainImageModal.value;
 };
 
 const mainImageLink = computed<string>(() => {
@@ -82,8 +70,6 @@ const mainImageLink = computed<string>(() => {
 });
 
 watchEffect(() => props.clear && ClearImageUpload());
-watchEffect(() => emit("update:mainImageUpload", mainImageUpload.value));
-watchEffect(() => emit("update:mainImage", mainImage.value));
 </script>
 
 <template>
@@ -168,7 +154,7 @@ watchEffect(() => emit("update:mainImage", mainImage.value));
             customUpload
           />
           <Button
-            v-if="existingImages.length || mainImage || mainImageUpload"
+            v-if="mainImage || mainImageUpload"
             label="Clear"
             :disabled="mainImageLoading"
             @click="ClearImageUpload"
@@ -181,9 +167,10 @@ watchEffect(() => emit("update:mainImage", mainImage.value));
       Failed to upload Images
     </div>
   </div>
+
   <ModalMainImage
-    v-if="imageModal"
-    v-model:modalOpen="imageModal"
+    v-if="mainImageModal"
+    v-model:mainImageModal="mainImageModal"
     :images="available"
     v-model:mainImage="mainImage"
   />

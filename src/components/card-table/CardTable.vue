@@ -73,7 +73,7 @@ watch(
 
 watch(
   () => openImageModal.value,
-  (newVal) => {
+  () => {
     console.log("imageModal parent", openImageModal.value);
   },
   { immediate: true }

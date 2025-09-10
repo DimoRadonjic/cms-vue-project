@@ -11,7 +11,10 @@ const close = () => {
 };
 
 const handleClickOutside = (event: MouseEvent) => {
+  console.log("body out", body.value);
   if (body.value && !body.value.contains(event.target)) {
+    console.log("body in", body.value);
+
     close();
   }
 };
@@ -28,9 +31,9 @@ onBeforeUnmount(() => {
 <template>
   <div
     class="fixed top-0 left-0 right-0 z-10 bg-black/25 min-w-full min-h-full flex place-content-center place-items-center"
-    @click="close"
+    @click.self="close"
     ref="modal"
   >
-    <slot name="body" ref="body"></slot>
+    <slot name="body" ref="body" class="h-full w-full"></slot>
   </div>
 </template>

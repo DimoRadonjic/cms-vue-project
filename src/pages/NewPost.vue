@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { FormSubmitEvent } from "@primevue/forms";
 import { zodResolver } from "@primevue/forms/resolvers/zod";
-import { computed, reactive, ref } from "vue";
+import { reactive, ref } from "vue";
 import z from "zod";
 import { useToastService } from "../composable/toastService/AppToastService";
 import apiPosts from "../axios/api/posts";
@@ -13,13 +13,12 @@ import type {
 } from "../types/types";
 import { useAppRouter } from "../composable/router/useAppRouter";
 import { usePosts } from "../composable";
-import FileUpload from "primevue/fileupload";
 import { onBeforeRouteLeave } from "vue-router";
-import { ImagePlus } from "lucide-vue-next";
 import apiImages from "../axios/api/images";
 import apiDocuments from "../axios/api/documents";
 import DocumentUpload from "../components/file-upload/DocumentUpload.vue";
 import ImageUpload from "../components/image-upload/ImageUpload.vue";
+import MainImageUpload from "../components/image-upload/mainImageUpload.vue";
 
 const BASE_URL = "https://www.example.com/";
 
@@ -95,6 +94,7 @@ const mainImageUpload = ref<any>();
 const imagesUpload = ref<File[]>([]);
 const existingImages = ref<ImageItem[]>([]);
 const existingDocuments = ref<DocumentItem[]>([]);
+const mainImage = ref<ImageItem>();
 
 const mainImageUploadRef = ref();
 
@@ -105,12 +105,6 @@ const documentError = ref(false);
 const mainImageLoading = ref<boolean>(false);
 const mainImageError = ref<boolean>(false);
 const uploading = ref<boolean>(false);
-
-const mainImageLink = computed(() => {
-  return mainImageUpload.value
-    ? URL.createObjectURL(mainImageUpload.value)
-    : "";
-});
 
 const generateSeoSlug = (title: string) => {
   return title
@@ -169,21 +163,6 @@ const updateSEO = (form: any, value: any) => {
       form.seo_metaTitle.value = value;
     }
   }
-};
-
-const onUploadImage = async (event: any) => {
-  const files: File[] = event.files || event.target?.files;
-
-  mainImageLoading.value = true;
-
-  if (!files) {
-    console.error("Nema fajlova u eventu (image upload):", event);
-    return;
-  }
-
-  mainImageUpload.value = files[0];
-
-  mainImageLoading.value = false;
 };
 
 const ClearMainImageUpload = () => {
@@ -478,52 +457,10 @@ onBeforeRouteLeave((_, __, next) => {
             <div>
               <label>Main image</label>
 
-              <div class="h-[300px] w-fit">
-                <img
-                  v-if="mainImageLink"
-                  :src="mainImageLink"
-                  alt="main-image"
-                  class="w-sm object-cover h-full"
-                  @load="mainImageLoading = false"
-                  @error="
-                    mainImageLoading = false;
-                    mainImageError = true;
-                  "
-                />
-
-                <div
-                  v-if="!mainImageUpload && !mainImageLoading"
-                  class="mt-4 relative w-full h-full"
-                >
-                  <ImagePlus class="w-full h-full z-10" />
-
-                  <FileUpload
-                    ref="mainImageUploadRef"
-                    mode="basic"
-                    :chooseLabel="mainImageLink ? 'Change' : 'Choose'"
-                    class="!absolute top-0 w-full h-full !opacity-0 !z-0"
-                    name="mainImageId"
-                    accept="image/jpeg"
-                    @select="onUploadImage($event)"
-                    :auto="true"
-                    customUpload
-                    :disabled="uploading"
-                  />
-                </div>
-              </div>
-
-              <div v-if="mainImageError" class="text-red-500 text-sm">
-                Failed to load image
-              </div>
-            </div>
-
-            <div class="flex place-content-between">
-              <Button
-                v-if="mainImageLink"
-                label="Clear"
-                :disabled="uploading"
-                @click="ClearMainImageUpload"
-              ></Button>
+              <MainImageUpload
+                v-model:mainImage="mainImage"
+                v-model:mainImageUpload="mainImageUpload"
+              />
             </div>
           </div>
 

@@ -1,37 +1,33 @@
 <script setup lang="ts">
-import { ref } from "vue";
 import type { ImageItem } from "../types/types";
 import ModalBase from "./modalBase.vue";
 
 interface Props {
-  modalOpen: boolean;
   images: ImageItem[];
-  mainImage: ImageItem | null;
+  mainImage: ImageItem | null | undefined;
 }
 
-const props = defineProps<Props>();
+defineProps<Props>();
 
-const emit = defineEmits(["update:modalOpen", "update:mainImage"]);
-
-const localMainImage = ref<ImageItem | null>(
-  props.mainImage ? { ...props.mainImage } : null
-);
+const mainImageModal = defineModel<boolean>("mainImageModal", {
+  default: false,
+});
+const mainImage = defineModel<ImageItem | null>("mainImage", {
+  default: null,
+});
 
 const close = () => {
-  emit("update:modalOpen", false);
+  mainImageModal.value = false;
 };
-
 const AddImage = (image: ImageItem) => {
-  if (localMainImage.value && image.id === localMainImage.value.id) return;
+  if (mainImage.value && image.id === mainImage.value.id) return;
 
-  localMainImage.value = image;
-
-  emit("update:mainImage", image);
+  mainImage.value = image;
 };
 </script>
 
 <template>
-  <ModalBase :modalOpen>
+  <ModalBase v-model:modalOpen="mainImageModal">
     <template #body>
       <div class="bg-primary h-fit w-fit rounded-xl p-6 space-y-4">
         <h2 class="text-2xl font-semibold">Choose Images</h2>

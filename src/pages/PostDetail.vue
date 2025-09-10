@@ -81,7 +81,7 @@ const handleInput = () => {
 
 <template>
   <div
-    class="flex flex-col gap-8 bg-primary backdrop-blur-md p-8 rounded-2xl shadow-xl border border-primary max-w-fit mx-auto"
+    class="flex flex-col gap-8 bg-primary backdrop-blur-md p-8 rounded-2xl shadow-xl border border-primary w-full max-w-fit mx-auto"
   >
     <FormEditPost
       v-if="postDetail && !loading && initialValues"
@@ -109,7 +109,7 @@ const handleInput = () => {
         <div
           class="flex flex-col place-content-center gap-12 w-full h-full place-items-start"
         >
-          <div class="flex gap-12">
+          <div class="flex flex-wrap gap-12">
             <div
               class="h-fit flex flex-col gap-5 border border-primary rounded-xl p-4"
             >
@@ -162,7 +162,7 @@ const handleInput = () => {
             >
               <h2 class="text-2xl font-bold">SEO info</h2>
 
-              <div class="flex">
+              <div class="flex flex-wrap">
                 <div>
                   <div
                     class="flex flex-col place-content-center place-items-start gap-3 rounded p-4"
@@ -243,7 +243,9 @@ const handleInput = () => {
             class="border border-primary rounded-xl p-4 flex flex-col gap-5 w-full"
           >
             <h2 class="text-xl font-bold">Uploads</h2>
-            <div class="flex w-full place-content-between gap-12">
+            <div
+              class="flex flex-wrap w-full place-content-center md:place-content-between gap-12"
+            >
               <div
                 class="flex flex-col place-content-center place-items-start gap-3"
               >
@@ -265,7 +267,9 @@ const handleInput = () => {
                 </div>
               </div>
 
-              <div class="flex gap-12 place-items-start">
+              <div
+                class="flex flex-wrap gap-12 place-content-start place-items-start"
+              >
                 <div
                   class="flex flex-col place-content-center place-items-start gap-3"
                 >

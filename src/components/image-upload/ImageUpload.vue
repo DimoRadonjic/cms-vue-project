@@ -1,34 +1,29 @@
 <script setup lang="ts">
 import { ref, watchEffect } from "vue";
 import type { ImageItem } from "../../types/types";
-import ModalImage from "../../modals/modalImage.vue";
 import { useGallery } from "../../composable/gallery/useGallery";
 import ImageLink from "../ImageLink.vue";
+import ModalImage from "../../modals/modalImage.vue";
 
 interface Props {
   images?: ImageItem[];
   clear?: boolean;
-  files: File[];
-  existingImages: ImageItem[];
-  removedImages?: ImageItem[];
   postID?: string;
 }
 
 const props = defineProps<Props>();
-const emit = defineEmits([
-  "update:files",
-  "update:existingImages",
-  "update:removedImages",
-]);
 
 const { getAvailableImages } = useGallery();
 
-const imageFiles = ref<File[]>([]);
-
-const existingImages = ref<ImageItem[]>(props.images ? [...props.images] : []);
-const removedImages = ref<ImageItem[]>([]);
-
-const available = ref<ImageItem[]>([]);
+const imageFiles = defineModel<File[]>("files", { default: [] });
+const existingImages = defineModel<ImageItem[]>("existingImages", {
+  default: [],
+});
+const removedImages = defineModel<ImageItem[]>("removedImages", {
+  default: [],
+});
+const available = defineModel<ImageItem[]>("available", { default: [] });
+const imageModal = defineModel<boolean>("imagesModal", { default: false });
 
 watchEffect(async () => {
   const data = await getAvailableImages(props.postID ?? "");
@@ -38,7 +33,6 @@ watchEffect(async () => {
   }
 });
 const imagesUploading = ref<boolean>(false);
-const imageModal = ref<boolean>(false);
 const imagesError = ref(false);
 const imagesUploadRef = ref();
 
@@ -95,9 +89,6 @@ const handleDeletionFile = (image: File) => {
 };
 
 watchEffect(() => props.clear && ClearImagesUpload());
-watchEffect(() => emit("update:existingImages", existingImages.value));
-watchEffect(() => emit("update:removedImages", removedImages.value));
-watchEffect(() => emit("update:files", imageFiles.value));
 </script>
 
 <template>
@@ -164,9 +155,10 @@ watchEffect(() => emit("update:files", imageFiles.value));
       Failed to upload Images
     </div>
   </div>
+
   <ModalImage
     v-if="imageModal"
-    v-model:modalOpen="imageModal"
+    v-model:imageModal="imageModal"
     :images="available"
     v-model:existingImages="existingImages"
   />

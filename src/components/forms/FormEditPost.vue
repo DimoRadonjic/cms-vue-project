@@ -36,6 +36,8 @@ import DocumentUpload from "../file-upload/DocumentUpload.vue";
 import ImageUpload from "../image-upload/ImageUpload.vue";
 import MainImageUpload from "../image-upload/mainImageUpload.vue";
 import ModalDocuments from "../../modals/modalDocuments.vue";
+import ModalMainImage from "../../modals/modalMainImage.vue";
+import ModalImage from "../../modals/modalImage.vue";
 
 interface Props {
   reset?: boolean;
@@ -92,11 +94,8 @@ const imagesError = ref(false);
 const documentError = ref(false);
 const uploading = ref<boolean>(false);
 const clearFiles = ref<boolean>(false);
-const documentModal = ref<boolean>(false);
 const availableDocuments = ref<DocumentItem[]>([]);
 const availableImages = ref<ImageItem[]>([]);
-const imagesModal = ref<boolean>(false);
-const mainImageModal = ref<boolean>(false);
 
 const change = computed(
   () =>
@@ -382,7 +381,7 @@ const resetForm = () => {
     :validateOnValueUpdate="true"
     :validateOnBlur="true"
     @reset="resetForm"
-    class="flex flex-col gap-8"
+    class="flex flex-col w-full h-full gap-8"
   >
     <slot name="header"> </slot>
 
@@ -550,16 +549,17 @@ const resetForm = () => {
         <div class="flex flex-col gap-y-4 w-full">
           <h2 class="text-3xl font-bold">Uploads</h2>
 
-          <div class="flex place-content-between gap-x-12 w-full">
+          <div
+            class="flex flex-wrap place-content-center md:place-content-between gap-12 w-full"
+          >
             <MainImageUpload
-              v-model:existingImages="existingImages"
               v-model:mainImage="mainImage"
               v-model:mainImageUpload="mainImageUpload"
               :postID="initialValues.id"
               :clear="clearFiles"
             />
 
-            <div class="flex gap-x-12">
+            <div class="flex flex-wrap place-content-start gap-12">
               <div class="flex flex-col place-items-center gap-y-4">
                 <div
                   class="flex place-content-center place-items-center gap-x-3"
@@ -591,8 +591,9 @@ const resetForm = () => {
                 </div>
 
                 <ImageUpload
-                  v-model:existingImages="existingImages"
                   v-model:files="newImages"
+                  v-model:existingImages="existingImages"
+                  v-model:available="availableImages"
                   v-model:removedImages="removedImages"
                   :images="images"
                   :postID="initialValues.id"
@@ -620,11 +621,4 @@ const resetForm = () => {
       </div>
     </slot>
   </Form>
-
-  <ModalDocuments
-    v-if="documentModal"
-    v-model:documentModal="documentModal"
-    :documents="availableDocuments"
-    v-model:existingDocuments="existingDocuments"
-  />
 </template>
