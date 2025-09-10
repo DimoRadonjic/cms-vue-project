@@ -239,6 +239,15 @@ const updateDocuments = async (documents: DocumentItem[]) => {
 };
 
 const searchDocuments = async (search: string) => {
+  if (!search.trim()) {
+    try {
+      const { data } = await getDocuments();
+      return data;
+    } catch (error) {
+      console.error("Error searching documents:", error);
+      return [];
+    }
+  }
   try {
     const { data, error } = await supabase
       .from(table)

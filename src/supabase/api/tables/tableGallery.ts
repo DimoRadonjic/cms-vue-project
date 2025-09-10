@@ -178,6 +178,15 @@ const updateImages = async (images: ImageItem[]) => {
 };
 
 const searchImages = async (search: string) => {
+  if (!search.trim()) {
+    try {
+      const { data } = await getGallery();
+      return data;
+    } catch (error) {
+      console.error("Error searching images:", error);
+      return [];
+    }
+  }
   try {
     const { data, error } = await supabase
       .from(table)

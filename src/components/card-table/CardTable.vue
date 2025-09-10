@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref } from "vue";
+import { ref, watch } from "vue";
 import type { Data, DocumentItem, ImageItem, Item } from "../../types/types";
 import AppSimpleTableHeader from "../AppSimpleTableHeader.vue";
 
@@ -39,9 +39,13 @@ type CardTableProps =
       delete: (data: DocumentItem[]) => Promise<void>;
     };
 
-defineProps<CardTableProps>();
+const props = defineProps<CardTableProps>();
 
 const itemsSelected = ref<Data>([]);
+
+const searching = ref<boolean>(false);
+
+const localData = ref<(ImageItem | DocumentItem)[]>([]);
 
 const addSelectedItem = (item: Item) => {
   if (itemsSelected.value.includes(item)) {
@@ -52,16 +56,27 @@ const addSelectedItem = (item: Item) => {
     itemsSelected.value = [...itemsSelected.value, item];
   }
 };
+
+watch(
+  () => props.data,
+  (newVal) => {
+    localData.value = [...newVal];
+  },
+  { immediate: true }
+);
 </script>
 
 <template>
   <div class="w-full h-full space-y-10">
     <AppSimpleTableHeader
-      v-model:selectedItem="itemsSelected"
+      v-model:selectedItems="itemsSelected"
+      v-model:headerData="localData"
       :title
+      :type
       buttonAddLabel="Upload"
       :fileUpload="true"
       :accept
+      v-model:searching="searching"
       :upload
       :delete
       @refetch="onRefetch"
@@ -70,12 +85,12 @@ const addSelectedItem = (item: Item) => {
     <div
       :class="
         'grid  w-full  gap-7 place-content-center  ' +
-        (data.length && !loading
+        (localData.length > 0 && !loading && !searching
           ? 'grid-cols-1  md:grid-cols-4 px-6 md:px-4 place-items-start'
           : 'grid-cols-1 place-items-center')
       "
     >
-      <template v-if="loading">
+      <template v-if="loading || searching">
         <div
           class="flex place-content-center place-items-center w-full h-full text-3xl"
         >
@@ -88,7 +103,7 @@ const addSelectedItem = (item: Item) => {
           />
         </div>
       </template>
-      <template v-if="!data.length && !loading">
+      <template v-if="localData.length === 0 && !loading && !searching">
         <div
           class="flex flex-col items-center justify-center p-10 text-primary border-2 border-dashed border-primary rounded-lg bg-primary"
         >
@@ -106,15 +121,15 @@ const addSelectedItem = (item: Item) => {
               d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6h.1a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"
             />
           </svg>
-          <p class="text-lg font-medium">No images uploaded</p>
+          <p class="text-lg font-medium">No {{ type }}s uploaded</p>
           <p class="text-sm text-secondary">
             Upload your first file to get started
           </p>
         </div>
       </template>
 
-      <template v-if="data.length && !loading">
-        <div class="w-full h-full" v-for="image in data" :key="image.id">
+      <template v-if="localData.length > 0 && !loading && !searching">
+        <div class="w-full h-full" v-for="image in localData" :key="image.id">
           <Card
             :type
             :addSelectedItem="addSelectedItem"

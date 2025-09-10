@@ -1,15 +1,20 @@
 <script setup lang="ts">
-import { ref, computed } from "vue";
+import { ref, computed, watch, watchEffect } from "vue";
 import { useAppRouter } from "../composable/router/useAppRouter";
 import type { Data, DocumentItem } from "../types/types";
 import { useToastService } from "../composable/toastService/AppToastService";
+import tableGallery from "../supabase/api/tables/tableGallery";
+import { debounce } from "lodash";
+import tableDocuments from "../supabase/api/tables/tableDocuments";
 
 type BaseProps = {
-  selectedItem: Data;
+  type: "image" | "document";
+  selectedItems: Data;
   title: string;
   buttonAddLabel?: string;
   openModal?: boolean;
   fetching: boolean;
+  headerData: Data;
 };
 
 type UploadProps =
@@ -35,9 +40,9 @@ const props = withDefaults(defineProps<Props>(), {
 
 const emit = defineEmits([
   "refetch",
-  "update:data",
-  "update:selectedItem",
-  "uploading",
+  "update:headerData",
+  "update:selectedItems",
+  "update:searching",
   "update:openModal",
 ]);
 
@@ -48,27 +53,28 @@ const { navigateTo } = useAppRouter();
 const fileUploadRef = ref<any>();
 const uploading = ref<boolean>(false);
 const deleting = ref(false);
+const searching = ref(false);
 
 const search = ref<string>("");
 
 const deleteLabel = computed(() => {
   return deleting.value
     ? "Deleting"
-    : props.selectedItem && props.selectedItem.length > 0
-    ? `Delete ${props.selectedItem.length}`
+    : props.selectedItems && props.selectedItems.length > 0
+    ? `Delete ${props.selectedItems.length}`
     : "No item selected";
 });
 
 const handleDeletion = async () => {
-  const { selectedItem } = props;
+  const { selectedItems } = props;
 
-  if (!selectedItem) return;
+  if (!selectedItems) return;
 
   deleting.value = true;
 
   try {
     if (props.delete) {
-      await props.delete(selectedItem);
+      await props.delete(selectedItems);
     }
 
     showSuccess("Item deleted");
@@ -76,7 +82,7 @@ const handleDeletion = async () => {
     throw new Error(error.message);
   }
 
-  emit("update:selectedItem", []);
+  emit("update:selectedItems", []);
 
   emit("refetch", true);
 
@@ -100,12 +106,52 @@ const uploadFunc = async (event: any) => {
     throw new Error(error.message);
   }
 
-  emit("update:selectedItem", []);
+  emit("update:selectedItems", []);
 
   emit("refetch", true);
 
   uploading.value = false;
 };
+
+const handleSearch = async (search: string) => {
+  emit("update:searching", true);
+  if (props.type === "image") {
+    try {
+      const data = await tableGallery.searchImages(search);
+      emit("update:selectedItems", []);
+      emit("update:headerData", data);
+    } catch (error: any) {
+      searching.value = false;
+      throw new Error(error.message);
+    }
+  } else {
+    try {
+      const data = await tableDocuments.searchDocuments(search);
+      emit("update:selectedItems", []);
+      emit("update:headerData", data);
+    } catch (error: any) {
+      searching.value = false;
+      throw new Error(error.message);
+    }
+  }
+
+  emit("update:searching", false);
+};
+
+const debouncedSearch = debounce(async (search: string) => {
+  searching.value = true;
+
+  await handleSearch(search);
+  searching.value = false;
+}, 400);
+
+watch(
+  () => search.value,
+  () => {
+    debouncedSearch(search.value);
+  },
+  { immediate: false }
+);
 </script>
 
 <template>
@@ -116,19 +162,13 @@ const uploadFunc = async (event: any) => {
       class="flex flex-row-reverse w-full max-w-none md:max-w-full md:flex-row flex-wrap-reverse gap-4 place-content-between flex-1"
     >
       <div
-        class="flex place-content-start md:place-content-center place-items-end h-full w-full md:max-w-fit md:mr-auto gap-4"
+        class="flex place-content-start md:place-content-center place-items-end h-full w-full md:max-w-xs md:mr-auto gap-4"
       >
         <InputText
           placeholder="Search"
           type="text"
-          pt:root="w-full max-w-fit"
+          pt:root="w-full"
           v-model="search"
-        />
-        <Button
-          label="Search"
-          icon="pi pi-search"
-          class="!px-5 my-auto"
-          :disabled="search === '' ? true : false"
         />
       </div>
       <h1
@@ -163,7 +203,7 @@ const uploadFunc = async (event: any) => {
 
       <AppButtonDelete
         :label="deleteLabel"
-        :disabled="!selectedItem || selectedItem.length === 0 || deleting"
+        :disabled="!selectedItems || selectedItems.length === 0 || deleting"
         :clickEvent="handleDeletion"
       />
       <Button

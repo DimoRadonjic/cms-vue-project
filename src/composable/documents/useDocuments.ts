@@ -55,22 +55,6 @@ export const useDocuments = () => {
     }
   };
 
-  const searchPosts = async () => {
-    loading.value = true;
-    // try {
-    //   const res = await apiDocuments.searchPosts(query);
-    //   // posts.value = res;
-    //   console.log("Search results:", res);
-    //   loading.value = false;
-    // } catch (apiError) {
-    //   console.error("Failed to search posts:", apiError);
-    //   showError("Failed to search posts. Please try again later.", apiError);
-    //   loading.value = false;
-    //   error.value =
-    //     apiError instanceof Error ? apiError : new Error("An error occurred");
-    // }
-  };
-
   const onFetched = (callback: (data: any[]) => void) => {
     watch(
       data,
@@ -133,7 +117,6 @@ export const useDocuments = () => {
     loading,
     error,
     onFetched,
-    searchPosts,
     uploading,
     uploadDocuments,
     deleteDocuments,
