@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { FormSubmitEvent } from "@primevue/forms";
 import { zodResolver } from "@primevue/forms/resolvers/zod";
-import { computed, reactive, ref, watch, watchEffect } from "vue";
+import { computed, reactive, ref, watchEffect } from "vue";
 import { useToastService } from "../../composable/toastService/AppToastService";
 import apiPosts from "../../axios/api/posts";
 import type {
