@@ -294,7 +294,9 @@ const onFormSubmit = async ({ valid, values }: FormSubmitEvent) => {
   if (changedMain.value && mainImage.value) {
     emit("uploading-change", uploading.value);
 
-    await handleRemovalMainImage(initalMainImage.id, id, valuesToSend);
+    if (initalMainImage) {
+      await handleRemovalMainImage(initalMainImage.id, id, valuesToSend);
+    }
 
     try {
       await apiImages.addPostImagesAPI([mainImage.value.id], id);
