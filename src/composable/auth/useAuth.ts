@@ -14,7 +14,7 @@ const isAuth = ref<boolean>(!!getLocalItem("token"));
 export const useAuth = () => {
   const { showError, showSuccess } = useToastService();
   const { navigateTo } = useAppRouter();
-  const { setUser, getUser } = useAuthStore();
+  const { setUser, getUser, getUserPassword } = useAuthStore();
 
   const logout = () => {
     clearStorage();
@@ -68,7 +68,9 @@ export const useAuth = () => {
     logout,
     login,
     getUser,
+    setUser,
     isAuth,
     register,
+    getUserPassword,
   };
 };

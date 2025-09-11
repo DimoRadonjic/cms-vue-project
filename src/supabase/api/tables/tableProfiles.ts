@@ -16,14 +16,26 @@ const refreshSession = async () => {
   return data.session;
 };
 
+async function getPasswordByUsername(username: string) {
+  const { data, error } = await supabase.rpc("decrypt_password_by_username", {
+    user_name: username,
+  });
+
+  if (error) {
+    console.error("Error decrypting password:", error);
+    return null;
+  }
+
+  return data;
+}
+
 const updateUser = async (
-  id: string,
   updates: ProfileData
 ): Promise<ProfileData | null> => {
   const { data, error } = await supabase
     .from(table)
     .update(updates)
-    .eq("id", id)
+    .eq("email", updates.email)
     .select()
     .single();
 
@@ -158,4 +170,5 @@ export const auth = {
   deleteUser,
   updateUser,
   refreshSession,
+  getPasswordByUsername,
 };

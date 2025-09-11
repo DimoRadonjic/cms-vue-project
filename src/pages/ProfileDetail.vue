@@ -1,19 +1,30 @@
 <script setup lang="ts">
-import { ref } from "vue";
+import { onMounted, ref } from "vue";
 import { useAuthStore } from "../store";
 import type { ProfileData } from "../types/types";
-import { Form } from "@primevue/forms";
-import { AppInputTextField } from "../components/inputs";
+import { AppInputPasswordField } from "../components/inputs";
+import FormProfile from "../components/forms/FormProfile.vue";
 
-const { getUser } = useAuthStore();
+const { getUser, getUserPassword } = useAuthStore();
 
-const user: ProfileData | null = getUser();
+const user = ref<ProfileData | null>(null);
 
 const editing = ref(false);
 
-const initialValue = ref<ProfileData>(
-  user ? { ...user } : { username: "", password: "", email: "" }
-);
+const userDefault = {
+  username: "",
+  password: "",
+  email: "",
+};
+
+const initialValue = ref<ProfileData>();
+
+onMounted(async () => {
+  const fetchedUser = getUser();
+  user.value = fetchedUser ?? null;
+  const password = await getUserPassword();
+  initialValue.value = fetchedUser ? { ...fetchedUser, password } : userDefault;
+});
 </script>
 
 <template>
@@ -23,72 +34,11 @@ const initialValue = ref<ProfileData>(
     >
       <h1>User Profile</h1>
 
-      <Form
-        :initial-values="initialValue"
+      <FormProfile
         v-if="editing"
-        class="w-full space-y-4 text-xl"
-      >
-        <div
-          class="flex flex-col place-content-center place-items-center w-full"
-        >
-          <div class="flex flex-col gap-y-6 w-full">
-            <div
-              class="flex gap-4 border-2 rounded-2xl p-6 border-primary w-full"
-            >
-              <i key="sun" class="pi pi-user" style="font-size: 2rem"></i>
-              <div class="flex flex-col gap-2 w-full">
-                <label for="username" class="font-semibold mb-1"
-                  >Username:</label
-                >
-
-                <AppInputTextField
-                  placeholder="Username"
-                  fieldName="username"
-                  :inputRoot="'!text-2xl !w-full'"
-                  :initialValue="initialValue.username"
-                  type="text"
-                />
-              </div>
-            </div>
-
-            <div
-              class="flex gap-4 border-2 rounded-2xl p-6 border-primary w-full"
-            >
-              <i key="sun" class="pi pi-envelope" style="font-size: 2rem"></i>
-              <div class="flex flex-col gap-2 w-full">
-                <label for="email" class="font-semibold mb-1">Email:</label>
-
-                <AppInputTextField
-                  placeholder="Email"
-                  fieldName="email"
-                  :inputRoot="'!text-2xl !w-full '"
-                  :initialValue="initialValue.email"
-                  type="email"
-                />
-              </div>
-            </div>
-
-            <div
-              class="flex gap-4 border-2 rounded-2xl p-6 border-primary w-full"
-            >
-              <i key="sun" class="pi pi-unlock" style="font-size: 2rem"></i>
-              <div class="flex flex-col gap-2 w-full">
-                <label for="password" class="font-semibold mb-1"
-                  >Password:</label
-                >
-
-                <AppInputTextField
-                  placeholder="Password"
-                  fieldName="password"
-                  :inputRoot="'!text-2xl !w-full'"
-                  :initialValue="initialValue.password"
-                  type="text"
-                />
-              </div>
-            </div>
-          </div>
-        </div>
-      </Form>
+        v-model:editing="editing"
+        v-model:initialValues="initialValue"
+      />
 
       <div v-else class="space-y-4 text-xl">
         <div class="flex gap-4 border-2 rounded-2xl p-6 border-primary">
@@ -111,7 +61,14 @@ const initialValue = ref<ProfileData>(
           <i key="sun" class="pi pi-lock" style="font-size: 2rem"></i>
           <div class="flex flex-col gap-2">
             <label class="font-semibold mb-1">Password:</label>
-            <p>{{ user?.password }}</p>
+            <AppInputPasswordField
+              placeholder="Password"
+              fieldName="password"
+              :readonly="true"
+              :inputRoot="'!text-2xl !w-full'"
+              :initialValue="user?.password"
+              type="text"
+            />
           </div>
         </div>
       </div>
@@ -124,21 +81,6 @@ const initialValue = ref<ProfileData>(
         >
           Edit Profile
         </Button>
-        <div class="flex gap-6" v-else>
-          <Button
-            @click="editing = false"
-            class="bg-secondary px-4 py-2 font-semibold !text-2xl"
-          >
-            Save Changes
-          </Button>
-
-          <Button
-            @click="editing = false"
-            class="bg-secondary px-4 py-2 font-semibold !text-2xl"
-          >
-            Cancel
-          </Button>
-        </div>
       </div>
     </div>
   </div>
