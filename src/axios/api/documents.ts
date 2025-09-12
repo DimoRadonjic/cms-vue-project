@@ -130,13 +130,15 @@ const updateDocumentsAPI = async (documents: DocumentItem[]) => {
   }
 };
 
-const getAvailableDocumentsByPostID = async (postID: string) => {
+const getAvailableDocumentsByPostID = async (
+  postID: string
+): Promise<DocumentItem[]> => {
   try {
     const res = await tableDocuments.availableDocuments(postID);
-    return { data: res, status: 200 };
+    return res;
   } catch (error: any) {
     errorMessage("Failed to get available documents", error);
-    return { status: 500 };
+    return [];
   }
 };
 

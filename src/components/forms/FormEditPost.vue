@@ -36,6 +36,7 @@ import DocumentUpload from "../file-upload/DocumentUpload.vue";
 import ImageUpload from "../image-upload/ImageUpload.vue";
 import MainImageUpload from "../image-upload/mainImageUpload.vue";
 import { useGallery } from "../../composable/gallery/useGallery";
+import { useDocuments } from "../../composable/documents/useDocuments";
 
 interface Props {
   reset?: boolean;
@@ -45,6 +46,8 @@ interface Props {
 const props = defineProps<Props>();
 
 const { data, getAvailableImages } = useGallery();
+
+const { getAvailableDocuments } = useDocuments();
 
 const initialValues = reactive<PostWithContent>({ ...props.data });
 const formRef = ref();
@@ -376,6 +379,8 @@ watchEffect(() => {
 onMounted(async () => {
   try {
     const res = await getAvailableImages(props.data.id);
+    const resDocs = await getAvailableDocuments(props.data.id);
+    availableDocuments.value = resDocs;
     availableImages.value = res;
     availableMainImages.value = data.value;
   } catch (error: any) {
@@ -383,10 +388,6 @@ onMounted(async () => {
     showError("Failed to set available images and available main images");
   }
 });
-
-watchEffect(() => console.log("initial values ", initialValues));
-watchEffect(() => console.log("mainImage values ", mainImage.value));
-watchEffect(() => console.log("changedMain values ", changedMain.value));
 
 const testValue = (val: string, initial: string) => {
   val.toLocaleLowerCase() === initial.toLocaleLowerCase()

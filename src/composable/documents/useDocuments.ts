@@ -93,7 +93,9 @@ export const useDocuments = () => {
     }
   };
 
-  const getAvailableDocuments = async (postID: string) => {
+  const getAvailableDocuments = async (
+    postID: string
+  ): Promise<DocumentItem[]> => {
     loading.value = true;
 
     try {
@@ -107,6 +109,8 @@ export const useDocuments = () => {
         "Failed to get availabl documents. Please try again later.",
         detail
       );
+
+      return [];
     }
   };
 

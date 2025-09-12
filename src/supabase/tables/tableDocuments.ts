@@ -28,7 +28,7 @@ const getDocuments = async () => {
   return { data, status };
 };
 
-const availableDocuments = async (postID: string) => {
+const availableDocuments = async (postID: string): Promise<DocumentItem[]> => {
   const { data } = await getDocuments();
 
   const available = data?.filter(

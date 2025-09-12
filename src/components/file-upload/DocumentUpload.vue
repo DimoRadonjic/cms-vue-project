@@ -21,16 +21,6 @@ const existingDocuments = defineModel<DocumentItem[]>("existingDocuments", {
   default: [],
 });
 
-const { getAvailableDocuments } = useDocuments();
-
-watchEffect(async () => {
-  const data = await getAvailableDocuments(props.postID ?? "");
-
-  if (data && data.data) {
-    available.value = data.data;
-  }
-});
-
 const documentsUploading = ref<boolean>(false);
 const fileUploadRef = ref();
 const documentError = ref(false);
