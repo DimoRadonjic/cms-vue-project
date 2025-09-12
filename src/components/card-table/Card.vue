@@ -28,8 +28,6 @@ const imageToView = defineModel<ImageItem | undefined>("imageToView", {
   default: undefined,
 });
 
-const openModal = defineModel<boolean>("openModal");
-
 const documentToView = ref<DocumentItem | undefined>(undefined);
 
 const rename = ref<boolean>(false);
