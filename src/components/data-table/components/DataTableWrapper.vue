@@ -40,12 +40,9 @@ const emit = defineEmits(["update:selection", "refetch"]);
 const { showSuccess, showError } = useToastService();
 const { navigateTo } = useAppRouter();
 
-const localSelectionArr = defineModel<PostWithContent[] | null>(
-  "selectionArr",
-  {
-    default: [],
-  }
-);
+const localSelectionArr = defineModel<PostWithContent[]>("selectionArr", {
+  default: [],
+});
 
 const localSelectionItem = ref<PostWithContent | null>(null);
 
