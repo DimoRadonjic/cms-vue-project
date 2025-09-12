@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref, watch, watchEffect } from "vue";
+import { ref, watch } from "vue";
 import type { FilterType, PostWithContent } from "../../../types/types";
 import { useToastService } from "../../../composable/toastService/AppToastService";
 import { useAppRouter } from "../../../composable/router/useAppRouter";

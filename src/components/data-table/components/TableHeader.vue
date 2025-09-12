@@ -24,8 +24,8 @@ const { showError } = useToastService();
 
 const emit = defineEmits(["refetch"]);
 
-const selectedItem = defineModel<PostWithContent[] | null>("selectedItem", {
-  default: null,
+const selectedItem = defineModel<PostWithContent[]>("selectedItem", {
+  default: [],
 });
 
 const handleDeletion = async () => {
@@ -39,7 +39,7 @@ const handleDeletion = async () => {
     console.error(error.message);
     showError("Failed to delete post", error.message);
   }
-  selectedItem.value = null;
+  selectedItem.value = [];
   emit("refetch");
 };
 </script>
@@ -71,13 +71,13 @@ const handleDeletion = async () => {
 
               <AppButtonDelete
                 :label="
-                  selectedItem
+                  selectedItem.length !== 0
                     ? selectedItem.length > 1
                       ? selectedItem.length + ' items to ' + 'delete'
                       : 'Delete a item '
                     : 'Delete'
                 "
-                :disabled="!selectedItem"
+                :disabled="selectedItem.length === 0"
                 :clickEvent="handleDeletion"
               />
             </div>
