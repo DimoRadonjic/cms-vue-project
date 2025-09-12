@@ -12,34 +12,33 @@ export const canonicalUrlSchema = z
     message: "Canonical URL cannot be just the base URL, slug is required.",
   })
   .transform((val) => {
-    // ukloni višestruke BASE_URL ako slučajno postoje
     const slug = val.replace(new RegExp(`^(${BASE_URL})+`), "");
     return `${BASE_URL}${slug}`;
   });
 
 export const schemaPost = z.object({
   title: z.string().min(1, {
-    message: "title is required.",
+    message: "Title is required.",
   }),
 
   description: z.string().min(1, {
-    message: "description is required.",
+    message: "Description is required.",
   }),
   authorUsername: z.string().min(1, {
-    message: "authorUsername is required.",
+    message: "Author is required.",
   }),
 
   seo_slug: z.string().min(1, {
-    message: "seo_slug is required.",
+    message: "Slug is required.",
   }),
   seo_metaTitle: z.string().min(1, {
-    message: "seo_metaTitle is required.",
+    message: "Meta title is required.",
   }),
   seo_metaDescription: z.string().min(1, {
-    message: "seo_metaDescription is required.",
+    message: "Meta description is required.",
   }),
   seo_keywords: z.string().min(1, {
-    message: "seo_keywords is required.",
+    message: "Keywords are required.",
   }),
   seo_canonicalUrl: canonicalUrlSchema,
 });

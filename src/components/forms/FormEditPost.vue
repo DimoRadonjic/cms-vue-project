@@ -82,11 +82,10 @@ const mainImage = ref<ImageItem | null>(
 const mainImageLoading = ref<boolean>(false);
 const mainImageError = ref<boolean>(false);
 const removedMainImage = ref<boolean>(false);
-const changedMain = computed(
-  () =>
-    mainImage.value &&
-    initialValues.mainImage &&
-    initialValues.mainImage.id !== mainImage.value.id
+const changedMain = computed(() =>
+  mainImage.value && initialValues.mainImage
+    ? initialValues.mainImage.id !== mainImage.value.id
+    : !!mainImage.value
 );
 
 const imagesError = ref(false);
@@ -379,9 +378,11 @@ watchEffect(() => {
 onMounted(async () => {
   try {
     const res = await getAvailableImages(props.data.id);
+    availableImages.value = res;
+
     const resDocs = await getAvailableDocuments(props.data.id);
     availableDocuments.value = resDocs;
-    availableImages.value = res;
+
     availableMainImages.value = data.value;
   } catch (error: any) {
     console.error(error.message);
@@ -586,7 +587,7 @@ const testValue = (val: string, initial: string) => {
               v-model:mainImage="mainImage"
               v-model:mainImageUpload="mainImageUpload"
               v-model:removedMainImage="removedMainImage"
-              :available="availableImages"
+              v-model:available="availableMainImages"
               :postID="initialValues.id"
               :clear="clearFiles"
             />
@@ -622,7 +623,9 @@ const testValue = (val: string, initial: string) => {
                 </div>
 
                 <ImageUpload
-                  :initialMainImageId="initialValues.mainImage.id"
+                  :initialMainImageId="
+                    initialValues.mainImage ? initialValues.mainImage.id : ''
+                  "
                   v-model:files="newImages"
                   v-model:existingImages="existingImages"
                   v-model:available="availableImages"

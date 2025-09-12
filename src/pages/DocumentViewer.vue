@@ -3,8 +3,11 @@ import { ref, onMounted } from "vue";
 import { useAppRouter } from "../composable/router/useAppRouter";
 import apiDocuments from "../axios/api/documents";
 import type { DocumentItem } from "../types/types";
+import AppButton from "../components/ui/AppButton.vue";
+import { useToastService } from "../composable/toastService/AppToastService";
 
 const { getRouteID } = useAppRouter();
+const { showError } = useToastService();
 const id = getRouteID();
 const documentByAPI = ref<DocumentItem | null>(null);
 
@@ -14,36 +17,28 @@ onMounted(async () => {
     if (data) {
       documentByAPI.value = data;
     }
-  } catch (error) {}
+  } catch (error: any) {
+    console.error(error.message);
+    showError("Failed to fetch the document", error.message);
+  }
 });
 
 const isLoading = ref(true);
-const showError = ref(false);
+const error = ref(false);
 
 const onPdfLoad = () => {
   isLoading.value = false;
-  showError.value = false;
+  error.value = false;
 };
 
 const onPdfError = () => {
   isLoading.value = false;
-  showError.value = true;
+  error.value = true;
 };
 
 const openInNewTab = () => {
   if (documentByAPI.value) {
     window.open(documentByAPI.value.url, "_blank");
-  }
-};
-
-const downloadPdf = () => {
-  if (documentByAPI.value) {
-    const link = document.createElement("a");
-    link.href = documentByAPI.value.url;
-    link.download = `${documentByAPI.value.title}.pdf`;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
   }
 };
 </script>
@@ -78,7 +73,7 @@ const downloadPdf = () => {
         @error="onPdfError"
       ></iframe>
 
-      <div v-if="showError" class="error-message">
+      <div v-if="error" class="error-message">
         <p>Ne mogu da učitam PDF dokument.</p>
         <a :href="documentByAPI?.url" target="_blank" class="download-link">
           Klikni ovde za download
@@ -91,18 +86,11 @@ const downloadPdf = () => {
     </div>
 
     <div class="pdf-controls mt-4">
-      <button
-        @click="openInNewTab"
-        class="bg-blue-500 text-white px-4 py-2 rounded mr-2 hover:bg-blue-600"
-      >
-        Otvori u novom tab-u
-      </button>
-      <button
-        @click="downloadPdf"
-        class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600"
-      >
-        Download PDF
-      </button>
+      <AppButton
+        label="Open in new tab"
+        type="button"
+        :clickEvent="openInNewTab"
+      />
     </div>
   </div>
 </template>

@@ -22,9 +22,9 @@ const title =
   <a
     :href="link"
     :target
-    class="font-bold flex gap-x-2 place-content-center place-items-center hover:text-primary cursor-pointer"
+    class="font-semibold flex gap-x-3 place-content-center place-items-center hover:text-primary cursor-pointer"
   >
-    <i class="pi pi-image" />
+    <i class="pi pi-image" style="font-size: 1.25em" />
     <span class="underline-animation">{{ title }}</span>
     <SquareArrowOutUpRight />
   </a>

@@ -8,7 +8,7 @@ import {
   Files,
   FileText,
   Globe,
-  Image,
+  Image as ImageIcon,
   Images,
   Link,
   Tags,
@@ -19,6 +19,7 @@ import {
 import FormEditPost from "../components/forms/FormEditPost.vue";
 import DocumentLink from "../components/DocumentLink.vue";
 import ImageLink from "../components/ImageLink.vue";
+import { Image } from "primevue";
 
 const { showError } = useToastService();
 
@@ -254,13 +255,14 @@ watchEffect(() => console.log("hasChanged parent", hasChanged.value));
                 </div>
 
                 <div class="w-full max-w-sm">
-                  <img
+                  <Image
                     v-if="postDetail.mainImage"
                     :src="postDetail.mainImage.url"
                     :alt="postDetail.mainImage.alt"
                     class="object-cover w-full h-full"
+                    preview
                   />
-                  <Image v-else class="w-full h-full z-10" />
+                  <ImageIcon v-else class="w-full h-full z-10" />
                 </div>
               </div>
 

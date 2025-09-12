@@ -2,6 +2,7 @@
 import { nextTick } from "vue";
 import type { DocumentItem } from "../types/types";
 import ModalBase from "./modalBase.vue";
+import DocumentLink from "../components/DocumentLink.vue";
 
 const documentModal = defineModel("documentModal", { default: false });
 const availableDocuments = defineModel<DocumentItem[]>("availableDocuments", {
@@ -47,16 +48,18 @@ const AddDocument = async (document: DocumentItem) => {
 </script>
 
 <template>
-  <ModalBase v-model:modalOpen="documentModal">
+  <ModalBase v-model:modalOpen="documentModal" :modalTitle="'Choose Documents'">
+    <template #header>
+      <h2 class="text-2xl font-semibold">Choose Documents</h2>
+    </template>
     <template #body>
-      <div class="bg-primary h-fit w-fit rounded-xl p-6 space-y-4">
-        <h2 class="text-2xl font-semibold">Choose Documents</h2>
+      <div class="bg-primary h-fit w-fit rounded-xl space-y-4">
         <div
           v-for="document in availableDocuments"
-          class="flex gap-5 place-content-start place-items-center text-xl"
+          class="flex gap-5 place-content-start place-items-center text-lg"
           :key="document.id"
         >
-          <DocumentLink :document />
+          <DocumentLink textClass="max-w-xs" :document />
           <AppButton
             type="button"
             label="Add"

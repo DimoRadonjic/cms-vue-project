@@ -10,6 +10,7 @@ const { showError, showSuccess } = useToastService();
 const { setUser } = useAuth();
 
 const editing = defineModel<boolean>("editing", { default: false });
+const refetch = defineModel<boolean>("refetch", { default: false });
 
 const initialValues = defineModel<ProfileData>("initialValues", {
   default: { username: "", password: "", email: "" },
@@ -39,6 +40,7 @@ const onFormSubmit = async ({ values, valid }: FormSubmitEvent) => {
     showSuccess("Your profile has been updated!");
     setUser(user);
     editing.value = false;
+    refetch.value = true;
     return;
   } catch (error: any) {
     showError("Update failed.", error.message, 3000);
@@ -105,13 +107,21 @@ const onFormSubmit = async ({ values, valid }: FormSubmitEvent) => {
     </div>
     <div class="flex gap-6">
       <Button
+        v-if="!refetch"
         type="submit"
         :disabled="!change"
         class="bg-secondary px-4 py-2 font-semibold !text-2xl"
       >
         Save Changes
       </Button>
-
+      <ProgressSpinner
+        v-else
+        style="width: 80px; height: 80px"
+        strokeWidth="8"
+        fill="transparent"
+        animationDuration=".5s"
+        aria-label="Custom ProgressSpinner"
+      />
       <Button
         @click="editing = false"
         class="bg-secondary px-4 py-2 font-semibold !text-2xl"

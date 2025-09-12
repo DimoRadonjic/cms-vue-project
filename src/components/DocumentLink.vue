@@ -4,6 +4,7 @@ import type { DocumentItem } from "../types/types";
 import { createLink } from "./utils";
 interface Props {
   document: File | DocumentItem;
+  textClass?: string;
 }
 
 const props = defineProps<Props>();
@@ -23,11 +24,17 @@ const title =
   <a
     :href="link"
     :target
-    class="font-bold flex gap-x-2 place-content-center place-items-center hover:text-primary cursor-pointer"
+    class="font-semibold flex gap-x-3 place-content-center place-items-center hover:text-primary cursor-pointer"
   >
-    <i class="pi pi-file-pdf"></i>
+    <i class="pi pi-file-pdf" style="font-size: 1.5rem"></i>
 
-    <span class="underline-animation"> {{ title }}</span>
+    <span
+      :class="
+        textClass ? textClass + ' underline-animation' : 'underline-animation'
+      "
+    >
+      {{ title }}</span
+    >
     <SquareArrowOutUpRight />
   </a>
 </template>

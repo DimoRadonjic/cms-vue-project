@@ -1,10 +1,10 @@
 <script setup lang="ts">
-import { computed, onMounted, ref, watchEffect } from "vue";
+import { computed, ref, watchEffect } from "vue";
 import type { ImageItem } from "../../types/types";
-import { useGallery } from "../../composable/gallery/useGallery";
 import { ImagePlus, Wallpaper } from "lucide-vue-next";
 import { createLink } from "../utils";
 import ModalMainImage from "../../modals/modalMainImage.vue";
+import { Image } from "primevue";
 
 interface Props {
   clear?: boolean;
@@ -12,8 +12,6 @@ interface Props {
 }
 
 const props = defineProps<Props>();
-
-const { data } = useGallery();
 
 const mainImageModal = defineModel<boolean>("mainImageModal", {
   default: false,
@@ -32,8 +30,6 @@ const removed = ref<ImageItem>();
 const mainImageLoading = ref<boolean>(false);
 const mainImageError = ref(false);
 const mainImageUploadRef = ref();
-
-onMounted(() => (available.value = data.value));
 
 const onUploadImage = async (event: any) => {
   const files: File[] = event.files || event.target?.files;
@@ -106,7 +102,7 @@ watchEffect(() => props.clear && ClearImageUpload());
           </div>
 
           <div v-else class="h-full">
-            <img
+            <Image
               v-if="mainImage && !mainImageUpload"
               :src="mainImage.url"
               alt="main-image"
@@ -116,9 +112,10 @@ watchEffect(() => props.clear && ClearImageUpload());
                 mainImageLoading = false;
                 mainImageError = true;
               "
+              preview
             />
 
-            <img
+            <Image
               v-else
               :src="mainImageLink"
               alt="main-image"
@@ -128,6 +125,7 @@ watchEffect(() => props.clear && ClearImageUpload());
                 mainImageLoading = false;
                 mainImageError = true;
               "
+              preview
             />
           </div>
         </div>

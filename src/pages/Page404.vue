@@ -3,7 +3,7 @@ import { Ban, TriangleAlert } from "lucide-vue-next";
 import AppButton from "../components/ui/AppButton.vue";
 import { useAppRouter } from "../composable/router/useAppRouter";
 
-const { goBack } = useAppRouter();
+const { goBack, navigateTo } = useAppRouter();
 </script>
 
 <template>
@@ -25,10 +25,14 @@ const { goBack } = useAppRouter();
 
     <p class="text-xl">Oops! The page you're looking for does not exist.</p>
 
-    <AppButton
-      label="Go Back Home"
-      type="button"
-      :clickEvent="() => goBack()"
-    />
+    <div class="flex gap-x-6 place-content-center place-items-center">
+      <AppButton
+        label="Go Back Home"
+        type="button"
+        :clickEvent="() => navigateTo('posts')"
+      />
+      <span> OR </span>
+      <AppButton label="Back" type="button" :clickEvent="() => goBack()" />
+    </div>
   </div>
 </template>

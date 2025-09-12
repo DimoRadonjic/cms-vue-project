@@ -11,6 +11,7 @@ defineProps<Props>();
 const mainImageModal = defineModel<boolean>("mainImageModal", {
   default: false,
 });
+
 const mainImage = defineModel<ImageItem | null>("mainImage", {
   default: null,
 });
@@ -34,10 +35,12 @@ const handleDeletionImage = () => {
 </script>
 
 <template>
-  <ModalBase v-model:modalOpen="mainImageModal">
+  <ModalBase
+    v-model:modalOpen="mainImageModal"
+    :modalTitle="'Choose Main Image'"
+  >
     <template #body>
-      <div class="bg-primary h-fit w-fit rounded-xl p-6 space-y-4">
-        <h2 class="text-2xl font-semibold">Choose Main Image</h2>
+      <div class="bg-primary h-fit w-fit rounded-xl space-y-4">
         <div
           v-for="image in availableImages"
           class="flex gap-5 place-content-start place-items-center text-xl"

@@ -115,20 +115,23 @@ const imageUrl = computed(() =>
 const handleView = () => {
   if (props.type === "document") {
     navigateTo("document-view", { id: props.item.id });
-  } else {
-    openModal.value = true;
   }
 };
 </script>
 
 <template>
   <div
-    class="flex flex-col h-fit gap-6 rounded-xl overflow-hidden pb-4 text-center bg-primary shadow-md cursor-pointer"
+    class="flex flex-col h-fit gap-6 rounded-xl overflow-hidden pb-4 text-center bg-primary shadow-md"
   >
-    <div class="relative" @click.stop="addSelectedItem(item)">
-      <img
+    <div class="relative">
+      <Image
         :src="imageUrl"
-        class="w-full h-52 object-cover transition-transform duration-300 group-hover:scale-105"
+        ref="image"
+        alt="Image"
+        width="100%"
+        imageClass="w-full h-52 object-cover transition-transform duration-300 group-hover:scale-105"
+        :preview="type === 'image'"
+        class="w-full h-full object-cover"
       />
 
       <div class="absolute top-3 right-3">
@@ -170,7 +173,7 @@ const handleView = () => {
         />
 
         <Button
-          v-if="isOpen"
+          v-if="isOpen && type !== 'image'"
           label="View"
           @click="handleView"
           class="transition-all duration-300"

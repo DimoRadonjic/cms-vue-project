@@ -2,7 +2,6 @@
 import { ref, watch } from "vue";
 import type { Data, DocumentItem, ImageItem, Item } from "../../types/types";
 import AppSimpleTableHeader from "../AppSimpleTableHeader.vue";
-import ModalViewImage from "../../modals/modalViewImage.vue";
 
 type CardTableProps =
   | {
@@ -150,10 +149,4 @@ watch(
       </template>
     </div>
   </div>
-
-  <ModalViewImage
-    v-if="openImageModal"
-    v-model:imageModal="openImageModal"
-    :image="imageToView"
-  />
 </template>
