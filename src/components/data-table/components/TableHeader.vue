@@ -1,14 +1,14 @@
 <script setup lang="ts">
 import apiPosts from "../../../axios/api/posts";
 import { useAppRouter } from "../../../composable/router/useAppRouter";
-import type { FilterType } from "../../../types/types";
+import { useToastService } from "../../../composable/toastService/AppToastService";
+import type { FilterType, PostData } from "../../../types/types";
 
-const props = withDefaults(
+withDefaults(
   defineProps<{
     title: string;
     filterGlobal?: Record<string, FilterType>;
-    selectedItem: any[] | null;
-    data: any[];
+    data: PostData[];
     loading: boolean;
   }>(),
   {
@@ -21,21 +21,27 @@ const props = withDefaults(
   }
 );
 
-const emit = defineEmits(["refetch", "update:data", "update:selectedItem"]);
+const { showError } = useToastService();
+
+const emit = defineEmits(["refetch"]);
+
+const selectedItem = defineModel<PostData[] | null>("selectedItem", {
+  default: null,
+});
 const { navigateTo } = useAppRouter();
 
 const handleDeletion = async () => {
-  const { selectedItem } = props;
+  if (!selectedItem.value) return;
 
-  if (!selectedItem) return;
-
-  const ids: string[] = selectedItem.map((item) => item.id);
+  const ids: string[] = selectedItem.value.map((item) => item.id);
 
   try {
     await apiPosts.deletePosts(ids);
-  } catch (error) {}
-
-  emit("update:selectedItem", null);
+  } catch (error: any) {
+    console.error(error.message);
+    showError("Failed to delete post", error.message);
+  }
+  selectedItem.value = null;
   emit("refetch");
 };
 </script>
