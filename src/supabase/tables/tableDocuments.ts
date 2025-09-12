@@ -1,6 +1,6 @@
-import { BucketsName, TableName } from "..";
-import { supabase } from "../..";
-import type { DocumentItem } from "../../../types/types";
+import { BucketsName, TableName } from ".";
+import { supabase } from "..";
+import type { DocumentItem } from "../../types/types";
 import { getPdfPreview, sanitizeFileName } from "../utils";
 import { addPostDocument, removePostDocument } from "./tablePostDocumets";
 

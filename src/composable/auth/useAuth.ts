@@ -4,7 +4,7 @@ import { useToastService } from "../toastService/AppToastService";
 import { useAppRouter } from "../router/useAppRouter";
 import { useAuthStore } from "../../store";
 import { ref } from "vue";
-import { auth } from "../../supabase/api/tables/tableProfiles";
+import { auth } from "../../supabase/tables/tableProfiles";
 
 const { getLocalItem, clearStorage, setLocalItem, setSessionItem } =
   useStorage();

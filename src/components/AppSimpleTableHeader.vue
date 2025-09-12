@@ -3,9 +3,9 @@ import { ref, computed, watch } from "vue";
 import { useAppRouter } from "../composable/router/useAppRouter";
 import type { Data, DocumentItem } from "../types/types";
 import { useToastService } from "../composable/toastService/AppToastService";
-import tableGallery from "../supabase/api/tables/tableGallery";
+import tableGallery from "../supabase/tables/tableGallery";
 import { debounce } from "lodash";
-import tableDocuments from "../supabase/api/tables/tableDocuments";
+import tableDocuments from "../supabase/tables/tableDocuments";
 
 type BaseProps = {
   type: "image" | "document";

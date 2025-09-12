@@ -2,7 +2,7 @@ import { createPinia, defineStore } from "pinia";
 import { ref } from "vue";
 import type { ProfileData } from "../types/types";
 import { useStorage } from "../composable";
-import { auth } from "../supabase/api/tables/tableProfiles";
+import { auth } from "../supabase/tables/tableProfiles";
 
 const pinia = createPinia();
 

@@ -1,6 +1,6 @@
-import { BucketsName, TableName } from "..";
-import { supabase } from "../..";
-import type { ImageItem } from "../../../types/types";
+import { BucketsName, TableName } from ".";
+import { supabase } from "..";
+import type { ImageItem } from "../../types/types";
 import { addPostImage } from "./tablePostGallery";
 
 const table = TableName.gallery;

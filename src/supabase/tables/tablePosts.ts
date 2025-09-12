@@ -1,6 +1,6 @@
-import { TableName } from "..";
-import { supabase } from "../..";
-import type { PostData } from "../../../types/types";
+import { TableName } from ".";
+import { supabase } from "..";
+import type { PostData } from "../../types/types";
 
 const table = TableName.posts;
 

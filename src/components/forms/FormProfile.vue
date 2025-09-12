@@ -2,7 +2,7 @@
 import type { FormSubmitEvent } from "@primevue/forms";
 import { ref } from "vue";
 import { useToastService } from "../../composable/toastService/AppToastService";
-import { auth } from "../../supabase/api/tables/tableProfiles";
+import { auth } from "../../supabase/tables/tableProfiles";
 import type { ProfileData } from "../../types/types";
 import { useAuth } from "../../composable";
 

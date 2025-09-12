@@ -1,8 +1,8 @@
-import tableGallery from "../../supabase/api/tables/tableGallery";
+import tableGallery from "../../supabase/tables/tableGallery";
 import {
   addPostImages,
   removePostImages,
-} from "../../supabase/api/tables/tablePostGallery";
+} from "../../supabase/tables/tablePostGallery";
 import type { ImageItem } from "../../types/types";
 import { errorMessage } from "../utils";
 

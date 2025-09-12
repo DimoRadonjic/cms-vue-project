@@ -1,9 +1,9 @@
-import tableDocuments from "../../supabase/api/tables/tableDocuments";
+import tableDocuments from "../../supabase/tables/tableDocuments";
 import {
   addPostDocument,
   addPostDocuments,
   removePostDocuments,
-} from "../../supabase/api/tables/tablePostDocumets";
+} from "../../supabase/tables/tablePostDocumets";
 import type { DocumentItem } from "../../types/types";
 import { errorMessage } from "../utils";
 

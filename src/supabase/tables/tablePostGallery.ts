@@ -1,5 +1,5 @@
-import { JunctionTableName } from "..";
-import { supabase } from "../..";
+import { JunctionTableName } from ".";
+import { supabase } from "..";
 
 const table = JunctionTableName.posts_gallery;
 

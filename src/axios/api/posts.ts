@@ -5,7 +5,7 @@ import type {
   PostWithContent,
 } from "../../types/types";
 import { errorMessage } from "../utils";
-import { tablePosts } from "../../supabase/api/tables/tablePosts";
+import { tablePosts } from "../../supabase/tables/tablePosts";
 
 const getPosts = async () => {
   try {
