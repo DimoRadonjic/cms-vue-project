@@ -2,7 +2,6 @@
 import { ref, watchEffect } from "vue";
 import type { DocumentItem } from "../../types/types";
 import ModalDocuments from "../../modals/modalDocuments.vue";
-import { useDocuments } from "../../composable/documents/useDocuments";
 
 interface Props {
   clear?: boolean;
