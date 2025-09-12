@@ -1,12 +1,13 @@
 <script setup lang="ts">
-import { reactive, ref, watch, watchEffect } from "vue";
+import { reactive, ref, watchEffect } from "vue";
 import type { FilterType, PostWithContent } from "../../types/types";
 import { usePosts } from "../../composable";
 import { useAppRouter } from "../../composable/router/useAppRouter";
+import DataTableWrapper from "./components/DataTableWrapper.vue";
+import TableHeader from "./components/TableHeader.vue";
 
-const props = withDefaults(
+withDefaults(
   defineProps<{
-    data: PostWithContent[];
     title: string;
     loading: boolean;
     error: boolean;
@@ -16,7 +17,6 @@ const props = withDefaults(
     onRefetch?: () => void;
   }>(),
   {
-    data: () => [],
     title: "",
     loading: true,
     sortable: true,
@@ -30,19 +30,13 @@ const props = withDefaults(
 const { searchPosts } = usePosts();
 const { navigateTo } = useAppRouter();
 
-const emit = defineEmits(["selectedData"]);
+const selectedData = ref<PostWithContent[]>([]);
 
-const selectedData = ref();
-const localData = ref([...props.data]);
+const localData = defineModel<PostWithContent[]>("data", { default: [] });
 
 const filterGlobal = reactive<Record<string, FilterType>>({
   global: { value: "", matchMode: "contains" },
 });
-
-const onSelectionChange = (selection: any) => {
-  selectedData.value = selection;
-  emit("selectedData", selection);
-};
 
 const dateFormatter = (value: string) => {
   return new Date(value).toLocaleDateString("en-US", {
@@ -51,14 +45,6 @@ const dateFormatter = (value: string) => {
     day: "2-digit",
   });
 };
-
-watch(
-  () => props.data,
-  (newData) => {
-    localData.value = [...newData];
-  },
-  { deep: true, immediate: true }
-);
 
 watchEffect(() => {
   if (filterGlobal.global.value) {
@@ -69,13 +55,12 @@ watchEffect(() => {
 
 <template>
   <DataTableWrapper
-    :data="data"
+    :data="localData"
     :filters="filterGlobal"
     :loading="loading"
     :columns="columns"
     :rows="10"
-    v-model:selection="selectedData"
-    @update:selection="onSelectionChange"
+    v-model:selectionArr="selectedData"
     @refetch="onRefetch"
     :multiple="true"
   >
@@ -85,7 +70,7 @@ watchEffect(() => {
         :filterGlobal
         :loading
         v-model:selectedItem="selectedData"
-        v-model:data="localData"
+        :data="localData"
         @refetch="onRefetch"
       />
     </template>
@@ -113,7 +98,7 @@ watchEffect(() => {
       </div>
     </template>
 
-    <template v-if="data.length > 0 && !loading" class="relative">
+    <template v-if="localData.length > 0 && !loading" class="relative">
       <div class="w-full h-full absolute bg-black/50 z-10" v-if="loading">
         <ProgressSpinner
           style="width: 80px; height: 80px"

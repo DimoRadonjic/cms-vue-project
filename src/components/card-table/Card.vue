@@ -57,7 +57,7 @@ const renameImage = async (image: ImageItem) => {
       title: newTitle.value,
     });
 
-    emit("refetch", true);
+    emit("refetch");
     showSuccess("Image updated");
     rename.value = false;
   } catch (error: any) {
@@ -73,7 +73,7 @@ const renameDocument = async (document: DocumentItem) => {
       title: newTitle.value,
     });
 
-    emit("refetch", true);
+    emit("refetch");
     showSuccess("Image updated");
     rename.value = false;
   } catch (error: any) {

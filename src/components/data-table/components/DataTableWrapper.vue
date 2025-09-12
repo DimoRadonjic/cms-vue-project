@@ -1,13 +1,13 @@
 <script setup lang="ts">
-import { ref } from "vue";
-import type { FilterType, PostData } from "../../../types/types";
+import { computed, ref, watch, watchEffect } from "vue";
+import type { FilterType, PostWithContent } from "../../../types/types";
 import { useToastService } from "../../../composable/toastService/AppToastService";
 import { useAppRouter } from "../../../composable/router/useAppRouter";
 import apiPosts from "../../../axios/api/posts";
 
 const props = withDefaults(
   defineProps<{
-    data: any[];
+    data: PostWithContent[];
     columns: string[];
     loading: boolean;
     filters?: Record<string, FilterType>;
@@ -40,57 +40,73 @@ const emit = defineEmits(["update:selection", "refetch"]);
 const { showSuccess, showError } = useToastService();
 const { navigateTo } = useAppRouter();
 
-const localSelection = ref<any>(props.selection);
-const cm = ref();
+const localSelectionArr = defineModel<PostWithContent[] | null>(
+  "selectionArr",
+  {
+    default: [],
+  }
+);
 
-const updateSelection = (val: any) => {
-  localSelection.value = val;
-  emit("update:selection", val);
-};
+const localSelectionItem = ref<PostWithContent | null>(null);
+
+const cm = ref();
 
 const menuModel = ref([
   {
     label: "View",
     icon: "pi pi-fw pi-search",
-    command: () => viewProduct(localSelection.value),
+    command: () =>
+      localSelectionItem.value && viewProduct(localSelectionItem.value),
   },
   {
     label: "Delete",
     icon: "pi pi-fw pi-times",
-    command: () => deleteProduct(localSelection.value),
+    command: () =>
+      localSelectionItem.value && deleteProduct(localSelectionItem.value),
   },
 ]);
 const onRowContextMenu = (event: any) => {
   cm.value.show(event.originalEvent);
 };
-const viewProduct = (item: PostData) => {
+const viewProduct = (item: PostWithContent) => {
   navigateTo("post-view", { id: item.id });
-  updateSelection(null);
+  localSelectionItem.value = null;
 };
 
-const deleteProduct = (item: PostData) => {
-  const deleteItem = async () => {
-    try {
-      await apiPosts.deletePost(item.id);
-      showSuccess("Post deleted successfully");
-      updateSelection(null);
-      emit("refetch", true);
-    } catch (error: any) {
-      const detail = new Error(error.message);
-      console.error("Error deleting post:", error);
-      showError("Error deleting post", detail);
+const deleteProduct = async (item: PostWithContent) => {
+  try {
+    await apiPosts.deletePost(item.id);
+    showSuccess("Post deleted successfully");
+    localSelectionItem.value = null;
+    emit("refetch");
+  } catch (error: any) {
+    const detail = new Error(error.message);
+    console.error("Error deleting post:", error);
+    showError("Error deleting post", detail);
+  }
+};
+
+watch(
+  () => localSelectionItem.value,
+  (newValue) => {
+    if (Array.isArray(newValue)) {
+      localSelectionArr.value = [...newValue];
+    } else if (newValue) {
+      localSelectionArr.value = [newValue];
+    } else {
+      localSelectionArr.value = [];
     }
-  };
-
-  deleteItem();
-
-  localSelection.value = null;
-};
+  },
+  { immediate: true }
+);
 </script>
 
 <template>
-  <ContextMenu ref="cm" :model="menuModel" @hide="localSelection = null" />
-  <div class="w-full h-full shadow-md" v-memo="[props.data, localSelection]">
+  <ContextMenu ref="cm" :model="menuModel" @hide="localSelectionItem = null" />
+  <div
+    class="w-full h-full shadow-md"
+    v-memo="[props.data, localSelectionItem]"
+  >
     <DataTable
       :value="data"
       :filters="filters"
@@ -103,10 +119,9 @@ const deleteProduct = (item: PostData) => {
       :pt="defaultOptions.pt"
       :selectionMode="multiple ? 'multiple' : 'single'"
       :metaKeySelection="multiple ? true : false"
-      :selection="localSelection"
-      @update:selection="updateSelection"
+      v-model:selection="localSelectionItem"
       contextMenu
-      v-model:contextMenuSelection="localSelection"
+      v-model:contextMenuSelection="localSelectionItem"
       @rowContextmenu="onRowContextMenu"
       dataKey="id"
       :loading="loading"

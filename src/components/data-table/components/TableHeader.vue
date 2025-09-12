@@ -2,13 +2,13 @@
 import apiPosts from "../../../axios/api/posts";
 import { useAppRouter } from "../../../composable/router/useAppRouter";
 import { useToastService } from "../../../composable/toastService/AppToastService";
-import type { FilterType, PostData } from "../../../types/types";
+import type { FilterType, PostWithContent } from "../../../types/types";
 
 withDefaults(
   defineProps<{
     title: string;
     filterGlobal?: Record<string, FilterType>;
-    data: PostData[];
+    data: PostWithContent[];
     loading: boolean;
   }>(),
   {
@@ -16,19 +16,17 @@ withDefaults(
     filterGlobal: () => ({
       global: { value: "", matchMode: "contains" },
     }),
-    selectedItem: null,
     loading: false,
   }
 );
-
+const { navigateTo } = useAppRouter();
 const { showError } = useToastService();
 
 const emit = defineEmits(["refetch"]);
 
-const selectedItem = defineModel<PostData[] | null>("selectedItem", {
+const selectedItem = defineModel<PostWithContent[] | null>("selectedItem", {
   default: null,
 });
-const { navigateTo } = useAppRouter();
 
 const handleDeletion = async () => {
   if (!selectedItem.value) return;
