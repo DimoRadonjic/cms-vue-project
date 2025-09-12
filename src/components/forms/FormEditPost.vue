@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { FormSubmitEvent } from "@primevue/forms";
 import { zodResolver } from "@primevue/forms/resolvers/zod";
-import { computed, reactive, ref, watchEffect } from "vue";
+import { computed, onMounted, reactive, ref, watchEffect } from "vue";
 import { useToastService } from "../../composable/toastService/AppToastService";
 import apiPosts from "../../axios/api/posts";
 import type {
@@ -35,23 +35,23 @@ import isEqual from "lodash/isEqual";
 import DocumentUpload from "../file-upload/DocumentUpload.vue";
 import ImageUpload from "../image-upload/ImageUpload.vue";
 import MainImageUpload from "../image-upload/mainImageUpload.vue";
+import { useGallery } from "../../composable/gallery/useGallery";
 
 interface Props {
   reset?: boolean;
   data: PostWithContent;
-  hasChanged: boolean;
 }
 
 const props = defineProps<Props>();
 
+const { data, getAvailableImages } = useGallery();
+
 const initialValues = reactive<PostWithContent>({ ...props.data });
 const formRef = ref();
 
-const emit = defineEmits([
-  "uploading-change",
-  "clear-form",
-  "update:hasChanged",
-]);
+const hasChanged = defineModel("hasChanged");
+
+const emit = defineEmits(["uploading-change", "clear-form"]);
 
 defineExpose({ formRef });
 
@@ -63,14 +63,12 @@ const { reFetchPosts } = usePosts();
 
 const resolver = zodResolver(schemaPost);
 
-const documents = ref<DocumentItem[]>([...props.data.documents]);
 const newDocuments = ref<File[]>([]);
-const existingDocuments = ref<DocumentItem[]>([]);
+const existingDocuments = ref<DocumentItem[]>([...props.data.documents]);
 const removedDocuments = ref<DocumentItem[]>([]);
 
-const images = ref<ImageItem[]>([...props.data.images]);
 const newImages = ref<File[]>([]);
-const existingImages = ref<ImageItem[]>([]);
+const existingImages = ref<ImageItem[]>([...props.data.images]);
 const removedImages = ref<ImageItem[]>([]);
 
 const mainImageUpload = ref<File>();
@@ -80,20 +78,13 @@ const mainImage = ref<ImageItem | null>(
 
 const mainImageLoading = ref<boolean>(false);
 const mainImageError = ref<boolean>(false);
-const removedMainImage = computed(() => !mainImage.value);
-const changedMain = computed(() => {
-  if (initialValues.mainImage) {
-    if (mainImage.value && mainImage.value.id !== initialValues.mainImage.id) {
-      return true;
-    }
-  } else {
-    if (mainImage.value) {
-      return true;
-    } else {
-      return false;
-    }
-  }
-});
+const removedMainImage = ref<boolean>(false);
+const changedMain = computed(
+  () =>
+    mainImage.value &&
+    initialValues.mainImage &&
+    initialValues.mainImage.id !== mainImage.value.id
+);
 
 const imagesError = ref(false);
 const documentError = ref(false);
@@ -101,6 +92,7 @@ const uploading = ref<boolean>(false);
 const clearFiles = ref<boolean>(false);
 const availableDocuments = ref<DocumentItem[]>([]);
 const availableImages = ref<ImageItem[]>([]);
+const availableMainImages = ref<ImageItem[]>([]);
 
 const updateSEO = (form: any, value: any) => {
   if (
@@ -276,7 +268,9 @@ const onFormSubmit = async ({ valid, values }: FormSubmitEvent) => {
   if (mainImageUpload.value) {
     emit("uploading-change", uploading.value);
 
-    await handleRemovalMainImage(initalMainImage.id, id, valuesToSend);
+    if (initalMainImage) {
+      await handleRemovalMainImage(initalMainImage.id, id, valuesToSend);
+    }
 
     const mainImageRes = await handleMainImageUpload(mainImageUpload.value, id);
 
@@ -288,7 +282,9 @@ const onFormSubmit = async ({ valid, values }: FormSubmitEvent) => {
   if (removedMainImage.value) {
     emit("uploading-change", uploading.value);
 
-    await handleRemovalMainImage(initalMainImage.id, id, valuesToSend);
+    if (initalMainImage) {
+      await handleRemovalMainImage(initalMainImage.id, id, valuesToSend);
+    }
   }
 
   if (changedMain.value && mainImage.value) {
@@ -358,65 +354,44 @@ const resetForm = () => {
 };
 
 watchEffect(() => {
-  if (initialValues.documents.length > 0) {
-    if (
-      removedDocuments.value.length > 0 ||
-      !isEqual(existingDocuments.value, initialValues.documents) ||
-      newDocuments.value.length > 0
-    ) {
-      emit("update:hasChanged", false);
-    } else {
-      emit("update:hasChanged", true);
-    }
-  } else {
-    if (
-      !isEqual(existingDocuments.value, initialValues.documents) ||
-      newDocuments.value.length > 0
-    ) {
-      emit("update:hasChanged", false);
-    } else {
-      emit("update:hasChanged", true);
-    }
-  }
+  const documentsChanged =
+    initialValues.documents.length > 0
+      ? removedDocuments.value.length > 0 ||
+        !isEqual(existingDocuments.value, initialValues.documents) ||
+        newDocuments.value.length > 0
+      : existingDocuments.value.length > 0 || newDocuments.value.length > 0;
 
-  if (initialValues.images.length > 0) {
-    if (
-      removedImages.value.length > 0 ||
-      !isEqual(existingImages.value, initialValues.images) ||
-      newImages.value.length > 0
-    ) {
-      emit("update:hasChanged", false);
-    } else {
-      emit("update:hasChanged", true);
-    }
-  } else {
-    if (
-      !isEqual(existingImages.value, initialValues.images) ||
-      newImages.value.length > 0
-    ) {
-      emit("update:hasChanged", false);
-    } else {
-      emit("update:hasChanged", true);
-    }
-  }
+  const imagesChanged =
+    initialValues.images.length > 0
+      ? removedImages.value.length > 0 ||
+        !isEqual(existingImages.value, initialValues.images) ||
+        newImages.value.length > 0
+      : existingImages.value.length > 0 || newImages.value.length > 0;
 
-  if (initialValues.mainImage) {
-    if (mainImage.value && mainImage.value.id !== initialValues.mainImage.id) {
-      emit("update:hasChanged", false);
-    }
-  } else {
-    if (mainImage.value) {
-      emit("update:hasChanged", false);
-    } else {
-      emit("update:hasChanged", true);
-    }
+  const mainImageChanged = changedMain.value || mainImageUpload.value;
+
+  hasChanged.value = documentsChanged || imagesChanged || mainImageChanged;
+});
+
+onMounted(async () => {
+  try {
+    const res = await getAvailableImages(props.data.id);
+    availableImages.value = res;
+    availableMainImages.value = data.value;
+  } catch (error: any) {
+    console.error(error.message);
+    showError("Failed to set available images and available main images");
   }
 });
 
+watchEffect(() => console.log("initial values ", initialValues));
+watchEffect(() => console.log("mainImage values ", mainImage.value));
+watchEffect(() => console.log("changedMain values ", changedMain.value));
+
 const testValue = (val: string, initial: string) => {
   val.toLocaleLowerCase() === initial.toLocaleLowerCase()
-    ? emit("update:hasChanged", true)
-    : emit("update:hasChanged", false);
+    ? (hasChanged.value = false)
+    : (hasChanged.value = true);
 };
 </script>
 
@@ -609,7 +584,8 @@ const testValue = (val: string, initial: string) => {
             <MainImageUpload
               v-model:mainImage="mainImage"
               v-model:mainImageUpload="mainImageUpload"
-              v-model:available="availableImages"
+              v-model:removedMainImage="removedMainImage"
+              :available="availableImages"
               :postID="initialValues.id"
               :clear="clearFiles"
             />
@@ -626,7 +602,7 @@ const testValue = (val: string, initial: string) => {
                 </div>
                 <DocumentUpload
                   v-model:files="newDocuments"
-                  v-model:existingDocuments="documents"
+                  v-model:existingDocuments="existingDocuments"
                   v-model:available="availableDocuments"
                   v-model:removedDocuments="removedDocuments"
                   :postID="initialValues.id"
@@ -645,8 +621,9 @@ const testValue = (val: string, initial: string) => {
                 </div>
 
                 <ImageUpload
+                  :initialMainImageId="initialValues.mainImage.id"
                   v-model:files="newImages"
-                  v-model:existingImages="images"
+                  v-model:existingImages="existingImages"
                   v-model:available="availableImages"
                   v-model:removedImages="removedImages"
                   :postID="initialValues.id"

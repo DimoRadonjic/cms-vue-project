@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref, watchEffect } from "vue";
+import { computed, onMounted, ref, watchEffect } from "vue";
 import type { ImageItem } from "../../types/types";
 import { useGallery } from "../../composable/gallery/useGallery";
 import { ImagePlus, Wallpaper } from "lucide-vue-next";
@@ -7,34 +7,33 @@ import { createLink } from "../utils";
 import ModalMainImage from "../../modals/modalMainImage.vue";
 
 interface Props {
-  images?: ImageItem[];
   clear?: boolean;
   postID?: string;
 }
 
 const props = defineProps<Props>();
 
-const { getAvailableImages } = useGallery();
+const { data } = useGallery();
 
 const mainImageModal = defineModel<boolean>("mainImageModal", {
   default: false,
 });
 const mainImageUpload = defineModel<File | undefined>("mainImageUpload");
-const available = defineModel<ImageItem[]>("available", { default: [] });
 const mainImage = defineModel<ImageItem | null>("mainImage", { default: null });
+const available = defineModel<ImageItem[]>("available", {
+  default: [],
+});
+const removedMainImage = defineModel<boolean>("removedMainImage", {
+  default: false,
+});
 
 const removed = ref<ImageItem>();
 
-watchEffect(async () => {
-  const data = await getAvailableImages(props.postID ?? "");
-
-  if (data && data.data) {
-    available.value = data.data;
-  }
-});
 const mainImageLoading = ref<boolean>(false);
 const mainImageError = ref(false);
 const mainImageUploadRef = ref();
+
+onMounted(() => (available.value = data.value));
 
 const onUploadImage = async (event: any) => {
   const files: File[] = event.files || event.target?.files;
@@ -55,9 +54,12 @@ const ClearImageUpload = () => {
   mainImageUploadRef.value?.clear();
   mainImageUpload.value = undefined;
   mainImageError.value = false;
+  removedMainImage.value = true;
   if (mainImage.value) {
     removed.value = mainImage.value;
-    available.value.push(mainImage.value);
+    if (!available.value.includes(removed.value)) {
+      available.value.push(mainImage.value);
+    }
   }
 
   mainImage.value = null;

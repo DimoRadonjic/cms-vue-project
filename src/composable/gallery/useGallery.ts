@@ -104,7 +104,7 @@ export const useGallery = () => {
     }
   };
 
-  const getAvailableImages = async (postID: string) => {
+  const getAvailableImages = async (postID: string): Promise<ImageItem[]> => {
     loading.value = true;
 
     try {
@@ -118,6 +118,8 @@ export const useGallery = () => {
         "Failed to get available images. Please try again later.",
         detail
       );
+
+      return [];
     }
   };
 

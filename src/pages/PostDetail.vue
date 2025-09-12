@@ -47,7 +47,7 @@ const postDetail = ref<PostWithContent>();
 const initialValues = computed(() => postDetail.value ?? basic);
 const editingPost = ref(false);
 const uploading = ref(false);
-const hasChanged = ref(true);
+const hasChanged = ref(false);
 const loading = ref(false);
 
 watchEffect(async () => {
@@ -73,6 +73,8 @@ const editPost = () => {
 const updatePost = () => {
   editingPost.value = true;
 };
+
+watchEffect(() => console.log("hasChanged parent", hasChanged.value));
 </script>
 
 <template>
@@ -321,7 +323,7 @@ const updatePost = () => {
             :type="'submit'"
             :label="'Done'"
             :clickEvent="updatePost"
-            :disabled="hasChanged"
+            :disabled="!hasChanged"
           />
 
           <AppButton

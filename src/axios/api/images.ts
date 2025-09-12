@@ -100,13 +100,15 @@ const removePostImagesAPI = async (image_ids: string[], post_id: string) => {
   }
 };
 
-const getAvailableImagesByPostID = async (postID: string) => {
+const getAvailableImagesByPostID = async (
+  postID: string
+): Promise<ImageItem[]> => {
   try {
     const res = await tableGallery.availableImages(postID);
-    return { data: res, status: 200 };
+    return res;
   } catch (error: any) {
     errorMessage("Failed to get available images", error);
-    return { status: 500 };
+    return [];
   }
 };
 

@@ -1,18 +1,17 @@
 <script setup lang="ts">
 import { ref, watchEffect } from "vue";
 import type { ImageItem } from "../../types/types";
-import { useGallery } from "../../composable/gallery/useGallery";
+
 import ImageLink from "../ImageLink.vue";
 import ModalImage from "../../modals/modalImage.vue";
 
 interface Props {
+  initialMainImageId: string;
   clear?: boolean;
   postID?: string;
 }
 
 const props = defineProps<Props>();
-
-const { getAvailableImages } = useGallery();
 
 const imageFiles = defineModel<File[]>("files", { default: [] });
 const existingImages = defineModel<ImageItem[]>("existingImages", {
@@ -24,13 +23,6 @@ const removedImages = defineModel<ImageItem[]>("removedImages", {
 const available = defineModel<ImageItem[]>("available", { default: [] });
 const imageModal = defineModel<boolean>("imagesModal", { default: false });
 
-watchEffect(async () => {
-  const data = await getAvailableImages(props.postID ?? "");
-
-  if (data && data.data) {
-    available.value = data.data;
-  }
-});
 const imagesUploading = ref<boolean>(false);
 const imagesError = ref(false);
 const imagesUploadRef = ref();

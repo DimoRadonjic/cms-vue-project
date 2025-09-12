@@ -92,14 +92,14 @@ const getGallery = async (): APIGalleryResponse => {
   return { data: imgs, status };
 };
 
-const availableImages = async (postID: string) => {
+const availableImages = async (postID: string): Promise<ImageItem[]> => {
   const { data } = await getGallery();
 
   const available = data?.filter(
     (img) => !img.post_ids.some((p) => p === postID)
   );
 
-  return available as unknown as ImageItem[];
+  return available as ImageItem[];
 };
 
 const addImageToGallery = async (
