@@ -11,7 +11,6 @@ const modalOpen = defineModel("modalOpen", { default: false });
     modal
     :header="modalTitle"
     :style="{ width: 'fit-content', height: 'fit-content' }"
-    maximizable
     pt:header="!text-2xl"
   >
     <slot name="body" class="h-full w-full"></slot>
