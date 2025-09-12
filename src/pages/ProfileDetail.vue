@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted, ref, watch } from "vue";
+import { ref, watch } from "vue";
 import { useAuthStore } from "../store";
 import type { ProfileData } from "../types/types";
 import { AppInputPasswordField } from "../components/inputs";
