@@ -74,8 +74,6 @@ const editPost = () => {
 const updatePost = () => {
   editingPost.value = true;
 };
-
-watchEffect(() => console.log("hasChanged parent", hasChanged.value));
 </script>
 
 <template>
