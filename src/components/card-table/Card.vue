@@ -124,7 +124,6 @@ const handleView = () => {
     <div class="relative">
       <Image
         :src="imageUrl"
-        ref="image"
         alt="Image"
         width="100%"
         imageClass="w-full h-52 object-cover transition-transform duration-300 group-hover:scale-105"

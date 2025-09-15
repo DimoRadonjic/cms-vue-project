@@ -50,7 +50,6 @@ const { showSuccess } = useToastService();
 
 const { navigateTo } = useAppRouter();
 
-const fileUploadRef = ref<any>();
 const uploading = ref<boolean>(false);
 const deleting = ref(false);
 const searching = ref(false);
@@ -189,7 +188,6 @@ watch(
 
       <FileUpload
         v-else
-        ref="fileUploadRef"
         mode="basic"
         :chooseLabel="uploading ? 'Uploading' : buttonAddLabel"
         name="mainFileUpload"

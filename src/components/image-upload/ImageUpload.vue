@@ -25,7 +25,6 @@ const imageModal = defineModel<boolean>("imagesModal", { default: false });
 
 const imagesUploading = ref<boolean>(false);
 const imagesError = ref(false);
-const imagesUploadRef = ref();
 
 const onUploadImages = (event: any) => {
   const files: File[] = Array.from(event.files || []);
@@ -52,7 +51,6 @@ const onUploadImages = (event: any) => {
 };
 
 const ClearImagesUpload = () => {
-  imagesUploadRef.value?.clear();
   imageFiles.value = [];
   removedImages.value = [...existingImages.value];
   available.value = [...available.value, ...existingImages.value];
@@ -96,7 +94,6 @@ watchEffect(() => props.clear && ClearImagesUpload());
       ></Button>
       <div class="flex gap-x-5">
         <FileUpload
-          ref="imagesUploadRef"
           mode="basic"
           name="imageIds[]"
           accept="image/jpeg"

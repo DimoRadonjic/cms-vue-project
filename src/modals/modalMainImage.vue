@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { ref } from "vue";
 import type { ImageItem } from "../types/types";
 import ModalBase from "./modalBase.vue";
 
@@ -15,6 +16,10 @@ const mainImageModal = defineModel<boolean>("mainImageModal", {
 const mainImage = defineModel<ImageItem | null>("mainImage", {
   default: null,
 });
+
+const originalImage = ref<ImageItem | null>(
+  mainImage.value && { ...mainImage.value }
+);
 
 const availableImages = defineModel<ImageItem[]>("availableImages", {
   default: [],
@@ -46,6 +51,12 @@ const handleDeletionImage = () => {
           class="flex gap-5 place-content-start place-items-center text-xl"
           :key="image.id"
         >
+          <span
+            v-if="originalImage?.id === image?.id"
+            class="ml-2 px-2 py-0.5 text-xs rounded bg-green-100 text-green-700 border border-green-300"
+          >
+            Original
+          </span>
           <ImageLink :image />
           <AppButton
             v-if="mainImage?.id !== image.id"

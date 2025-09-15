@@ -45,6 +45,7 @@ declare module 'vue' {
     FormRegister: typeof import('./src/components/forms/FormRegister.vue')['default']
     IconField: typeof import('primevue/iconfield')['default']
     Image: typeof import('primevue/image')['default']
+    ImageCompare: typeof import('primevue/imagecompare')['default']
     ImageLink: typeof import('./src/components/ImageLink.vue')['default']
     ImageUpload: typeof import('./src/components/image-upload/ImageUpload.vue')['default']
     InputIcon: typeof import('primevue/inputicon')['default']
@@ -57,9 +58,11 @@ declare module 'vue' {
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
     Sidebar: typeof import('primevue/sidebar')['default']
+    Skeleton: typeof import('primevue/skeleton')['default']
     TableHeader: typeof import('./src/components/data-table/components/TableHeader.vue')['default']
     Textarea: typeof import('primevue/textarea')['default']
     Toast: typeof import('primevue/toast')['default']
     Toolbar: typeof import('primevue/toolbar')['default']
+    VirtualScroller: typeof import('primevue/virtualscroller')['default']
   }
 }

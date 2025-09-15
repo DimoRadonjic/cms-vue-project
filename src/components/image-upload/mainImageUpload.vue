@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref, watchEffect } from "vue";
+import { computed, ref, useTemplateRef, watchEffect } from "vue";
 import type { ImageItem } from "../../types/types";
 import { ImagePlus, Wallpaper } from "lucide-vue-next";
 import { createLink } from "../utils";
@@ -29,7 +29,6 @@ const removed = ref<ImageItem>();
 
 const mainImageLoading = ref<boolean>(false);
 const mainImageError = ref(false);
-const mainImageUploadRef = ref();
 
 const onUploadImage = async (event: any) => {
   const files: File[] = event.files || event.target?.files;
@@ -47,7 +46,6 @@ const onUploadImage = async (event: any) => {
 };
 
 const ClearImageUpload = () => {
-  mainImageUploadRef.value?.clear();
   mainImageUpload.value = undefined;
   mainImageError.value = false;
   removedMainImage.value = true;
@@ -89,7 +87,6 @@ watchEffect(() => props.clear && ClearImageUpload());
             <ImagePlus class="w-full h-full z-10" />
 
             <FileUpload
-              ref="mainImageUploadRef"
               mode="basic"
               class="!absolute top-0 w-full h-full !opacity-0 !z-0"
               name="mainImageId"
@@ -145,7 +142,6 @@ watchEffect(() => props.clear && ClearImageUpload());
         <div class="flex gap-x-5">
           <FileUpload
             v-if="mainImageUpload || mainImage"
-            ref="imagesUploadRef"
             mode="basic"
             name="imageIds[]"
             accept="image/jpeg"

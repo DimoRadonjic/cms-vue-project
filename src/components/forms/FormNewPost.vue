@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { reactive, ref } from "vue";
+import { reactive, ref, useTemplateRef } from "vue";
 import type {
   DocumentItem,
   FormSubmitEvent,
@@ -53,6 +53,8 @@ const resolver = zodResolver(schema);
 const shouldConfirmLeave = ref<boolean>(false);
 const clearUploads = ref<boolean>(false);
 const filesUploaded = ref<File[]>([]);
+
+const formRef = useTemplateRef<HTMLFormElement>("formRef");
 
 const mainImageUpload = ref<any>();
 
@@ -228,21 +230,18 @@ const uploadAll = async (
     mainImageID: null,
   };
 
-  // dokumenti
   if (docsResult.status === "fulfilled" && docsResult.value) {
     result.fileIds = docsResult.value;
   } else {
     documentError.value = true;
   }
 
-  // slike
   if (imagesResult.status === "fulfilled" && imagesResult.value) {
     result.imageIds = imagesResult.value;
   } else {
     imagesError.value = true;
   }
 
-  // glavna slika
   if (mainImageResult.status === "fulfilled" && mainImageResult.value) {
     result.mainImageID = mainImageResult.value.id;
   } else {
@@ -299,14 +298,18 @@ const onFormSubmit = async ({ valid, values }: FormSubmitEvent) => {
       showSuccess("Post created");
       reFetchPosts();
       goBack();
-      values = initialValues;
       resetUploads();
+      resetFrom();
       clearUploads.value = false;
     }
   } catch (error: any) {
     const detail = new Error(error.message);
     showError("Creatiton failed.", detail, 3000);
   }
+};
+
+const resetFrom = () => {
+  formRef.value?.reset();
 };
 
 onBeforeRouteLeave((_, __, next) => {
@@ -318,6 +321,7 @@ onBeforeRouteLeave((_, __, next) => {
     );
     if (answer) {
       resetUploads();
+      resetFrom();
       next();
     } else next(false);
   } else {

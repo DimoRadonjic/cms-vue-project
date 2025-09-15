@@ -1,7 +1,14 @@
 <script setup lang="ts">
-import type { FormSubmitEvent } from "@primevue/forms";
+import type { Form, FormSubmitEvent } from "@primevue/forms";
 import { zodResolver } from "@primevue/forms/resolvers/zod";
-import { computed, onMounted, reactive, ref, watchEffect } from "vue";
+import {
+  computed,
+  onMounted,
+  reactive,
+  ref,
+  useTemplateRef,
+  watchEffect,
+} from "vue";
 import { useToastService } from "../../composable/toastService/AppToastService";
 import apiPosts from "../../axios/api/posts";
 import type {
@@ -50,7 +57,7 @@ const { data, getAvailableImages } = useGallery();
 const { getAvailableDocuments } = useDocuments();
 
 const initialValues = reactive<PostWithContent>({ ...props.data });
-const formRef = ref();
+const formRef = useTemplateRef<HTMLFormElement>("formRef");
 
 const hasChanged = defineModel("hasChanged");
 
@@ -350,9 +357,7 @@ const onFormSubmit = async ({ valid, values }: FormSubmitEvent) => {
 };
 
 const resetForm = () => {
-  if (formRef.value) {
-    formRef.value.reset();
-  }
+  formRef.value?.reset();
 };
 
 watchEffect(() => {

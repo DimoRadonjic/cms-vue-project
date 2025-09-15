@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, watchEffect } from "vue";
+import { ref, useTemplateRef, watchEffect } from "vue";
 import type { DocumentItem } from "../../types/types";
 import ModalDocuments from "../../modals/modalDocuments.vue";
 
@@ -21,7 +21,6 @@ const existingDocuments = defineModel<DocumentItem[]>("existingDocuments", {
 });
 
 const documentsUploading = ref<boolean>(false);
-const fileUploadRef = ref();
 const documentError = ref(false);
 
 const onUploadDocument = (event: any) => {
@@ -49,7 +48,6 @@ const onUploadDocument = (event: any) => {
 };
 
 const ClearDocumentUpload = () => {
-  fileUploadRef.value?.clear();
   filesUploaded.value = [];
   removedDocuments.value = [...existingDocuments.value];
   available.value = [...available.value, ...existingDocuments.value];
@@ -91,7 +89,6 @@ watchEffect(() => props.clear && ClearDocumentUpload());
       ></Button>
       <div class="flex gap-x-5">
         <FileUpload
-          ref="fileUploadRef"
           mode="basic"
           name="documentIds[]"
           accept="application/pdf"

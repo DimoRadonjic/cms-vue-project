@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, watch } from "vue";
+import { computed, ref, watch } from "vue";
 import type { Data, DocumentItem, ImageItem, Item } from "../../types/types";
 import AppSimpleTableHeader from "../AppSimpleTableHeader.vue";
 
@@ -69,13 +69,24 @@ watch(
   },
   { immediate: true }
 );
+
+const itemsPerPage = ref<number>(8);
+const visibleItems = computed(() => {
+  return localData.value.slice(0, itemsPerPage.value);
+});
+
+const loadMore = () => {
+  itemsPerPage.value += 8;
+};
+
+console.log("data", localData.value);
 </script>
 
 <template>
   <div class="w-full h-full space-y-10">
     <AppSimpleTableHeader
       v-model:selectedItems="itemsSelected"
-      v-model:headerData="localData"
+      v-model:headerData="visibleItems"
       :title
       :type
       buttonAddLabel="Upload"
@@ -90,7 +101,7 @@ watch(
     <div
       :class="
         'grid  w-full  gap-7 place-content-center  ' +
-        (localData.length > 0 && !loading && !searching
+        (visibleItems.length > 0 && !loading && !searching
           ? 'grid-cols-1  md:grid-cols-4 px-6 md:px-4 place-items-start'
           : 'grid-cols-1 place-items-center')
       "
@@ -108,7 +119,7 @@ watch(
           />
         </div>
       </template>
-      <template v-if="localData.length === 0 && !loading && !searching">
+      <template v-if="visibleItems.length === 0 && !loading && !searching">
         <div
           class="flex flex-col items-center justify-center p-10 text-primary border-2 border-dashed border-primary rounded-lg bg-primary"
         >
@@ -133,8 +144,8 @@ watch(
         </div>
       </template>
 
-      <template v-if="localData.length > 0 && !loading && !searching">
-        <div class="w-full h-full" v-for="item in localData" :key="item.id">
+      <template v-if="visibleItems.length > 0 && !loading && !searching">
+        <div class="w-full h-full" v-for="item in visibleItems" :key="item.id">
           <Card
             :type
             :addSelectedItem="addSelectedItem"
@@ -147,6 +158,17 @@ watch(
           />
         </div>
       </template>
+    </div>
+    <div
+      v-if="!loading && !searching && visibleItems.length < localData.length"
+      class="flex justify-center mt-6"
+    >
+      <button
+        @click="loadMore"
+        class="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-dark"
+      >
+        Load more
+      </button>
     </div>
   </div>
 </template>
