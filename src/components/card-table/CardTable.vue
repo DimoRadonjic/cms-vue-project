@@ -173,7 +173,10 @@ const loadMore = () => {
         aria-label="Custom ProgressSpinner"
       />
     </div>
-    <div v-else class="flex justify-center mt-6">
+    <div
+      v-if="itemsPerPage <= localData.length"
+      class="flex justify-center mt-6"
+    >
       <AppButton :clickEvent="loadMore" label="Load more"> </AppButton>
     </div>
   </div>
