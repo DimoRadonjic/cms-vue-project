@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref, useTemplateRef, watchEffect } from "vue";
+import { computed, ref, watchEffect } from "vue";
 import type { ImageItem } from "../../types/types";
 import { ImagePlus, Wallpaper } from "lucide-vue-next";
 import { createLink } from "../utils";

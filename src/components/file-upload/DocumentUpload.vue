@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, useTemplateRef, watchEffect } from "vue";
+import { ref, watchEffect } from "vue";
 import type { DocumentItem } from "../../types/types";
 import ModalDocuments from "../../modals/modalDocuments.vue";
 

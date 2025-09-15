@@ -47,6 +47,7 @@ const imageToView = ref<ImageItem | undefined>(undefined);
 
 const searching = ref<boolean>(false);
 const openImageModal = ref<boolean>(false);
+const loadingMore = ref<boolean>(false);
 
 const localData = ref<(ImageItem | DocumentItem)[]>([]);
 
@@ -76,10 +77,10 @@ const visibleItems = computed(() => {
 });
 
 const loadMore = () => {
+  loadingMore.value = true;
   itemsPerPage.value += 8;
+  loadingMore.value = false;
 };
-
-console.log("data", localData.value);
 </script>
 
 <template>
@@ -159,16 +160,21 @@ console.log("data", localData.value);
         </div>
       </template>
     </div>
+
     <div
-      v-if="!loading && !searching && visibleItems.length < localData.length"
-      class="flex justify-center mt-6"
+      v-if="loadingMore"
+      class="flex place-content-center place-items-center w-full h-full text-3xl"
     >
-      <button
-        @click="loadMore"
-        class="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-dark"
-      >
-        Load more
-      </button>
+      <ProgressSpinner
+        style="width: 80px; height: 80px"
+        strokeWidth="8"
+        fill="transparent"
+        animationDuration=".5s"
+        aria-label="Custom ProgressSpinner"
+      />
+    </div>
+    <div v-else class="flex justify-center mt-6">
+      <AppButton :clickEvent="loadMore" label="Load more"> </AppButton>
     </div>
   </div>
 </template>
