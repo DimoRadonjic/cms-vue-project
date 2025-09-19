@@ -3,6 +3,7 @@ import axios, {
   type AxiosRequestConfig,
   type Method,
 } from "axios";
+import { supabase } from "../supabase";
 
 // Mapa za pamćenje kontrolera po Key (method + ':' + url)
 const controllers = new Map<
@@ -63,6 +64,51 @@ const requestWithAbort = async <T = any>(
     throw err;
   }
 };
+
+// Dodaj token
+apiClient.interceptors.request.use(async (config) => {
+  const { data, error } = await supabase.auth.getSession();
+
+  if (!error && data?.session) {
+    const token = data.session.access_token;
+    if (config.headers) {
+      config.headers.set("Authorization", `Bearer ${token}`);
+    } else {
+      config.headers = { Authorization: `Bearer ${token}` } as any;
+    }
+  }
+
+  return config;
+});
+
+export const getValidAccessToken = async (): Promise<string | null> => {
+  const { data } = await supabase.auth.getSession();
+  if (!data?.session) return null;
+
+  const now = Math.floor(Date.now() / 1000);
+  const expiresAt = data.session.expires_at || 0;
+
+  if (expiresAt - now < 300) {
+    const { data: refreshed, error } = await supabase.auth.refreshSession();
+    if (error || !refreshed?.session) return null;
+    return refreshed.session.access_token;
+  }
+
+  return data.session.access_token;
+};
+
+apiClient.interceptors.request.use(async (config) => {
+  const token = await getValidAccessToken();
+  if (token) {
+    if (config.headers) {
+      config.headers.set("Authorization", `Bearer ${token}`);
+    } else {
+      config.headers = { Authorization: `Bearer ${token}` } as any;
+    }
+  }
+
+  return config;
+});
 
 const api = {
   get: <T = any>(url: string, config?: AxiosRequestConfig) =>
