@@ -5,6 +5,7 @@ import { useAppRouter } from "../router/useAppRouter";
 import { useAuthStore } from "../../store";
 import { ref } from "vue";
 import { auth } from "../../supabase/tables/tableProfiles";
+import apiProfiles from "../../axios/api/profiles";
 
 const { getLocalItem, clearStorage, setLocalItem, setSessionItem } =
   useStorage();
@@ -26,7 +27,7 @@ export const useAuth = () => {
 
   const login = async (newUser: LoginProfileData) => {
     try {
-      const res = await auth.loginUser(newUser);
+      const res = await apiProfiles.loginUser(newUser);
 
       if (res) {
         const { session, user } = res;
@@ -48,9 +49,10 @@ export const useAuth = () => {
 
   const register = async (values: ProfileData) => {
     try {
-      const { session } = await auth.registerUser(values);
+      const res = await apiProfiles.registerUser(values);
 
-      if (session) {
+      if (res?.session) {
+        const { session } = res;
         setSessionItem("token", session?.access_token);
       }
 

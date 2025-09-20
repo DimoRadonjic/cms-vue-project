@@ -12,6 +12,39 @@ type ImageData = Omit<ImageItem, "post_ids">;
 
 type APIGalleryResponse = Promise<{ data: ImageItem[]; status: number }>;
 
+async function createOrRefreshUrls() {
+  const { data: images, error } = await supabase
+    .from(table)
+    .select("id, path, url_expires_at");
+
+  if (error) throw error;
+
+  const now = new Date();
+
+  for (const img of images) {
+    const expiresAt = img.url_expires_at ? new Date(img.url_expires_at) : null;
+
+    if (
+      !img.path ||
+      !expiresAt ||
+      (expiresAt.getTime() - now.getTime()) / 1000 < 86400
+    ) {
+      const { data } = await supabase.storage
+        .from(bucket)
+        .createSignedUrl(img.path, 60 * 60 * 24 * 7);
+
+      const signedUrl = data?.signedUrl;
+      const newExpiresAt = new Date();
+      newExpiresAt.setDate(newExpiresAt.getDate() + 7);
+
+      await supabase
+        .from(table)
+        .update({ url: signedUrl, url_expires_at: newExpiresAt.toISOString() })
+        .eq("id", img.id);
+    }
+  }
+}
+
 const uploadImage = async (
   file: File,
   post_id: string
@@ -28,12 +61,12 @@ const uploadImage = async (
     throw new Error(error.message);
   }
 
-  const { data: urlData, error: urlError } = await supabase.storage
+  const { data: urlData } = await supabase.storage
     .from(bucket)
-    .createSignedUrl(path, 60 * 60 * 24 * 7);
+    .getPublicUrl(path);
 
-  if (urlError || !urlData) {
-    throw new Error(urlError?.message || "Failed to create signed URL");
+  if (!urlData) {
+    throw new Error("Failed to get public URL");
   }
 
   const fileTitle = file.name.replace(/\.(jpg|jpeg|png|gif|webp)$/i, "");
@@ -44,7 +77,7 @@ const uploadImage = async (
     title: fileTitle,
     alt: fileTitle,
     path: dataPath,
-    url: urlData.signedUrl,
+    url: urlData.publicUrl,
   };
 
   try {
@@ -68,6 +101,7 @@ const uploadImages = async (files: File[], post_id: string) => {
 };
 
 const getGallery = async (): APIGalleryResponse => {
+  createOrRefreshUrls();
   const { data, status, error } = await supabase.from(table).select(`
     id,
     title,

@@ -171,4 +171,6 @@ export const auth = {
   updateUser,
   refreshSession,
   getPasswordByUsername,
+  getUserByID,
+  getUserByUsername,
 };
