@@ -4,7 +4,6 @@ import { useToastService } from "../toastService/AppToastService";
 import { useAppRouter } from "../router/useAppRouter";
 import { useAuthStore } from "../../store";
 import { ref } from "vue";
-import { auth } from "../../supabase/tables/tableProfiles";
 import apiProfiles from "../../axios/api/profiles";
 
 const { getLocalItem, clearStorage, setLocalItem, setSessionItem } =
