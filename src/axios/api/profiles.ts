@@ -64,6 +64,14 @@ const deleteUser = async (id: string) => {
   }
 };
 
+const deleteUserByEmail = async (email: string) => {
+  try {
+    const success = await auth.deleteUserByEmail(email);
+    return success;
+  } catch (error: any) {
+    errorMessage(`Failed to delete user with email: ${email}`, error.message);
+  }
+};
 const getPasswordByUsername = async (username: string) => {
   try {
     const data = await auth.getPasswordByUsername(username);
@@ -94,6 +102,7 @@ const apiProfiles = {
   deleteUser,
   getPasswordByUsername,
   refreshSession,
+  deleteUserByEmail,
 };
 
 export default apiProfiles;

@@ -37,21 +37,21 @@ const handleLogout = () => {
               }}</router-link>
             </li>
           </ul>
-        </div>
-
-        <div class="w-full">
-          <div class="flex place-content-around w-full">
-            <router-link to="/profile">
-              <Button type="button" label="Profile" class="!text-2xl" />
-            </router-link>
-            <Button
-              type="button"
-              label="Logout"
-              class="!text-2xl"
-              @click="handleLogout"
-            />
+          <div class="w-full">
+            <div class="flex flex-col place-content-around w-full gap-8">
+              <router-link to="/profile">
+                <Button type="button" label="Profile" class="!text-2xl" />
+              </router-link>
+              <Button
+                type="button"
+                label="Logout"
+                class="!text-2xl w-fit"
+                @click="handleLogout"
+              />
+            </div>
           </div>
         </div>
+
         <Button
           icon="pi pi-arrow-left"
           @click="closeCallback"

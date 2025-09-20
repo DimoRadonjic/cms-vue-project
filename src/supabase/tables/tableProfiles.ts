@@ -1,5 +1,5 @@
 import { TableName } from ".";
-import { supabase } from "..";
+import { supabase, supabaseAdmin } from "..";
 import type { LoginProfileData, ProfileData } from "../../types/types";
 import type { Session } from "@supabase/supabase-js";
 
@@ -45,6 +45,7 @@ const updateUser = async (
   }
   return data;
 };
+
 const deleteUser = async (id: string) => {
   const { error } = await supabase.from(table).delete().eq("id", id);
 
@@ -52,6 +53,28 @@ const deleteUser = async (id: string) => {
     console.error("Error deleting user:", error.message);
     return false;
   }
+  return true;
+};
+
+const deleteUserByEmail = async (email: string) => {
+  const { data: user, error: userError } = await supabase
+    .from(table)
+    .select()
+    .eq("email", email);
+
+  if (userError) {
+    console.error("Error deleting user by email:", userError.message);
+    return false;
+  }
+  const { error } = await supabase.from(table).delete().eq("email", email);
+
+  if (error) {
+    console.error("Error deleting user by email:", error.message);
+    return false;
+  }
+
+  await supabaseAdmin.auth.admin.deleteUser(user[0].id);
+
   return true;
 };
 
@@ -173,4 +196,5 @@ export const auth = {
   getPasswordByUsername,
   getUserByID,
   getUserByUsername,
+  deleteUserByEmail,
 };

@@ -4,12 +4,21 @@ import { useAuthStore } from "../store";
 import type { ProfileData } from "../types/types";
 import { AppInputPasswordField } from "../components/inputs";
 import FormProfile from "../components/forms/FormProfile.vue";
+import AppButtonDelete from "../components/ui/AppButtonDelete.vue";
+import AppButton from "../components/ui/AppButton.vue";
+import ModalConfirmation from "../modals/modalConfirmation.vue";
+import apiProfiles from "../axios/api/profiles";
+import { useAuth } from "../composable";
+import { useToastService } from "../composable/toastService/AppToastService";
 
 const { getUser, getUserPassword } = useAuthStore();
+const { logout } = useAuth();
+const { showError } = useToastService();
 
 const user = ref<ProfileData | null>(null);
 
 const editing = ref(false);
+const deleting = ref(false);
 const refetch = ref(false);
 
 const userDefault = {
@@ -26,6 +35,16 @@ const getUserData = async () => {
   const password = await getUserPassword();
   initialValue.value = fetchedUser ? { ...fetchedUser, password } : userDefault;
   refetch.value = false;
+};
+
+const deleteUser = async () => {
+  if (!user.value) return;
+  try {
+    await apiProfiles.deleteUserByEmail(user.value.email);
+    logout();
+  } catch (error: any) {
+    showError("Failed to deleting user", error.message);
+  }
 };
 
 watch(
@@ -86,14 +105,23 @@ watch(
             </div>
           </div>
 
-          <div class="flex place-content-center w-full">
-            <Button
+          <div class="flex place-content-evenly w-full">
+            <AppButton
+              label="Edit Profile"
+              type="button"
               v-if="!editing"
               @click="editing = true"
               class="!bg-secondary px-4 py-2 !font-semibold !text-2xl"
             >
-              Edit Profile
-            </Button>
+            </AppButton>
+
+            <AppButtonDelete
+              v-if="!editing"
+              label="Delete Profile"
+              @click="deleting = true"
+              class="!bg-secondary px-4 py-2 !font-semibold !text-2xl"
+            >
+            </AppButtonDelete>
           </div>
         </div>
       </div>
@@ -107,5 +135,9 @@ watch(
         />
       </div>
     </div>
+    <ModalConfirmation
+      v-model="deleting"
+      :func="deleteUser"
+    ></ModalConfirmation>
   </div>
 </template>
