@@ -77,7 +77,7 @@ watchEffect(() => {
 
     <template #loading v-if="loading">
       <div
-        class="flex place-content-center place-items-center w-full h-full text-3xl"
+        class="flex place-content-center place-items-center w-full text-3xl bg-inherit h-full"
       >
         <ProgressSpinner
           style="width: 80px; height: 80px"
@@ -89,7 +89,7 @@ watchEffect(() => {
       </div>
     </template>
 
-    <template #empty>
+    <template #empty v-if="data?.length === 0 && !loading">
       <div
         class="flex place-content-center place-items-center w-full h-[50vh] text-3xl"
       >

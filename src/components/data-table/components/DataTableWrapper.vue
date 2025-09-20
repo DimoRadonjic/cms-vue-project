@@ -29,7 +29,7 @@ const defaultOptions = {
   paginator: true,
   rowsPerPageOptions: [5, 10, 20, 50],
   removableSort: true,
-  tableStyle: "min-width: 50rem; ",
+  tableStyle: "min-width: 50rem; min-height:25vh;  ",
   pt: {
     root: "w-full h-fit ",
   },
@@ -139,7 +139,7 @@ watch(
         <slot name="empty" />
       </template>
 
-      <template #loading>
+      <template #loading class="min-h-full">
         <slot name="loading" />
       </template>
     </DataTable>
