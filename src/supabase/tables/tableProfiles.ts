@@ -125,15 +125,6 @@ const checkIfUserExistsByUsernameOrEmail = async (
   }
 };
 
-const supabaseGetUserByEmail = async (email: string) => {
-  try {
-    const { data, error } = await supabase.auth.admin.listUsers();
-    return data.users.filter((user) => user.email === email);
-  } catch (error: any) {
-    throw new Error(error.message);
-  }
-};
-
 const supabaseRegister = async (email: string, password: string) => {
   try {
     const { data } = await supabase.auth.signUp({
@@ -225,5 +216,4 @@ export const auth = {
   getUserByID,
   getUserByUsername,
   deleteUserByEmail,
-  supabaseGetUserByEmail,
 };

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { MailCheck } from "lucide-vue-next";
-import { useAuth, useStorage } from "../composable";
+import { useStorage } from "../composable";
 import AppButton from "./ui/AppButton.vue";
 import { useAppRouter } from "../composable/router/useAppRouter";
 import { supabase } from "../supabase";
