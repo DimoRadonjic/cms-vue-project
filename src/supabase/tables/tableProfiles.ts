@@ -1,7 +1,7 @@
 import { TableName } from ".";
-import { supabase, supabaseAdmin } from "..";
+import { supabase } from "..";
 import type { LoginProfileData, ProfileData } from "../../types/types";
-import type { Session } from "@supabase/supabase-js";
+import type { Session, User } from "@supabase/supabase-js";
 
 const table = TableName.profiles;
 
@@ -73,7 +73,7 @@ const deleteUserByEmail = async (email: string) => {
     return false;
   }
 
-  await supabaseAdmin.auth.admin.deleteUser(user[0].id);
+  await supabase.auth.admin.deleteUser(user[0].id);
 
   return true;
 };
@@ -125,40 +125,56 @@ const checkIfUserExistsByUsernameOrEmail = async (
   }
 };
 
+const supabaseGetUserByEmail = async (email: string) => {
+  try {
+    const { data, error } = await supabase.auth.admin.listUsers();
+    return data.users.filter((user) => user.email === email);
+  } catch (error: any) {
+    throw new Error(error.message);
+  }
+};
+
+const supabaseRegister = async (email: string, password: string) => {
+  try {
+    const { data } = await supabase.auth.signUp({
+      email,
+      password,
+    });
+
+    return data;
+  } catch (error: any) {
+    throw new Error(error.message);
+  }
+};
+
+const insertNewUser = async (profileData: ProfileData, id: string) => {
+  try {
+    await supabase.from(table).insert([{ ...profileData, id }]);
+  } catch (error: any) {
+    throw new Error(error.message);
+  }
+};
+
 const registerUser = async (
   profileData: ProfileData
 ): Promise<{
   session: Session | null;
-  user: ProfileData | null;
-}> => {
-  const { email, password, username } = profileData;
+  user: User | null;
+} | null> => {
+  const { email, password } = profileData;
 
-  await checkIfUserExistsByUsernameOrEmail(profileData);
+  try {
+    await checkIfUserExistsByUsernameOrEmail(profileData);
 
-  const { data, error } = await supabase.auth.signUp({
-    email,
-    password,
-  });
-
-  if (error) throw new Error(error.message);
-
-  const user = data.user;
-
-  if (user) {
-    const { error: profileError } = await supabase
-      .from(table)
-      .insert([{ ...profileData, id: user.id }]);
-
-    if (profileError) throw new Error(profileError.message);
-    const res = await loginUser({ username, password });
-    if (res) {
-      return { ...res };
+    const { session, user } = await supabaseRegister(email, password);
+    if (user) {
+      await insertNewUser(profileData, user.id);
     }
+
+    return { session, user };
+  } catch (error: any) {
+    throw new Error(error.message);
   }
-  return {
-    session: null,
-    user: null,
-  };
 };
 
 const loginUser = async (
@@ -166,25 +182,37 @@ const loginUser = async (
 ): Promise<{
   session: Session;
   user: ProfileData;
-} | null> => {
+  verified: boolean;
+}> => {
   const { password, username } = loginData;
 
-  const gottenUser = await getUserByUsername(username);
+  try {
+    const gottenUser = await getUserByUsername(username);
 
-  if (!gottenUser) {
-    throw new Error("No user found");
+    console.log("got", gottenUser);
+
+    if (!gottenUser) {
+      throw new Error("No user found");
+    }
+
+    const { data, error } = await supabase.auth.signInWithPassword({
+      email: gottenUser.email,
+      password,
+    });
+
+    if (error) {
+      throw new Error(error.message);
+    }
+
+    const verified =
+      data.user?.identities?.[0]?.identity_data?.email_verified ?? false;
+
+    const user = await getUserByID(data.user.id);
+
+    return { session: data.session, user, verified };
+  } catch (err: any) {
+    throw new Error(err.message);
   }
-
-  const { data, error } = await supabase.auth.signInWithPassword({
-    email: gottenUser.email,
-    password,
-  });
-
-  if (error) throw new Error(error.message);
-
-  const user = await getUserByID(data.user.id);
-
-  return { session: data.session, user: user };
 };
 
 export const auth = {
@@ -197,4 +225,5 @@ export const auth = {
   getUserByID,
   getUserByUsername,
   deleteUserByEmail,
+  supabaseGetUserByEmail,
 };

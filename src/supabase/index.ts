@@ -1,14 +1,14 @@
 import { createClient } from "@supabase/supabase-js";
 
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
-const supabaseServieKey = import.meta.env.VITE_SUPABASE_SERVICE_KEY;
+// const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+const supabaseServiceKey = import.meta.env.VITE_SUPABASE_SERVICE_KEY;
 
-export const supabase = createClient(supabaseUrl, supabaseKey, {
+export const supabase = createClient(supabaseUrl, supabaseServiceKey, {
   auth: {
     persistSession: false,
     detectSessionInUrl: false,
   },
 });
 
-export const supabaseAdmin = createClient(supabaseUrl, supabaseServieKey);
+// export const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey);

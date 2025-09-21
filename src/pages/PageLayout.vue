@@ -2,11 +2,11 @@
 
 <template>
   <div class="w-full h-full py-11 relative">
-    <Transition name="fade" mode="out-in">
-      <router-view v-slot="{ Component }">
-        <component :is="Component" />
-      </router-view>
-    </Transition>
+    <router-view v-slot="{ Component, route }">
+      <Transition name="fade" mode="out-in">
+        <component :is="Component" :key="route.fullPath" />
+      </Transition>
+    </router-view>
   </div>
 </template>
 

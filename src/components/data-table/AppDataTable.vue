@@ -5,6 +5,7 @@ import { usePosts } from "../../composable";
 import { useAppRouter } from "../../composable/router/useAppRouter";
 import DataTableWrapper from "./components/DataTableWrapper.vue";
 import TableHeader from "./components/TableHeader.vue";
+import AppSpinner from "../AppSpinner.vue";
 
 withDefaults(
   defineProps<{
@@ -79,13 +80,7 @@ watchEffect(() => {
       <div
         class="flex place-content-center place-items-center w-full text-3xl bg-inherit h-full"
       >
-        <ProgressSpinner
-          style="width: 80px; height: 80px"
-          strokeWidth="8"
-          fill="transparent"
-          animationDuration=".5s"
-          aria-label="Custom ProgressSpinner"
-        />
+        <AppSpinner />
       </div>
     </template>
 
@@ -100,12 +95,7 @@ watchEffect(() => {
 
     <template v-if="localData.length > 0 && !loading" class="relative">
       <div class="w-full h-full absolute bg-black/50 z-10" v-if="loading">
-        <ProgressSpinner
-          style="width: 80px; height: 80px"
-          strokeWidth="8"
-          fill="transparent"
-          animationDuration=".5s"
-          aria-label="Custom ProgressSpinner"
+        <AppSpinner
           class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2"
         />
       </div>

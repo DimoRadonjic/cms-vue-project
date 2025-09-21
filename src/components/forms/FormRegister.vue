@@ -5,9 +5,12 @@ import { useToastService } from "../../composable/toastService/AppToastService";
 import { schemaRegister } from "./schemas";
 import { useAuth } from "../../composable";
 import { ref } from "vue";
+import ActionLoading from "../ActionLoading.vue";
+import VerifyEmail from "../VerifyEmail.vue";
+import type { UUID } from "crypto";
 
 const { showError } = useToastService();
-const { register } = useAuth();
+const { register, verfiyEmail } = useAuth();
 
 const initialValues = {
   username: "",
@@ -19,21 +22,41 @@ const initialValues = {
 const resolver = zodResolver(schemaRegister);
 
 const registering = ref<boolean>(false);
+const toBeEmailVerified = ref<boolean>(verfiyEmail.value);
+const userData = ref<ProfileData>();
+const userID = ref<string>("");
+
+const errorMessage = ref<string>("");
 
 const onFormSubmit = async ({ values, valid }: FormSubmitEvent) => {
-  if (!valid) {
+  if (!valid || !values) {
     showError("Registration is invalid.", 3000);
     return;
   }
+
+  console.log("values", values);
   const data: ProfileData = {
     username: values.username,
     email: values.email,
     password: values.password,
   };
+
+  userData.value = data;
+
   registering.value = true;
 
-  await register(data);
-  registering.value = false;
+  try {
+    const res = await register(data);
+    if (res) {
+      console.log("res", res.user?.id);
+      registering.value = false;
+      toBeEmailVerified.value = true;
+      userID.value = res.user?.id ?? "";
+    }
+  } catch (error: any) {
+    errorMessage.value = error.message;
+    registering.value = false;
+  }
 };
 </script>
 
@@ -49,30 +72,24 @@ const onFormSubmit = async ({ values, valid }: FormSubmitEvent) => {
     }`"
   >
     <h1
-      v-if="!registering"
+      v-if="!registering && !toBeEmailVerified"
       class="text-4xl pb-2 font-extrabold text-center bg-gradient-to-r from-green-600 to-green-400 bg-clip-text text-transparent"
     >
       Register
     </h1>
 
-    <div
+    <ActionLoading
       v-if="registering"
-      class="mx-auto flex place-content-center place-items-center flex-col gap-12"
+      :action="registering"
+      header="Registering you in"
+    />
+
+    <VerifyEmail v-if="toBeEmailVerified" :userId="userID as UUID" />
+
+    <div
+      v-if="!registering && !toBeEmailVerified"
+      class="flex flex-col gap-y-8"
     >
-      <h1 class="mt-4 text-lg font-medium animate-pulse">
-        Registering you in<span class="loading-dots"></span>
-      </h1>
-
-      <ProgressSpinner
-        style="width: 80px; height: 80px"
-        strokeWidth="8"
-        fill="transparent"
-        animationDuration=".5s"
-        aria-label="Custom ProgressSpinner"
-      />
-    </div>
-
-    <div v-else class="flex flex-col gap-y-8">
       <div class="flex flex-col gap-y-8">
         <AppInputTextField
           placeholder="Username"
@@ -102,6 +119,14 @@ const onFormSubmit = async ({ values, valid }: FormSubmitEvent) => {
       </div>
 
       <div class="flex flex-col content-start items-center gap-8">
+        <Message
+          v-if="errorMessage"
+          severity="error"
+          variant="simple"
+          size="small"
+        >
+          {{ errorMessage }}
+        </Message>
         <Button
           type="submit"
           label="Register"
@@ -123,26 +148,3 @@ const onFormSubmit = async ({ values, valid }: FormSubmitEvent) => {
     </div>
   </Form>
 </template>
-
-<style scoped>
-@keyframes dots {
-  0% {
-    content: "";
-  }
-  33% {
-    content: ".";
-  }
-  66% {
-    content: "..";
-  }
-  100% {
-    content: "...";
-  }
-}
-
-.loading-dots::after {
-  display: inline-block;
-  content: "";
-  animation: dots 1.2s steps(3, end) infinite;
-}
-</style>

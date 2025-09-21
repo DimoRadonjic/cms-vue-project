@@ -20,6 +20,7 @@ import FormEditPost from "../components/forms/FormEditPost.vue";
 import DocumentLink from "../components/DocumentLink.vue";
 import ImageLink from "../components/ImageLink.vue";
 import { Image } from "primevue";
+import AppSpinner from "../components/AppSpinner.vue";
 
 const { showError } = useToastService();
 
@@ -336,13 +337,7 @@ const updatePost = () => {
     </FormEditPost>
 
     <div v-if="loading" class="w-full h-full">
-      <ProgressSpinner
-        style="width: 80px; height: 80px"
-        strokeWidth="8"
-        fill="transparent"
-        animationDuration=".5s"
-        aria-label="Custom ProgressSpinner"
-      />
+      <AppSpinner />
     </div>
   </div>
 </template>

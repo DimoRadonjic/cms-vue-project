@@ -5,9 +5,11 @@ import { auth } from "../../supabase/tables/tableProfiles";
 const registerUser = async (profileData: ProfileData) => {
   try {
     const res = await auth.registerUser(profileData);
+    console.log("res registerUser", res);
     return res;
   } catch (error: any) {
     errorMessage("Failed to register user", error.message);
+    throw new Error(error.message);
   }
 };
 
@@ -16,7 +18,8 @@ const loginUser = async (loginData: LoginProfileData) => {
     const res = await auth.loginUser(loginData);
     return res;
   } catch (error: any) {
-    errorMessage("Failed to login user", error.message);
+    errorMessage("Login failed", error);
+    throw new Error(error.message);
   }
 };
 
@@ -26,6 +29,7 @@ const getUserByID = async (id: string): Promise<ProfileData | undefined> => {
     return data;
   } catch (error: any) {
     errorMessage(`Failed to fetch user with id: ${id}`, error.message);
+    throw new Error(error.message);
   }
 };
 
@@ -40,6 +44,7 @@ const getUserByUsername = async (
       `Failed to fetch user with username: ${username}`,
       error.message
     );
+    throw new Error(error.message);
   }
 };
 
@@ -52,6 +57,7 @@ const updateUser = async (profileData: ProfileData) => {
       `Failed to update user with email: ${profileData.email}`,
       error
     );
+    throw new Error(error.message);
   }
 };
 
@@ -61,6 +67,7 @@ const deleteUser = async (id: string) => {
     return success;
   } catch (error: any) {
     errorMessage(`Failed to delete user with id: ${id}`, error.message);
+    throw new Error(error.message);
   }
 };
 
@@ -81,6 +88,7 @@ const getPasswordByUsername = async (username: string) => {
       `Failed to get password for username: ${username}`,
       error.message
     );
+    throw new Error(error.message);
   }
 };
 
@@ -90,6 +98,7 @@ const refreshSession = async () => {
     return data;
   } catch (error: any) {
     errorMessage("Failed to refresh session", error.message);
+    throw new Error(error.message);
   }
 };
 

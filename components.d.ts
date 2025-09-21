@@ -8,6 +8,7 @@ export {}
 /* prettier-ignore */
 declare module 'vue' {
   export interface GlobalComponents {
+    ActionLoading: typeof import('./src/components/ActionLoading.vue')['default']
     AppButton: typeof import('./src/components/ui/AppButton.vue')['default']
     AppButtonDelete: typeof import('./src/components/ui/AppButtonDelete.vue')['default']
     AppDataTable: typeof import('./src/components/data-table/AppDataTable.vue')['default']
@@ -20,6 +21,7 @@ declare module 'vue' {
     AppInputTextField: typeof import('./src/components/inputs/AppInputTextField.vue')['default']
     AppSidebar: typeof import('./src/components/AppSidebar.vue')['default']
     AppSimpleTableHeader: typeof import('./src/components/AppSimpleTableHeader.vue')['default']
+    AppSpinner: typeof import('./src/components/AppSpinner.vue')['default']
     AppTablePagination: typeof import('./src/components/AppTablePagination.vue')['default']
     AppTextAreaField: typeof import('./src/components/inputs/AppTextAreaField.vue')['default']
     AppTopbar: typeof import('./src/components/topbar/AppTopbar.vue')['default']
@@ -63,6 +65,7 @@ declare module 'vue' {
     Textarea: typeof import('primevue/textarea')['default']
     Toast: typeof import('primevue/toast')['default']
     Toolbar: typeof import('primevue/toolbar')['default']
+    VerifyEmail: typeof import('./src/components/VerifyEmail.vue')['default']
     VirtualScroller: typeof import('primevue/virtualscroller')['default']
   }
 }

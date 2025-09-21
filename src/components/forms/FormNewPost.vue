@@ -26,6 +26,7 @@ import {
   Type,
   UserPen,
 } from "lucide-vue-next";
+import AppSpinner from "../AppSpinner.vue";
 
 const initialValues = reactive<NewPost>({
   title: "",
@@ -536,13 +537,7 @@ onBeforeRouteLeave((_, __, next) => {
       </div>
       <div class="w-full flex place-content-center place-items-center gap-5">
         <div v-if="uploading">
-          <ProgressSpinner
-            style="width: 80px; height: 80px"
-            strokeWidth="8"
-            fill="transparent"
-            animationDuration=".5s"
-            aria-label="Custom ProgressSpinner"
-          />
+          <AppSpinner />
         </div>
         <template v-else>
           <Button

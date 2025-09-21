@@ -2,6 +2,7 @@
 import { navLinks } from "../constants/nav-links";
 import { useAuth } from "../composable";
 import { ref } from "vue";
+import AppButton from "./ui/AppButton.vue";
 
 const { logout } = useAuth();
 
@@ -40,12 +41,18 @@ const handleLogout = () => {
           <div class="w-full">
             <div class="flex flex-col place-content-around w-full gap-8">
               <router-link to="/profile">
-                <Button type="button" label="Profile" class="!text-2xl" />
+                <AppButton
+                  type="button"
+                  icon="pi pi-user"
+                  label="Profile"
+                  class="!text-xl"
+                />
               </router-link>
-              <Button
+              <AppButton
                 type="button"
-                label="Logout"
-                class="!text-2xl w-fit"
+                icon="pi pi-sign-out"
+                label="Log out"
+                class="!text-xl w-fit !bg-inherit !text-emerald-500"
                 @click="handleLogout"
               />
             </div>

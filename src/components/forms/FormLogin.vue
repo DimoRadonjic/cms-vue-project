@@ -5,6 +5,7 @@ import { reactive, ref } from "vue";
 import { useAuth } from "../../composable";
 import { useToastService } from "../../composable/toastService/AppToastService";
 import { schemaLogin } from "./schemas";
+import ActionLoading from "../ActionLoading.vue";
 
 const initialValues = reactive({
   username: "",
@@ -18,15 +19,23 @@ const resolver = zodResolver(schemaLogin);
 
 const logging = ref<boolean>(false);
 
+const errorMessage = ref<string>("");
+
 const onFormSubmit = async ({ valid, values }: FormSubmitEvent) => {
   if (!valid) {
-    showError("Login failed.", 3000);
+    showError("Login failed.", "form is invalid", 3000);
     return;
   }
-  const { username, password } = values;
   logging.value = true;
-  await login({ username, password });
-  logging.value = false;
+
+  const { username, password } = values;
+
+  try {
+    await login({ username, password });
+  } catch (error: any) {
+    errorMessage.value = error.message;
+    logging.value = false;
+  }
 };
 </script>
 
@@ -43,22 +52,7 @@ const onFormSubmit = async ({ valid, values }: FormSubmitEvent) => {
       Login
     </h1>
 
-    <div
-      v-if="logging"
-      class="mx-auto flex place-content-center place-items-center flex-col gap-12"
-    >
-      <h1 class="mt-4 text-lg font-medium animate-pulse">
-        Logging you in<span class="loading-dots"></span>
-      </h1>
-
-      <ProgressSpinner
-        style="width: 80px; height: 80px"
-        strokeWidth="8"
-        fill="transparent"
-        animationDuration=".5s"
-        aria-label="Custom ProgressSpinner"
-      />
-    </div>
+    <ActionLoading v-if="logging" :action="logging" header="Logging you in" />
 
     <div
       v-else
@@ -81,6 +75,14 @@ const onFormSubmit = async ({ valid, values }: FormSubmitEvent) => {
       <div
         class="w-full flex flex-col place-content-center place-items-center gap-y-5"
       >
+        <Message
+          v-if="errorMessage"
+          severity="error"
+          variant="simple"
+          size="small"
+        >
+          {{ errorMessage }}
+        </Message>
         <Button
           type="submit"
           label="Login"
@@ -103,26 +105,3 @@ const onFormSubmit = async ({ valid, values }: FormSubmitEvent) => {
     </div>
   </Form>
 </template>
-
-<style scoped>
-@keyframes dots {
-  0% {
-    content: "";
-  }
-  33% {
-    content: ".";
-  }
-  66% {
-    content: "..";
-  }
-  100% {
-    content: "...";
-  }
-}
-
-.loading-dots::after {
-  display: inline-block;
-  content: "";
-  animation: dots 1.2s steps(3, end) infinite;
-}
-</style>

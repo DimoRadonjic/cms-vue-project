@@ -44,6 +44,7 @@ import ImageUpload from "../image-upload/ImageUpload.vue";
 import MainImageUpload from "../image-upload/mainImageUpload.vue";
 import { useGallery } from "../../composable/gallery/useGallery";
 import { useDocuments } from "../../composable/documents/useDocuments";
+import AppSpinner from "../AppSpinner.vue";
 
 interface Props {
   reset?: boolean;
@@ -645,13 +646,7 @@ const testValue = (val: string, initial: string) => {
 
         <div class="w-full flex place-content-center place-items-center gap-5">
           <div v-if="uploading">
-            <ProgressSpinner
-              style="width: 80px; height: 80px"
-              strokeWidth="8"
-              fill="transparent"
-              animationDuration=".5s"
-              aria-label="Custom ProgressSpinner"
-            />
+            <AppSpinner />
           </div>
           <template v-else>
             <slot name="buttons"> </slot>

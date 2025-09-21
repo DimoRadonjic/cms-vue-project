@@ -2,6 +2,7 @@
 import { computed, ref, watch } from "vue";
 import type { Data, DocumentItem, ImageItem, Item } from "../../types/types";
 import AppSimpleTableHeader from "../AppSimpleTableHeader.vue";
+import AppSpinner from "../AppSpinner.vue";
 
 type CardTableProps =
   | {
@@ -111,13 +112,7 @@ const loadMore = () => {
         <div
           class="flex place-content-center place-items-center w-full h-full text-3xl"
         >
-          <ProgressSpinner
-            style="width: 80px; height: 80px"
-            strokeWidth="8"
-            fill="transparent"
-            animationDuration=".5s"
-            aria-label="Custom ProgressSpinner"
-          />
+          <AppSpinner />
         </div>
       </template>
       <template v-if="visibleItems.length === 0 && !loading && !searching">
@@ -165,19 +160,14 @@ const loadMore = () => {
       v-if="loadingMore"
       class="flex place-content-center place-items-center w-full h-full text-3xl"
     >
-      <ProgressSpinner
-        style="width: 80px; height: 80px"
-        strokeWidth="8"
-        fill="transparent"
-        animationDuration=".5s"
-        aria-label="Custom ProgressSpinner"
-      />
+      <AppSpinner />
     </div>
     <div
       v-if="itemsPerPage <= localData.length"
       class="flex justify-center mt-6"
     >
-      <AppButton :clickEvent="loadMore" label="Load more"> </AppButton>
+      <AppButton type="button" :clickEvent="loadMore" label="Load more">
+      </AppButton>
     </div>
   </div>
 </template>
