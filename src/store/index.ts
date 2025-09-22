@@ -3,8 +3,10 @@ import { ref } from "vue";
 import type { ProfileData } from "../types/types";
 import { useStorage } from "../composable";
 import { auth } from "../supabase/tables/tableProfiles";
+import { createSentryPiniaPlugin } from "@sentry/vue";
 
 const pinia = createPinia();
+pinia.use(createSentryPiniaPlugin());
 
 export const useAuthStore = defineStore("profile", () => {
   const user = ref<ProfileData>({ password: "", username: "", email: "" });
