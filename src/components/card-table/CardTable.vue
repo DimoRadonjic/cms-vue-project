@@ -40,7 +40,7 @@ type CardTableProps =
       delete: (data: DocumentItem[]) => Promise<void>;
     };
 
-const props = defineProps<CardTableProps>();
+defineProps<CardTableProps>();
 
 const itemsSelected = ref<Data>([]);
 
@@ -50,7 +50,12 @@ const searching = ref<boolean>(false);
 const openImageModal = ref<boolean>(false);
 const loadingMore = ref<boolean>(false);
 
-const localData = ref<(ImageItem | DocumentItem)[]>([]);
+const localData = defineModel<(ImageItem | DocumentItem)[]>("data", {
+  default: [],
+});
+const localLoading = defineModel<boolean>("loading", {
+  default: false,
+});
 
 const openedID = ref<string | null>(null);
 
@@ -63,14 +68,6 @@ const addSelectedItem = (item: Item) => {
     itemsSelected.value = [...itemsSelected.value, item];
   }
 };
-
-watch(
-  () => props.data,
-  (newVal) => {
-    localData.value = [...newVal];
-  },
-  { immediate: true }
-);
 
 const itemsPerPage = ref<number>(8);
 const visibleItems = computed(() => {
@@ -89,16 +86,16 @@ const loadMore = () => {
     <AppSimpleTableHeader
       v-model:selectedItems="itemsSelected"
       v-model:headerData="localData"
+      v-model:searching="searching"
+      v-model:fetching="localLoading"
+      @refetch="onRefetch"
       :title
       :type
       buttonAddLabel="Upload"
       :fileUpload="true"
       :accept
-      v-model:searching="searching"
       :upload
       :delete
-      @refetch="onRefetch"
-      :fetching="loading"
     />
     <div
       :class="
@@ -166,8 +163,7 @@ const loadMore = () => {
       v-if="itemsPerPage <= localData.length"
       class="flex justify-center mt-6"
     >
-      <AppButton type="button" :clickEvent="loadMore" label="Load more">
-      </AppButton>
+      <AppButton type="button" :clickEvent="loadMore" label="Load more" />
     </div>
   </div>
 </template>

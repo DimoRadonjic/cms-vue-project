@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, computed, watch } from "vue";
 import { useAppRouter } from "../composable/router/useAppRouter";
-import type { Data, DocumentItem } from "../types/types";
+import type { DocumentItem } from "../types/types";
 import { useToastService } from "../composable/toastService/AppToastService";
 import tableGallery from "../supabase/tables/tableGallery";
 import { debounce } from "lodash";
@@ -9,12 +9,8 @@ import tableDocuments from "../supabase/tables/tableDocuments";
 
 type BaseProps = {
   type: "image" | "document";
-  selectedItems: Data;
   title: string;
   buttonAddLabel?: string;
-  openModal?: boolean;
-  fetching: boolean;
-  headerData: Data;
 };
 
 type UploadProps =
@@ -38,13 +34,12 @@ const props = withDefaults(defineProps<Props>(), {
   fileUpload: false,
 });
 
-const emit = defineEmits([
-  "refetch",
-  "update:headerData",
-  "update:selectedItems",
-  "update:searching",
-  "update:openModal",
-]);
+const emit = defineEmits(["refetch"]);
+
+const fetching = defineModel("fetching", { default: false });
+const searching = defineModel("searching", { default: false });
+const selectedItems = defineModel("selectedItems", { default: [] });
+const headerData = defineModel("headerData", { default: [] });
 
 const { showSuccess } = useToastService();
 
@@ -52,28 +47,24 @@ const { navigateTo } = useAppRouter();
 
 const uploading = ref<boolean>(false);
 const deleting = ref(false);
-const searching = ref(false);
-
 const search = ref<string>("");
 
 const deleteLabel = computed(() => {
   return deleting.value
     ? "Deleting"
-    : props.selectedItems && props.selectedItems.length > 0
-    ? `Delete ${props.selectedItems.length}`
+    : selectedItems.value && selectedItems.value.length > 0
+    ? `Delete ${selectedItems.value.length}`
     : "No item selected";
 });
 
 const handleDeletion = async () => {
-  const { selectedItems } = props;
-
-  if (!selectedItems) return;
+  if (!selectedItems.value) return;
 
   deleting.value = true;
 
   try {
     if (props.delete) {
-      await props.delete(selectedItems);
+      await props.delete(selectedItems.value);
     }
 
     showSuccess("Item deleted");
@@ -81,9 +72,9 @@ const handleDeletion = async () => {
     throw new Error(error.message);
   }
 
-  emit("update:selectedItems", []);
+  selectedItems.value = [];
 
-  emit("refetch", true);
+  emit("refetch");
 
   uploading.value = false;
 
@@ -105,20 +96,22 @@ const uploadFunc = async (event: any) => {
     throw new Error(error.message);
   }
 
-  emit("update:selectedItems", []);
+  selectedItems.value = [];
 
-  emit("refetch", true);
+  emit("refetch");
 
   uploading.value = false;
 };
 
 const handleSearch = async (search: string) => {
-  emit("update:searching", true);
+  searching.value = true;
+
   if (props.type === "image") {
     try {
       const data = await tableGallery.searchImages(search);
-      emit("update:selectedItems", []);
-      emit("update:headerData", data);
+      selectedItems.value = [];
+
+      headerData.value = data as any;
     } catch (error: any) {
       searching.value = false;
       throw new Error(error.message);
@@ -126,15 +119,16 @@ const handleSearch = async (search: string) => {
   } else {
     try {
       const data = await tableDocuments.searchDocuments(search);
-      emit("update:selectedItems", []);
-      emit("update:headerData", data);
+      selectedItems.value = [];
+
+      headerData.value = data as any;
     } catch (error: any) {
       searching.value = false;
       throw new Error(error.message);
     }
   }
 
-  emit("update:searching", false);
+  searching.value = false;
 };
 
 const debouncedSearch = debounce(async (search: string) => {
@@ -209,12 +203,7 @@ watch(
         :loading="fetching"
         rounded
         raised
-        @click="
-          () => {
-            $emit('refetch');
-            fetching = true;
-          }
-        "
+        @click="() => $emit('refetch')"
       />
     </div>
   </div>
