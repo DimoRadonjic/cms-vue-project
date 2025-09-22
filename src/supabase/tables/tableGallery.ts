@@ -1,5 +1,6 @@
 import { BucketsName, TableName } from ".";
 import { supabase } from "..";
+import { errorMessage } from "../../axios/utils";
 import type { ImageItem } from "../../types/types";
 import { addPostImage } from "./tablePostGallery";
 
@@ -11,6 +12,22 @@ type Image = Omit<ImageItem, "id" | "post_ids">;
 type ImageData = Omit<ImageItem, "post_ids">;
 
 type APIGalleryResponse = Promise<{ data: ImageItem[]; status: number }>;
+
+const createURL = async (path: string) => {
+  try {
+    const { data } = await supabase.storage
+      .from(bucket)
+      .createSignedUrl(path, 60 * 60 * 24 * 7);
+
+    const newExpiresAt = new Date();
+    newExpiresAt.setDate(newExpiresAt.getDate() + 7);
+
+    return { data, expires_at: newExpiresAt };
+  } catch (error: any) {
+    errorMessage("Failed to create url for image", error);
+    throw new Error(error.message);
+  }
+};
 
 async function createOrRefreshUrls() {
   const { data: images, error } = await supabase
@@ -29,9 +46,7 @@ async function createOrRefreshUrls() {
       !expiresAt ||
       (expiresAt.getTime() - now.getTime()) / 1000 < 86400
     ) {
-      const { data } = await supabase.storage
-        .from(bucket)
-        .createSignedUrl(img.path, 60 * 60 * 24 * 7);
+      const { data, expires_at } = await createURL(img.path);
 
       const signedUrl = data?.signedUrl;
       const newExpiresAt = new Date();
@@ -61,9 +76,7 @@ const uploadImage = async (
     throw new Error(error.message);
   }
 
-  const { data: urlData } = await supabase.storage
-    .from(bucket)
-    .getPublicUrl(path);
+  const { data: urlData, expires_at } = await createURL(path);
 
   if (!urlData) {
     throw new Error("Failed to get public URL");
@@ -77,7 +90,8 @@ const uploadImage = async (
     title: fileTitle,
     alt: fileTitle,
     path: dataPath,
-    url: urlData.publicUrl,
+    url: urlData.signedUrl,
+    url_expires_at: expires_at,
   };
 
   try {
@@ -110,7 +124,9 @@ const getGallery = async (): APIGalleryResponse => {
     path,
     post_ids:posts_gallery (
       post_id
-    )
+    ),
+    url_expires_at,
+    created_at
   `);
 
   if (error) {
@@ -122,6 +138,11 @@ const getGallery = async (): APIGalleryResponse => {
       ...doc,
       post_ids: doc.post_ids.map((pd: { post_id: string }) => pd.post_id),
     })) ?? [];
+
+  imgs.sort(
+    (a, b) =>
+      new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+  );
 
   return { data: imgs, status };
 };

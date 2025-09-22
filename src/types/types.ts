@@ -38,6 +38,7 @@ type ImageItem = {
   path: string;
   alt: string;
   post_ids: string[];
+  url_expires_at: Date;
 };
 
 type DocumentItem = {
