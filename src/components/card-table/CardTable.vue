@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref, watch } from "vue";
+import { computed, ref } from "vue";
 import type { Data, DocumentItem, ImageItem, Item } from "../../types/types";
 import AppSimpleTableHeader from "../AppSimpleTableHeader.vue";
 import AppSpinner from "../AppSpinner.vue";
