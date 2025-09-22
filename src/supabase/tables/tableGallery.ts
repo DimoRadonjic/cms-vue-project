@@ -46,7 +46,7 @@ async function createOrRefreshUrls() {
       !expiresAt ||
       (expiresAt.getTime() - now.getTime()) / 1000 < 86400
     ) {
-      const { data, expires_at } = await createURL(img.path);
+      const { data } = await createURL(img.path);
 
       const signedUrl = data?.signedUrl;
       const newExpiresAt = new Date();
