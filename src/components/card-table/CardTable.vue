@@ -88,7 +88,7 @@ const loadMore = () => {
   <div class="w-full h-full space-y-10">
     <AppSimpleTableHeader
       v-model:selectedItems="itemsSelected"
-      v-model:headerData="visibleItems"
+      v-model:headerData="localData"
       :title
       :type
       buttonAddLabel="Upload"
