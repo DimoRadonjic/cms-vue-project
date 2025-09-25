@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { reactive, ref, watchEffect } from "vue";
+import { computed, reactive, ref, watchEffect } from "vue";
 import type { FilterType, PostWithContent } from "../../types/types";
 import { usePosts } from "../../composable";
 import { useAppRouter } from "../../composable/router/useAppRouter";
@@ -7,7 +7,7 @@ import DataTableWrapper from "./components/DataTableWrapper.vue";
 import TableHeader from "./components/TableHeader.vue";
 import AppSpinner from "../AppSpinner.vue";
 
-withDefaults(
+const props = withDefaults(
   defineProps<{
     title: string;
     loading: boolean;
@@ -23,7 +23,7 @@ withDefaults(
     sortable: true,
     error: false,
     filter: true,
-    columns: () => ["id"],
+    columns: () => ["select", "id", "view"],
     onRefetch: () => {},
   }
 );
@@ -32,6 +32,12 @@ const { searchPosts } = usePosts();
 const { navigateTo } = useAppRouter();
 
 const selectedData = ref<PostWithContent[]>([]);
+
+const selectedIds = computed(() =>
+  localData.value.filter(
+    (item: PostWithContent) => selectedData.value[item.id as any]
+  )
+);
 
 const localData = defineModel<PostWithContent[]>("data", { default: [] });
 
@@ -52,6 +58,14 @@ watchEffect(() => {
     searchPosts(filterGlobal.global.value);
   }
 });
+
+const addToSelected = (item: PostWithContent) => {
+  if (selectedData.value.includes(item)) {
+    selectedData.value = selectedData.value.filter(({ id }) => id !== item.id);
+  } else {
+    selectedData.value.push(item);
+  }
+};
 </script>
 
 <template>
@@ -84,7 +98,7 @@ watchEffect(() => {
       </div>
     </template>
 
-    <template #empty v-if="data?.length === 0 && !loading">
+    <template #empty>
       <div
         class="flex place-content-center place-items-center w-full h-[50vh] text-3xl"
       >
@@ -101,28 +115,40 @@ watchEffect(() => {
       </div>
 
       <Column
-        v-for="col in columns"
+        v-for="col in ['select', ...columns, 'view']"
         :field="col"
-        :header="col"
-        :sortable
+        :header="col !== 'select' && col !== 'view' ? col : ''"
+        :sortable="col !== 'select' && col !== 'view' ? true : false"
         :filter
+        :selectionMode="col === 'select' ? 'multiple' : 'single'"
         :filterField="col"
         :key="col"
         class="relative"
       >
         <template #body="slotProps" :key="slotProps.data.id">
-          <div v-if="col.includes('created')" class="relative">
-            <span>
-              {{ dateFormatter(slotProps.data["created_at"]) }}
-            </span>
+          <div v-if="col.includes('select')" class="relative">
+            <Checkbox
+              :modelValue="selectedData.includes(slotProps.data) ? true : false"
+              @change="addToSelected(slotProps.data)"
+              class="w-5 h-5 accent-primary"
+              binary
+            />
+          </div>
+
+          <div v-if="col.includes('view')" class="relative">
             <div
-              class="flex gap-2 absolute right-0 top-0 hover:cursor-pointer"
+              class="flex gap-2 hover:cursor-pointer"
               @click="navigateTo('post-view', { id: slotProps.data.id })"
             >
-              <button>
+              <button class="hover:cursor-pointer">
                 <i class="pi pi-search"></i>
               </button>
             </div>
+          </div>
+          <div v-else-if="col.includes('created')" class="relative">
+            <span>
+              {{ dateFormatter(slotProps.data["created_at"]) }}
+            </span>
           </div>
 
           <div v-else-if="col.includes('documents')" class="relative">

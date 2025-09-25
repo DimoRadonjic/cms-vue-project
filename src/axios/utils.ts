@@ -1,5 +1,6 @@
 import bcrypt from "bcryptjs";
 import type { LoginProfileData } from "../types/types";
+import { debounce } from "lodash";
 
 export const baseUrl = import.meta.env.VITE_API_BASE_URL;
 
@@ -36,3 +37,13 @@ export const createDummyJWT = ({ username, password }: LoginProfileData) => {
 
   return `${encodedHeader}.${encodedPayload}.${signature}`;
 };
+
+export const debouncedSearch = debounce(
+  async (callback: any, search: string) => {
+    try {
+      const data = await callback(search);
+      return data;
+    } catch (error) {}
+  },
+  400
+);

@@ -56,9 +56,11 @@ export const usePosts = () => {
 
   const searchPosts = async (query: string) => {
     loading.value = true;
+
     try {
-      await apiPosts.searchPosts(query);
+      const data = await apiPosts.searchPosts(query);
       loading.value = false;
+      return data;
     } catch (apiError) {
       console.error("Failed to search posts:", apiError);
       showError("Failed to search posts. Please try again later.", apiError);
