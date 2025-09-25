@@ -1,5 +1,6 @@
 import { BucketsName, TableName } from ".";
 import { supabase } from "..";
+import { errorMessage } from "../../axios/utils";
 import type { DocumentItem } from "../../types/types";
 import { getPdfPreview, sanitizeFileName } from "../utils";
 import { addPostDocument, removePostDocument } from "./tablePostDocumets";
@@ -9,7 +10,56 @@ const bucket = BucketsName.documents;
 
 export type Document = Omit<DocumentItem, "id" | "post_ids">;
 
+const createURL = async (path: string) => {
+  try {
+    const { data } = await supabase.storage
+      .from(bucket)
+      .createSignedUrl(path, 60 * 60 * 24 * 7);
+
+    const newExpiresAt = new Date();
+    newExpiresAt.setDate(newExpiresAt.getDate() + 7);
+
+    return { data, expires_at: newExpiresAt };
+  } catch (error: any) {
+    errorMessage("Failed to create url for image", error);
+    throw new Error(error.message);
+  }
+};
+
+async function createOrRefreshUrls() {
+  const { data: documents, error } = await supabase
+    .from(table)
+    .select("id, path, url_expires_at");
+
+  if (error) throw error;
+
+  const now = new Date();
+
+  for (const doc of documents) {
+    const expiresAt = doc.url_expires_at ? new Date(doc.url_expires_at) : null;
+
+    if (
+      !doc.path ||
+      !expiresAt ||
+      (expiresAt.getTime() - now.getTime()) / 1000 < 86400
+    ) {
+      const { data } = await createURL(doc.path);
+
+      const signedUrl = data?.signedUrl;
+      const newExpiresAt = new Date();
+      newExpiresAt.setDate(newExpiresAt.getDate() + 7);
+
+      await supabase
+        .from(table)
+        .update({ url: signedUrl, url_expires_at: newExpiresAt.toISOString() })
+        .eq("id", doc.id);
+    }
+  }
+}
+
 const getDocuments = async () => {
+  createOrRefreshUrls();
+
   const { data, status, error } = await supabase.from(table).select(`
     id,
     title,
@@ -19,6 +69,7 @@ const getDocuments = async () => {
     post_ids:posts_documents (
       post_id
     ),
+    url_expires_at,
     created_at
   `);
 
@@ -73,7 +124,6 @@ const addDocument = async (
 };
 
 const deleteDocumentByID = async (id: number) => {
-  // First, delete the document from the documents table
   const { data, status, error } = await supabase
     .from(table)
     .delete()
@@ -82,22 +132,6 @@ const deleteDocumentByID = async (id: number) => {
   if (error) {
     throw new Error(error.message);
   }
-
-  // Then, update related blogs to remove the reference to this document
-  // Assuming blogs have a documents array or document_id field
-  // Example for documents array:
-  // await supabase
-  //   .from("blogs")
-  //   .update({ documents: supabase.raw('array_remove(documents, ?)', [id]) })
-  //   .contains('documents', [id]);
-
-  // Example for document_id field:
-  // await supabase
-  //   .from("blogs")
-  //   .update({ document_id: null })
-  //   .eq("document_id", id);
-
-  // Adjust the above logic based on your actual blog schema
 
   return { data, status };
 };
@@ -121,18 +155,17 @@ const deleteDocuments = async (ids: string[]) => {
 const uploadDocumentToStorage = async (file: File, postId: string) => {
   const sanitizedFileName = sanitizeFileName(file.name);
 
-  const { error: uploadError } = await supabase.storage
+  const { data: doc, error: uploadError } = await supabase.storage
     .from(bucket)
     .upload(sanitizedFileName, file, { cacheControl: "3600", upsert: false });
 
   if (uploadError) throw new Error(uploadError.message);
 
-  const { data: urlData, error: urlError } = await supabase.storage
-    .from(bucket)
-    .createSignedUrl(sanitizedFileName, 60 * 60 * 24 * 7);
+  const { data: urlData, expires_at } = await createURL(doc.path);
 
-  if (urlError || !urlData)
-    throw new Error(urlError?.message || "Failed to create signed URL");
+  if (!urlData) {
+    throw new Error("Failed to get public URL");
+  }
 
   const fileTitle = file.name.replace(/\.[^/.]+$/, "");
 
@@ -143,6 +176,7 @@ const uploadDocumentToStorage = async (file: File, postId: string) => {
     url: urlData.signedUrl,
     path: sanitizedFileName,
     preview_img: previewDoc,
+    url_expires_at: expires_at,
   };
 
   const { data: docData } = await addDocument(document);
@@ -178,7 +212,6 @@ const deleteDocumentFromStorage = async (document: DocumentItem) => {
   return { data };
 };
 
-// Mozda ima bolji nacin
 const deleteDocumentsFromStorage = async (documents: DocumentItem[]) => {
   const deletionPromises = documents.map(async (document) => {
     await deleteDocumentFromStorage(document);
