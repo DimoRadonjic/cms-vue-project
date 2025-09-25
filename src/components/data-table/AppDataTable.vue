@@ -130,6 +130,7 @@ const addToSelected = (item: PostWithContent) => {
 
     <template #empty>
       <div
+        v-if="!loading"
         class="flex place-content-center place-items-center w-full h-[50vh] text-3xl"
       >
         <span>No {{ title }} found</span>
@@ -145,6 +146,7 @@ const addToSelected = (item: PostWithContent) => {
       </div>
 
       <Column
+        v-if="!loading"
         v-for="col in ['select', ...columns, 'view']"
         :field="col"
         :header="col !== 'select' && col !== 'view' ? col : ''"

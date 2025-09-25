@@ -3,6 +3,7 @@ import type { PostWithContent, StorageData } from "../../types/types";
 import apiPosts from "../../axios/api/posts";
 import { useToastService } from "../toastService/AppToastService";
 import { useStorage } from "../storage";
+import { debounce } from "lodash";
 
 export const usePosts = () => {
   const { showError, showSuccess } = useToastService();
@@ -54,21 +55,24 @@ export const usePosts = () => {
     }
   };
 
-  const searchPosts = async (query: string) => {
-    loading.value = true;
-
+  const handleSearch = async (query: string) => {
     try {
       const data = await apiPosts.searchPosts(query);
-      loading.value = false;
       return data;
     } catch (apiError) {
       console.error("Failed to search posts:", apiError);
       showError("Failed to search posts. Please try again later.", apiError);
-      loading.value = false;
       error.value =
         apiError instanceof Error ? apiError : new Error("An error occurred");
     }
   };
+
+  const debouncedSearch = debounce(async (search: string) => {
+    loading.value = true;
+
+    await handleSearch(search);
+    loading.value = false;
+  }, 400);
 
   const getPostById = async (
     id: string
@@ -101,7 +105,7 @@ export const usePosts = () => {
     loading,
     error,
     onFetched,
-    searchPosts,
+    searchPosts: debouncedSearch,
     getPostById,
   };
 };
