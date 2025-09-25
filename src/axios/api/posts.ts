@@ -51,6 +51,7 @@ const getPost = async (id: string): Promise<PostWithContent | undefined> => {
         url: d.url,
         path: d.path,
       })) as DocumentItem[],
+      created_at: data.created_at,
     };
 
     return postData;
@@ -103,7 +104,6 @@ const updatePost = async (data: PostData) => {
 const searchPosts = async (query: string) => {
   try {
     const { data } = await tablePosts.searchPosts(query);
-    console.log("api data", data);
     return data;
   } catch (error: any) {
     errorMessage("Failed to search posts", error);

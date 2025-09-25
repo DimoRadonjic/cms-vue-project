@@ -34,7 +34,6 @@ const onFormSubmit = async ({ values, valid }: FormSubmitEvent) => {
     return;
   }
 
-  console.log("values", values);
   const data: ProfileData = {
     username: values.username,
     email: values.email,
@@ -48,7 +47,6 @@ const onFormSubmit = async ({ values, valid }: FormSubmitEvent) => {
   try {
     const res = await register(data);
     if (res) {
-      console.log("res", res.user?.id);
       registering.value = false;
       toBeEmailVerified.value = true;
       userID.value = res.user?.id ?? "";

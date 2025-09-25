@@ -180,8 +180,6 @@ const loginUser = async (
   try {
     const gottenUser = await getUserByUsername(username);
 
-    console.log("got", gottenUser);
-
     if (!gottenUser) {
       throw new Error("No user found");
     }

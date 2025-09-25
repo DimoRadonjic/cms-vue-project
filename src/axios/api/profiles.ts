@@ -5,7 +5,6 @@ import { auth } from "../../supabase/tables/tableProfiles";
 const registerUser = async (profileData: ProfileData) => {
   try {
     const res = await auth.registerUser(profileData);
-    console.log("res registerUser", res);
     return res;
   } catch (error: any) {
     errorMessage("Failed to register user", error.message);
