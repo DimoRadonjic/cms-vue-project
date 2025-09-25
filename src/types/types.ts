@@ -19,6 +19,7 @@ type PostData = {
   seo_metaDescription: string;
   seo_keywords: Array<string>;
   seo_canonicalUrl: string;
+  created_at: string;
 };
 
 type PostWithContent = Omit<PostData, "mainImageId"> & {
@@ -38,6 +39,7 @@ type ImageItem = {
   path: string;
   alt: string;
   post_ids: string[];
+  url_expires_at: Date;
 };
 
 type DocumentItem = {
@@ -75,7 +77,7 @@ type GStoreData = {
 };
 
 type FilterType = {
-  value: string;
+  value: any;
   matchMode: string;
 };
 

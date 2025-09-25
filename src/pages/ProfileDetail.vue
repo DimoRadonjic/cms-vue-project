@@ -7,13 +7,11 @@ import FormProfile from "../components/forms/FormProfile.vue";
 import AppButtonDelete from "../components/ui/AppButtonDelete.vue";
 import AppButton from "../components/ui/AppButton.vue";
 import ModalConfirmation from "../modals/modalConfirmation.vue";
-import apiProfiles from "../axios/api/profiles";
 import { useAuth } from "../composable";
-import { useToastService } from "../composable/toastService/AppToastService";
+import AppSpinner from "../components/AppSpinner.vue";
 
 const { getUser, getUserPassword } = useAuthStore();
-const { logout } = useAuth();
-const { showError } = useToastService();
+const { deleteAccount } = useAuth();
 
 const user = ref<ProfileData | null>(null);
 
@@ -39,12 +37,7 @@ const getUserData = async () => {
 
 const deleteUser = async () => {
   if (!user.value) return;
-  try {
-    await apiProfiles.deleteUserByEmail(user.value.email);
-    logout();
-  } catch (error: any) {
-    showError("Failed to deleting user", error.message);
-  }
+  deleteAccount(user.value.email);
 };
 
 watch(
@@ -125,15 +118,7 @@ watch(
           </div>
         </div>
       </div>
-      <div v-else>
-        <ProgressSpinner
-          style="width: 80px; height: 80px"
-          strokeWidth="8"
-          fill="transparent"
-          animationDuration=".5s"
-          aria-label="Custom ProgressSpinner"
-        />
-      </div>
+      <AppSpinner v-else />
     </div>
     <ModalConfirmation
       v-model="deleting"

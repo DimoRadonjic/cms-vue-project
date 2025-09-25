@@ -31,7 +31,7 @@ const defaultOptions = {
   removableSort: true,
   tableStyle: "min-width: 50rem; min-height:25vh;  ",
   pt: {
-    root: "w-full h-fit ",
+    root: "w-full h-fit max-h-fit ",
   },
   dataKey: "id",
 };
@@ -107,6 +107,7 @@ watch(
     <DataTable
       :value="data"
       :filters="filters"
+      filterDisplay="menu"
       :globalFilterFields="columns"
       :paginator="defaultOptions.paginator"
       :rows="rows"

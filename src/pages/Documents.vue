@@ -10,11 +10,10 @@ const { data, loading, reFetch, uploadDocuments, deleteDocuments } =
     <div class="flex flex-wrap p-4 gap-4 place-items-start">
       <CardTable
         type="document"
-        :data
+        v-model:data="data"
+        v-model:loading="loading"
         title="Documents"
         accept="application/pdf"
-        :loading
-        :modalOpen="false"
         :upload="uploadDocuments"
         :delete="deleteDocuments"
         :onRefetch="reFetch"

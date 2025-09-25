@@ -64,7 +64,7 @@ h1 {
     bottom: 0;
     width: 0;
     height: 2px;
-    background: #10b981; /* emerald-500 */
+    background: #10b981;
     transition: width 0.3s;
   }
 

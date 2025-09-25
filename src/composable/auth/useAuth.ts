@@ -6,10 +6,16 @@ import { useAuthStore } from "../../store";
 import { ref } from "vue";
 import apiProfiles from "../../axios/api/profiles";
 
-const { getLocalItem, clearStorage, setLocalItem, setSessionItem } =
-  useStorage();
+const {
+  getLocalItem,
+  clearStorage,
+  setLocalItem,
+  setSessionItem,
+  getSessionItem,
+} = useStorage();
 
 const isAuth = ref<boolean>(!!getLocalItem("token"));
+const verfiyEmail = ref<boolean>(!!getSessionItem("verify"));
 
 export const useAuth = () => {
   const { showError, showSuccess } = useToastService();
@@ -24,25 +30,38 @@ export const useAuth = () => {
     navigateTo("login");
   };
 
+  const deletion = () => {
+    clearStorage();
+    setUser(null);
+    isAuth.value = false;
+    showSuccess("Account deleted successfully");
+    navigateTo("login");
+  };
+
+  const deleteAccount = async (email: string) => {
+    try {
+      await apiProfiles.deleteUserByEmail(email);
+      deletion();
+    } catch (error: any) {
+      showError("Failed to deleting user", error.message);
+      throw new Error(error.message);
+    }
+  };
+
   const login = async (newUser: LoginProfileData) => {
     try {
       const res = await apiProfiles.loginUser(newUser);
 
-      if (res) {
-        const { session, user } = res;
-        setLocalItem("token", session.access_token);
+      const { session, user } = res;
 
-        setUser(user);
-        isAuth.value = true;
-        showSuccess("Logged in successfully");
-
-        navigateTo("posts");
-        return;
-      }
+      setLocalItem("token", session?.access_token);
+      setUser(user);
+      isAuth.value = true;
+      showSuccess("Logged in successfully");
+      navigateTo("posts");
     } catch (error: any) {
-      const detail = new Error(error.message);
-
-      showError("Login failed", detail);
+      showError("Login failed", error);
+      throw new Error(error.message);
     }
   };
 
@@ -50,18 +69,17 @@ export const useAuth = () => {
     try {
       const res = await apiProfiles.registerUser(values);
 
-      if (res?.session) {
+      if (res && res.session) {
         const { session } = res;
         setSessionItem("token", session?.access_token);
       }
 
-      showSuccess("Registration successful.", 3000);
-      navigateTo("posts");
-    } catch (error: any) {
-      const detail = new Error(error.message);
-      showError("Registration failed.", detail, 3000);
+      setSessionItem("verify", true);
 
-      return;
+      return res;
+    } catch (error: any) {
+      showError("Registration failed.", error);
+      throw new Error(error.message);
     }
   };
 
@@ -73,5 +91,7 @@ export const useAuth = () => {
     isAuth,
     register,
     getUserPassword,
+    deleteAccount,
+    verfiyEmail,
   };
 };

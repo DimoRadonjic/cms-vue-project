@@ -8,6 +8,7 @@ import router from "./router/router";
 import { ToastService } from "primevue";
 import pinia from "./store";
 import { definePreset } from "@primeuix/themes";
+import * as Sentry from "@sentry/vue";
 
 const MyPreset = definePreset(Aura, {
   semantic: {
@@ -98,6 +99,27 @@ const MyPreset = definePreset(Aura, {
 });
 const app = createApp(App);
 
+Sentry.init({
+  app,
+  dsn: "https://a6688f9df02441a82e9565663a51bcf9@o4510065465163776.ingest.de.sentry.io/4510065484431440",
+  tunnel: "/tunnel",
+  sendDefaultPii: true,
+  integrations: [
+    Sentry.browserTracingIntegration({ router }),
+    Sentry.replayIntegration(),
+  ],
+  tracesSampleRate: 1.0,
+  tracePropagationTargets: [
+    "localhost",
+    "https://cms-vue-project.vercel.app",
+    "https://dev-cms-vue-project.vercel.app",
+  ],
+
+  replaysSessionSampleRate: 0.1,
+  replaysOnErrorSampleRate: 1.0,
+  enableLogs: true,
+});
+
 app.use(router);
 
 app.use(ToastService);
@@ -113,4 +135,7 @@ app.use(PrimeVue, {
     },
   },
 });
+
 app.mount("#app");
+
+Sentry.addIntegration(Sentry.vueIntegration({ app }));

@@ -10,9 +10,9 @@ const { data, loading, reFetch, uploadImages, deleteImages } = useGallery();
     <div class="flex flex-wrap gap-4 place-items-start">
       <CardTable
         type="image"
-        :data
+        v-model:data="data"
+        v-model:loading="loading"
         title="Gallery"
-        :loading
         accept="image/jpeg"
         :upload="uploadImages"
         :delete="deleteImages"

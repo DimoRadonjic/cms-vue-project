@@ -5,6 +5,7 @@ import apiDocuments from "../axios/api/documents";
 import type { DocumentItem } from "../types/types";
 import AppButton from "../components/ui/AppButton.vue";
 import { useToastService } from "../composable/toastService/AppToastService";
+import AppSpinner from "../components/AppSpinner.vue";
 
 const { getRouteID } = useAppRouter();
 const { showError } = useToastService();
@@ -54,13 +55,7 @@ const openInNewTab = () => {
       <div
         class="flex place-content-center place-items-center w-full h-full text-3xl"
       >
-        <ProgressSpinner
-          style="width: 80px; height: 80px"
-          strokeWidth="8"
-          fill="transparent"
-          animationDuration=".5s"
-          aria-label="Custom ProgressSpinner"
-        />
+        <AppSpinner />
       </div>
     </div>
     <div class="pdf-container">

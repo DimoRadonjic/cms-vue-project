@@ -1,12 +1,27 @@
 export const useStorage = () => {
+  const parseItem = <T>(item: string | null, key: string): T | null => {
+    if (!item || item === "undefined" || item === "null") {
+      return null;
+    }
+
+    try {
+      return JSON.parse(item) as T;
+    } catch (e) {
+      console.error(`Failed to parse sessionStorage item for key "${key}":`, e);
+      return null;
+    }
+  };
+
   const getSessionItem = <T>(key: string): T | null => {
     const item = sessionStorage.getItem(key);
-    return item ? JSON.parse(item) : null;
+
+    return parseItem(item, key);
   };
 
   const getLocalItem = <T>(key: string): T | null => {
     const item = localStorage.getItem(key);
-    return item ? JSON.parse(item) : null;
+
+    return parseItem(item, key);
   };
 
   const setLocalItem = <T>(key: string, value: T): void => {

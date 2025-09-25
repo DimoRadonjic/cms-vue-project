@@ -5,6 +5,7 @@ import { useToastService } from "../../composable/toastService/AppToastService";
 import { auth } from "../../supabase/tables/tableProfiles";
 import type { ProfileData } from "../../types/types";
 import { useAuth } from "../../composable";
+import AppSpinner from "../AppSpinner.vue";
 
 const { showError, showSuccess } = useToastService();
 const { setUser } = useAuth();
@@ -114,14 +115,9 @@ const onFormSubmit = async ({ values, valid }: FormSubmitEvent) => {
       >
         Save Changes
       </Button>
-      <ProgressSpinner
-        v-else
-        style="width: 80px; height: 80px"
-        strokeWidth="8"
-        fill="transparent"
-        animationDuration=".5s"
-        aria-label="Custom ProgressSpinner"
-      />
+
+      <AppSpinner v-else />
+
       <Button
         @click="editing = false"
         class="bg-secondary px-4 py-2 font-semibold !text-2xl"

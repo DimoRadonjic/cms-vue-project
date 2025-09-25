@@ -8,6 +8,7 @@ export {}
 /* prettier-ignore */
 declare module 'vue' {
   export interface GlobalComponents {
+    ActionLoading: typeof import('./src/components/ActionLoading.vue')['default']
     AppButton: typeof import('./src/components/ui/AppButton.vue')['default']
     AppButtonDelete: typeof import('./src/components/ui/AppButtonDelete.vue')['default']
     AppDataTable: typeof import('./src/components/data-table/AppDataTable.vue')['default']
@@ -20,16 +21,20 @@ declare module 'vue' {
     AppInputTextField: typeof import('./src/components/inputs/AppInputTextField.vue')['default']
     AppSidebar: typeof import('./src/components/AppSidebar.vue')['default']
     AppSimpleTableHeader: typeof import('./src/components/AppSimpleTableHeader.vue')['default']
+    AppSpinner: typeof import('./src/components/AppSpinner.vue')['default']
     AppTablePagination: typeof import('./src/components/AppTablePagination.vue')['default']
     AppTextAreaField: typeof import('./src/components/inputs/AppTextAreaField.vue')['default']
     AppTopbar: typeof import('./src/components/topbar/AppTopbar.vue')['default']
     Button: typeof import('primevue/button')['default']
+    Calendar: typeof import('primevue/calendar')['default']
     Card: typeof import('./src/components/card-table/Card.vue')['default']
     CardTable: typeof import('./src/components/card-table/CardTable.vue')['default']
+    Checkbox: typeof import('primevue/checkbox')['default']
     Column: typeof import('primevue/column')['default']
     ContextMenu: typeof import('primevue/contextmenu')['default']
     DataTable: typeof import('primevue/datatable')['default']
     DataTableWrapper: typeof import('./src/components/data-table/components/DataTableWrapper.vue')['default']
+    DatePicker: typeof import('primevue/datepicker')['default']
     Dialog: typeof import('primevue/dialog')['default']
     DocumentLink: typeof import('./src/components/DocumentLink.vue')['default']
     DocumentUpload: typeof import('./src/components/file-upload/DocumentUpload.vue')['default']
@@ -63,6 +68,7 @@ declare module 'vue' {
     Textarea: typeof import('primevue/textarea')['default']
     Toast: typeof import('primevue/toast')['default']
     Toolbar: typeof import('primevue/toolbar')['default']
+    VerifyEmail: typeof import('./src/components/VerifyEmail.vue')['default']
     VirtualScroller: typeof import('primevue/virtualscroller')['default']
   }
 }

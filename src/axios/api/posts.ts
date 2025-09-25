@@ -51,6 +51,7 @@ const getPost = async (id: string): Promise<PostWithContent | undefined> => {
         url: d.url,
         path: d.path,
       })) as DocumentItem[],
+      created_at: data.created_at,
     };
 
     return postData;

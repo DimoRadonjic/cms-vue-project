@@ -89,10 +89,6 @@ const routes: RouteRecordRaw[] = [
       },
 
       { path: "/:catchAll(.*)", name: "not-found", component: Page404 },
-
-      //Create a new page / view or use Page404 and pass props
-      { path: "/404/:resource", name: "404Resource", component: Page404 },
-      //Create a new page / view or use Page404 and pass props
       { path: "/network-error", name: "NetworkError", component: Page404 },
       ...protectedRoutes,
     ],

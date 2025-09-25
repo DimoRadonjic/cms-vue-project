@@ -18,12 +18,18 @@ const getDocuments = async () => {
     preview_img,
     post_ids:posts_documents (
       post_id
-    )
+    ),
+    created_at
   `);
 
   if (error) {
     throw new Error(error.message);
   }
+
+  data.sort(
+    (a, b) =>
+      new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+  );
 
   return { data, status };
 };

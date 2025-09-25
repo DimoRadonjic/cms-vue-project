@@ -1,10 +1,11 @@
 <script setup lang="ts">
-import { reactive, ref, watchEffect } from "vue";
+import { reactive, ref, watch, watchEffect } from "vue";
 import type { FilterType, PostWithContent } from "../../types/types";
 import { usePosts } from "../../composable";
 import { useAppRouter } from "../../composable/router/useAppRouter";
 import DataTableWrapper from "./components/DataTableWrapper.vue";
 import TableHeader from "./components/TableHeader.vue";
+import AppSpinner from "../AppSpinner.vue";
 
 withDefaults(
   defineProps<{
@@ -22,7 +23,7 @@ withDefaults(
     sortable: true,
     error: false,
     filter: true,
-    columns: () => ["id"],
+    columns: () => ["select", "id", "view"],
     onRefetch: () => {},
   }
 );
@@ -31,8 +32,12 @@ const { searchPosts } = usePosts();
 const { navigateTo } = useAppRouter();
 
 const selectedData = ref<PostWithContent[]>([]);
+const fromDate = ref<Date>();
+const toDate = ref<Date>();
 
 const localData = defineModel<PostWithContent[]>("data", { default: [] });
+
+const initalData = ref<PostWithContent[]>([...localData.value]);
 
 const filterGlobal = reactive<Record<string, FilterType>>({
   global: { value: "", matchMode: "contains" },
@@ -51,6 +56,44 @@ watchEffect(() => {
     searchPosts(filterGlobal.global.value);
   }
 });
+
+watch(
+  () => [fromDate.value, toDate.value],
+  () => {
+    if (fromDate.value && !toDate.value) {
+      const newData = initalData.value.filter(
+        (post) => new Date(post.created_at) >= fromDate.value!
+      );
+
+      localData.value = [...newData];
+    }
+
+    if (!fromDate.value && toDate.value) {
+      const newData = initalData.value.filter(
+        (post) => new Date(post.created_at) <= toDate.value!
+      );
+
+      localData.value = [...newData];
+    }
+    if (fromDate.value && toDate.value) {
+      const newData = initalData.value.filter(
+        (post) =>
+          new Date(post.created_at) <= toDate.value! &&
+          new Date(post.created_at) >= fromDate.value!
+      );
+
+      localData.value = [...newData];
+    }
+  }
+);
+
+const addToSelected = (item: PostWithContent) => {
+  if (selectedData.value.includes(item)) {
+    selectedData.value = selectedData.value.filter(({ id }) => id !== item.id);
+  } else {
+    selectedData.value.push(item);
+  }
+};
 </script>
 
 <template>
@@ -68,6 +111,8 @@ watchEffect(() => {
       <TableHeader
         :title
         :filterGlobal
+        v-model:fromDate="fromDate"
+        v-model:toDate="toDate"
         :loading
         v-model:selectedItem="selectedData"
         :data="localData"
@@ -79,18 +124,13 @@ watchEffect(() => {
       <div
         class="flex place-content-center place-items-center w-full text-3xl bg-inherit h-full"
       >
-        <ProgressSpinner
-          style="width: 80px; height: 80px"
-          strokeWidth="8"
-          fill="transparent"
-          animationDuration=".5s"
-          aria-label="Custom ProgressSpinner"
-        />
+        <AppSpinner />
       </div>
     </template>
 
-    <template #empty v-if="data?.length === 0 && !loading">
+    <template #empty>
       <div
+        v-if="!loading"
         class="flex place-content-center place-items-center w-full h-[50vh] text-3xl"
       >
         <span>No {{ title }} found</span>
@@ -100,39 +140,47 @@ watchEffect(() => {
 
     <template v-if="localData.length > 0 && !loading" class="relative">
       <div class="w-full h-full absolute bg-black/50 z-10" v-if="loading">
-        <ProgressSpinner
-          style="width: 80px; height: 80px"
-          strokeWidth="8"
-          fill="transparent"
-          animationDuration=".5s"
-          aria-label="Custom ProgressSpinner"
+        <AppSpinner
           class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2"
         />
       </div>
 
       <Column
-        v-for="col in columns"
+        v-if="!loading"
+        v-for="col in ['select', ...columns, 'view']"
         :field="col"
-        :header="col"
-        :sortable
+        :header="col !== 'select' && col !== 'view' ? col : ''"
+        :sortable="col !== 'select' && col !== 'view' ? true : false"
         :filter
+        :selectionMode="col === 'select' ? 'multiple' : 'single'"
         :filterField="col"
         :key="col"
         class="relative"
       >
         <template #body="slotProps" :key="slotProps.data.id">
-          <div v-if="col.includes('created')" class="relative">
-            <span>
-              {{ dateFormatter(slotProps.data["created_at"]) }}
-            </span>
+          <div v-if="col.includes('select')" class="relative">
+            <Checkbox
+              :modelValue="selectedData.includes(slotProps.data) ? true : false"
+              @change="addToSelected(slotProps.data)"
+              class="w-5 h-5 accent-primary"
+              binary
+            />
+          </div>
+
+          <div v-if="col.includes('view')" class="relative">
             <div
-              class="flex gap-2 absolute right-0 top-0 hover:cursor-pointer"
+              class="flex gap-2 hover:cursor-pointer"
               @click="navigateTo('post-view', { id: slotProps.data.id })"
             >
-              <button>
+              <button class="hover:cursor-pointer">
                 <i class="pi pi-search"></i>
               </button>
             </div>
+          </div>
+          <div v-else-if="col.includes('created')" class="relative">
+            <span>
+              {{ dateFormatter(slotProps.data["created_at"]) }}
+            </span>
           </div>
 
           <div v-else-if="col.includes('documents')" class="relative">

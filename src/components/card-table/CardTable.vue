@@ -1,7 +1,8 @@
 <script setup lang="ts">
-import { computed, ref, watch } from "vue";
+import { computed, ref } from "vue";
 import type { Data, DocumentItem, ImageItem, Item } from "../../types/types";
 import AppSimpleTableHeader from "../AppSimpleTableHeader.vue";
+import AppSpinner from "../AppSpinner.vue";
 
 type CardTableProps =
   | {
@@ -39,7 +40,7 @@ type CardTableProps =
       delete: (data: DocumentItem[]) => Promise<void>;
     };
 
-const props = defineProps<CardTableProps>();
+defineProps<CardTableProps>();
 
 const itemsSelected = ref<Data>([]);
 
@@ -49,7 +50,12 @@ const searching = ref<boolean>(false);
 const openImageModal = ref<boolean>(false);
 const loadingMore = ref<boolean>(false);
 
-const localData = ref<(ImageItem | DocumentItem)[]>([]);
+const localData = defineModel<(ImageItem | DocumentItem)[]>("data", {
+  default: [],
+});
+const localLoading = defineModel<boolean>("loading", {
+  default: false,
+});
 
 const openedID = ref<string | null>(null);
 
@@ -62,14 +68,6 @@ const addSelectedItem = (item: Item) => {
     itemsSelected.value = [...itemsSelected.value, item];
   }
 };
-
-watch(
-  () => props.data,
-  (newVal) => {
-    localData.value = [...newVal];
-  },
-  { immediate: true }
-);
 
 const itemsPerPage = ref<number>(8);
 const visibleItems = computed(() => {
@@ -87,17 +85,17 @@ const loadMore = () => {
   <div class="w-full h-full space-y-10">
     <AppSimpleTableHeader
       v-model:selectedItems="itemsSelected"
-      v-model:headerData="visibleItems"
+      v-model:headerData="localData"
+      v-model:searching="searching"
+      v-model:fetching="localLoading"
+      @refetch="onRefetch"
       :title
       :type
       buttonAddLabel="Upload"
       :fileUpload="true"
       :accept
-      v-model:searching="searching"
       :upload
       :delete
-      @refetch="onRefetch"
-      :fetching="loading"
     />
     <div
       :class="
@@ -111,13 +109,7 @@ const loadMore = () => {
         <div
           class="flex place-content-center place-items-center w-full h-full text-3xl"
         >
-          <ProgressSpinner
-            style="width: 80px; height: 80px"
-            strokeWidth="8"
-            fill="transparent"
-            animationDuration=".5s"
-            aria-label="Custom ProgressSpinner"
-          />
+          <AppSpinner />
         </div>
       </template>
       <template v-if="visibleItems.length === 0 && !loading && !searching">
@@ -165,19 +157,13 @@ const loadMore = () => {
       v-if="loadingMore"
       class="flex place-content-center place-items-center w-full h-full text-3xl"
     >
-      <ProgressSpinner
-        style="width: 80px; height: 80px"
-        strokeWidth="8"
-        fill="transparent"
-        animationDuration=".5s"
-        aria-label="Custom ProgressSpinner"
-      />
+      <AppSpinner />
     </div>
     <div
       v-if="itemsPerPage <= localData.length"
       class="flex justify-center mt-6"
     >
-      <AppButton :clickEvent="loadMore" label="Load more"> </AppButton>
+      <AppButton type="button" :clickEvent="loadMore" label="Load more" />
     </div>
   </div>
 </template>
