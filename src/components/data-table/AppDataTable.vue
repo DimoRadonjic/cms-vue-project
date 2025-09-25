@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, reactive, ref, watchEffect } from "vue";
+import { reactive, ref, watch, watchEffect } from "vue";
 import type { FilterType, PostWithContent } from "../../types/types";
 import { usePosts } from "../../composable";
 import { useAppRouter } from "../../composable/router/useAppRouter";
@@ -7,7 +7,7 @@ import DataTableWrapper from "./components/DataTableWrapper.vue";
 import TableHeader from "./components/TableHeader.vue";
 import AppSpinner from "../AppSpinner.vue";
 
-const props = withDefaults(
+withDefaults(
   defineProps<{
     title: string;
     loading: boolean;
@@ -32,14 +32,12 @@ const { searchPosts } = usePosts();
 const { navigateTo } = useAppRouter();
 
 const selectedData = ref<PostWithContent[]>([]);
-
-const selectedIds = computed(() =>
-  localData.value.filter(
-    (item: PostWithContent) => selectedData.value[item.id as any]
-  )
-);
+const fromDate = ref<Date>();
+const toDate = ref<Date>();
 
 const localData = defineModel<PostWithContent[]>("data", { default: [] });
+
+const initalData = ref<PostWithContent[]>([...localData.value]);
 
 const filterGlobal = reactive<Record<string, FilterType>>({
   global: { value: "", matchMode: "contains" },
@@ -58,6 +56,36 @@ watchEffect(() => {
     searchPosts(filterGlobal.global.value);
   }
 });
+
+watch(
+  () => [fromDate.value, toDate.value],
+  () => {
+    if (fromDate.value && !toDate.value) {
+      const newData = initalData.value.filter(
+        (post) => new Date(post.created_at) >= fromDate.value!
+      );
+
+      localData.value = [...newData];
+    }
+
+    if (!fromDate.value && toDate.value) {
+      const newData = initalData.value.filter(
+        (post) => new Date(post.created_at) <= toDate.value!
+      );
+
+      localData.value = [...newData];
+    }
+    if (fromDate.value && toDate.value) {
+      const newData = initalData.value.filter(
+        (post) =>
+          new Date(post.created_at) <= toDate.value! &&
+          new Date(post.created_at) >= fromDate.value!
+      );
+
+      localData.value = [...newData];
+    }
+  }
+);
 
 const addToSelected = (item: PostWithContent) => {
   if (selectedData.value.includes(item)) {
@@ -83,6 +111,8 @@ const addToSelected = (item: PostWithContent) => {
       <TableHeader
         :title
         :filterGlobal
+        v-model:fromDate="fromDate"
+        v-model:toDate="toDate"
         :loading
         v-model:selectedItem="selectedData"
         :data="localData"

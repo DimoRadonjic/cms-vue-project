@@ -28,6 +28,9 @@ const selectedItem = defineModel<PostWithContent[]>("selectedItem", {
   default: [],
 });
 
+const fromDate = defineModel<Date>("fromDate", { default: new Date() });
+const toDate = defineModel<Date>("toDate", { default: new Date() });
+
 const handleDeletion = async () => {
   if (!selectedItem.value) return;
 
@@ -84,12 +87,27 @@ const handleDeletion = async () => {
           </div>
         </template>
         <template #center>
-          <div class="flex flex-wrap w-full gap-x-4">
+          <div class="flex flex-wrap w-full gap-x-4 items-center">
+            <DatePicker
+              v-model="fromDate"
+              placeholder="From"
+              dateFormat="mm/dd/yy"
+              class="w-40"
+              :maxDate="toDate ? toDate : new Date()"
+            />
+            <DatePicker
+              v-model="toDate"
+              placeholder="To"
+              dateFormat="mm/dd/yy"
+              class="w-40"
+              :maxDate="new Date()"
+            />
+
             <Button
               icon="pi pi-refresh"
               rounded
               raised
-              :loading
+              :loading="loading"
               @click="$emit('refetch')"
             />
           </div>
