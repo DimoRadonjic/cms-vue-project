@@ -21,14 +21,8 @@ export default defineConfig({
   server: {
     port: 5173,
     proxy: {
-      "/api": {
-        target: "http://localhost:3000",
-        changeOrigin: true,
-        secure: false,
-      },
       "/tunnel": {
-        target:
-          "https://a6688f9df02441a82e9565663a51bcf9@o4510065465163776.ingest.de.sentry.io",
+        target: "https://o4510065465163776.ingest.de.sentry.io",
         changeOrigin: true,
         secure: true,
         rewrite: (path) =>
@@ -39,8 +33,7 @@ export default defineConfig({
   preview: {
     proxy: {
       "/tunnel": {
-        target:
-          "https://a6688f9df02441a82e9565663a51bcf9@o4510065465163776.ingest.de.sentry.io",
+        target: "https://o4510065465163776.ingest.de.sentry.io",
         changeOrigin: true,
         secure: true,
         rewrite: (path) =>
