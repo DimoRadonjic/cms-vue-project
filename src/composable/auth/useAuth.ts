@@ -52,8 +52,6 @@ export const useAuth = () => {
     try {
       const res = await apiProfiles.loginUser(newUser);
 
-      console.log("res", res);
-
       const { session, user } = res;
 
       setLocalItem("token", session?.access_token);
@@ -70,7 +68,6 @@ export const useAuth = () => {
   const register = async (values: ProfileData) => {
     try {
       const res = await apiProfiles.registerUser(values);
-      console.log("res register", res);
 
       if (res && res.session) {
         const { session } = res;

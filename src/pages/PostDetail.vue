@@ -43,6 +43,7 @@ const basic: PostWithContent = {
   seo_metaDescription: "",
   seo_keywords: [],
   seo_canonicalUrl: "",
+  created_at: "",
 };
 
 const postDetail = ref<PostWithContent>();
