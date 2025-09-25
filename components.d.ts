@@ -28,6 +28,7 @@ declare module 'vue' {
     Button: typeof import('primevue/button')['default']
     Card: typeof import('./src/components/card-table/Card.vue')['default']
     CardTable: typeof import('./src/components/card-table/CardTable.vue')['default']
+    Checkbox: typeof import('primevue/checkbox')['default']
     Column: typeof import('primevue/column')['default']
     ContextMenu: typeof import('primevue/contextmenu')['default']
     DataTable: typeof import('primevue/datatable')['default']
