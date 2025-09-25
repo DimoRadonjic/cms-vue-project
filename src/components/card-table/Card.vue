@@ -5,6 +5,7 @@ import type { DocumentItem, ImageItem, Item } from "../../types/types";
 import apiImages from "../../axios/api/images";
 import { useToastService } from "../../composable/toastService/AppToastService";
 import apiDocuments from "../../axios/api/documents";
+import { Eye, Pencil } from "lucide-vue-next";
 
 type CardProps = {
   type: "image" | "document";
@@ -32,19 +33,6 @@ const documentToView = ref<DocumentItem | undefined>(undefined);
 
 const rename = ref<boolean>(false);
 const newTitle = ref<string>(props.item.title);
-
-const isOpen = computed(() => {
-  if (!openedID.value) return false;
-
-  if (props.type === "image") {
-    const openedIdStr = String(openedID.value).toLowerCase();
-    const itemIdStr = String(props.item.id).toLowerCase();
-
-    return openedIdStr === itemIdStr;
-  } else {
-    return openedID.value === props.item.id;
-  }
-});
 
 const renameImage = async (image: ImageItem) => {
   const { post_ids, ...rest } = image;
@@ -94,12 +82,26 @@ const renameItem = async () => {
   }
 };
 
-const openMore = (item: Item) => {
+const mouseOver = (item: Item | undefined) => {
+  if (!item) {
+    imageToView.value = undefined;
+    documentToView.value = undefined;
+    return;
+  }
+
   if (props.type === "image") {
+    if (imageToView.value && imageToView.value.id === item.id) {
+      imageToView.value = undefined;
+      return;
+    }
     if (!imageToView.value) imageToView.value = item;
 
     openedID.value = openedID.value === item.id ? null : item.id;
   } else {
+    if (documentToView.value && documentToView.value.id === item.id) {
+      documentToView.value = undefined;
+      return;
+    }
     if (!documentToView.value) documentToView.value = item;
 
     openedID.value = openedID.value === item.id ? null : item.id;
@@ -120,9 +122,12 @@ const handleView = () => {
 <template>
   <div
     class="flex flex-col h-fit gap-6 rounded-xl overflow-hidden pb-4 text-center bg-primary shadow-md"
+    @mouseenter="mouseOver(item)"
+    @mouseleave="mouseOver(undefined)"
   >
     <div class="relative">
       <Image
+        v-if="type === 'image'"
         :src="imageUrl"
         alt="Image"
         width="100%"
@@ -131,7 +136,28 @@ const handleView = () => {
         class="w-full h-full object-cover"
       />
 
-      <div class="absolute top-3 right-3">
+      <div v-else class="relative">
+        <Image
+          :src="imageUrl"
+          alt="Image"
+          width="100%"
+          imageClass="w-full h-52 object-cover transition-transform duration-300 group-hover:scale-105"
+          class="w-full h-full object-cover relative z-0"
+        />
+
+        <div
+          class="absolute inset-0 bg-black opacity-60 flex place-content-center place-items-center hover:cursor-pointer z-10"
+          @click.stop="handleView"
+          v-if="
+            (imageToView && imageToView.id === item.id) ||
+            (documentToView && documentToView.id === item.id)
+          "
+        >
+          <Eye />
+        </div>
+      </div>
+
+      <div class="absolute top-3 right-3 z-20">
         <input
           type="checkbox"
           class="w-5 h-5 accent-primary rounded-md cursor-pointer"
@@ -150,35 +176,22 @@ const handleView = () => {
         type="text"
         class="min-w-full max-w-3xl"
       />
-      <div v-else class="flex place-content-between place-items-center">
+      <div v-else class="flex place-content-start gap-x-3 place-items-center">
         <h2 class="line-clamp-2">
           {{ item.title }}
         </h2>
 
-        <Button
-          :label="!isOpen ? 'More' : 'Close'"
-          @click.stop="openMore(item)"
+        <Pencil
+          @click.stop="rename = true"
+          v-if="
+            (imageToView && imageToView.id === item.id) ||
+            (documentToView && documentToView.id === item.id)
+          "
+          class="hover:cursor-pointer"
         />
       </div>
-      <TransitionGroup name="fade-slide" v-if="!rename">
-        <Button
-          v-if="isOpen"
-          label="Rename"
-          class="transition-all duration-300"
-          @click.stop="rename = true"
-          key="rename"
-        />
 
-        <Button
-          v-if="isOpen && type !== 'image'"
-          label="View"
-          @click="handleView"
-          class="transition-all duration-300"
-          key="view"
-        />
-      </TransitionGroup>
-
-      <div v-else class="flex flex-col gap-y-4">
+      <div v-if="rename" class="flex flex-col gap-y-4">
         <Button label="Done" @click.stop="renameItem"></Button>
         <Button label="Cancel" @click.stop="rename = false"></Button>
       </div>

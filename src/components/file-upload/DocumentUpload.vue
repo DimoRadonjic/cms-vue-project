@@ -106,6 +106,7 @@ watchEffect(() => props.clear && ClearDocumentUpload());
         <Button
           v-if="existingDocuments.length || filesUploaded.length > 0"
           label="Clear"
+          class="!bg-red-400 !border-red-400"
           :disabled="documentsUploading"
           @click="ClearDocumentUpload"
         ></Button>

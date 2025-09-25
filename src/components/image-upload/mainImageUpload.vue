@@ -103,7 +103,7 @@ watchEffect(() => props.clear && ClearImageUpload());
               v-if="mainImage && !mainImageUpload"
               :src="mainImage.url"
               alt="main-image"
-              class="w-sm object-contain h-full"
+              class="object-contain w-fit max-w-sm h-full"
               @load="mainImageLoading = false"
               @error="
                 mainImageLoading = false;
@@ -154,6 +154,7 @@ watchEffect(() => props.clear && ClearImageUpload());
           <Button
             v-if="mainImage || mainImageUpload"
             label="Clear"
+            class="!bg-red-400 !border-red-400"
             :disabled="mainImageLoading"
             @click="ClearImageUpload"
           ></Button>

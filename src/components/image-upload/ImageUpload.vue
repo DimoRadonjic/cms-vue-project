@@ -111,6 +111,7 @@ watchEffect(() => props.clear && ClearImagesUpload());
         <Button
           v-if="existingImages.length || imageFiles.length > 0"
           label="Clear"
+          class="!bg-red-400 !border-red-400"
           :disabled="imagesUploading"
           @click="ClearImagesUpload"
         ></Button>

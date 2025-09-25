@@ -56,7 +56,7 @@ const AddDocument = async (document: DocumentItem) => {
       <div class="bg-primary h-fit w-fit rounded-xl space-y-4">
         <div
           v-for="document in availableDocuments"
-          class="flex gap-5 place-content-start place-items-center text-lg"
+          class="flex gap-5 place-content-between place-items-center text-lg"
           :key="document.id"
         >
           <DocumentLink textClass="max-w-xs" :document />

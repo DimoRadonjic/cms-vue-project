@@ -56,7 +56,7 @@ const AddImage = async (image: ImageItem) => {
       <div class="bg-primary h-fit w-fit rounded-xl space-y-4">
         <div
           v-for="image in availableImages"
-          class="flex gap-5 place-content-start place-items-center text-xl"
+          class="flex gap-5 place-content-between place-items-center text-xl"
           :key="image.id"
         >
           <ImageLink :image />
