@@ -23,6 +23,7 @@ dist-ssr
 *.sln
 *.sw?
 .vercel
+.env
 
 # Sentry Config File
 .env.sentry-build-plugin

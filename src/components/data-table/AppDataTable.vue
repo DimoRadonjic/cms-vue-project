@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { reactive, ref, watch, watchEffect } from "vue";
+import { reactive, ref, shallowRef, watch, watchEffect } from "vue";
 import type { FilterType, PostWithContent } from "../../types/types";
 import { usePosts } from "../../composable";
 import { useAppRouter } from "../../composable/router/useAppRouter";
@@ -32,6 +32,8 @@ const { searchPosts } = usePosts();
 const { navigateTo } = useAppRouter();
 
 const selectedData = ref<PostWithContent[]>([]);
+const selectedDataT = shallowRef({ a: 1 });
+selectedDataT.value.a = 2;
 const fromDate = ref<Date>();
 const toDate = ref<Date>();
 
@@ -44,7 +46,7 @@ const filterGlobal = reactive<Record<string, FilterType>>({
 });
 
 const dateFormatter = (value: string) => {
-  return new Date(value).toLocaleDateString("en-US", {
+  return new Date(value).toLocaleDateString("sr-RS", {
     year: "numeric",
     month: "2-digit",
     day: "2-digit",
@@ -107,6 +109,7 @@ const addToSelected = (item: PostWithContent) => {
     @refetch="onRefetch"
     :multiple="true"
   >
+    <div>{{ selectedDataT.a }}</div>
     <template #header>
       <TableHeader
         :title
